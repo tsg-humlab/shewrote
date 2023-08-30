@@ -1,1 +1,3 @@
-# shewrote
+# SHEWROTE
+
+The SHEWROTE database will allow users to stock, share and analyze historical data documenting the international reception of works by women writers before c. 1940. The data includes evidence of book ownership, readership, re-editions, translations, intertextual references and commentary on (works by) women writers. The database is coordinated by members of the international NEWW Network (New approaches to European Women’s Writing, created in 2005) and the DARIAH-EU working group ‘Women Writers in History’. For more information on this working group, please see [https://www.dariah.eu/activities/working-groups/women-writers-in-history/](https://www.dariah.eu/activities/working-groups/women-writers-in-history/). 
