@@ -42,11 +42,6 @@ class Person(models.Model):
     aristocratic_title = models.CharField(max_length=255, blank=True)
     role = models.CharField(max_length=255)  # TODO ENUM +, options?
     date_of_role = models.CharField(max_length=32)  # INT (start year – end year), don't think that is an INT
-    is_member_of = models.ManyToManyField(
-        'Collective',
-        through="Membership",
-        through_fields=("person", "collective"),
-    )
     place_of_residence = models.CharField(max_length=255)  # TODO ENUM +, options? Why not refer to Place?
     date_of_residence = models.CharField(max_length=32)  # INT (start year – end year), don't think that is an INT
     education = models.CharField(max_length=255)
@@ -100,7 +95,6 @@ class Work(models.Model):
         through_fields=("work", "person"),
     )
     person_role = models.CharField(max_length=255)  # TODO ENUM, options?
-    has_edition = models.ForeignKey('Edition', on_delete=models.CASCADE)
     notes = models.TextField()
 
     def __str__(self):
@@ -111,6 +105,7 @@ class Work(models.Model):
 class Edition(models.Model):
     """Represents an Edition of a Work published in a Place."""
     id = models.AutoField(primary_key=True)
+    related_work = models.ForeignKey('Work', on_delete=models.CASCADE)
     publication_year = models.IntegerField()
     place_of_publication = models.ForeignKey('Place', on_delete=models.CASCADE)
     language = models.CharField(max_length=255)  # TODO ENUM, options?
