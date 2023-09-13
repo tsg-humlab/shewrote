@@ -1,2 +1,4 @@
 /sw_env/
 .idea/
+db.sqlite3
+sw_project/__pycache__/
