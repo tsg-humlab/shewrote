@@ -1,5 +1,4 @@
 /sw_env/
 .idea/
 db.sqlite3
-sw_project/__pycache__/
-shewrote/__pycache__/
+**/__pycache__
