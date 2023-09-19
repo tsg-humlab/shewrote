@@ -9,4 +9,17 @@ services:
     ports:
       - 8000:8000
     env_file:
-      - ./.env_dev
+      - ./.env_docker
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=shewrote_pg_user
+      - POSTGRES_PASSWORD=shewrote_pg_password
+      - POSTGRES_DB=shewrote_pg_dbname
+
+volumes:
+  postgres_data:
