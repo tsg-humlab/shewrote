@@ -6,7 +6,7 @@
 FROM python:3.11.4-slim-buster as builder
 
 # set work directory
-WORKDIR /usr/src/shewrote/
+WORKDIR /usr/src/django_app/
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -18,7 +18,7 @@ RUN apt-get update && \
 
 # install python dependencies
 COPY ./requirements.txt .
-RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/shewrote/wheels -r requirements.txt
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/django_app/wheels -r requirements.txt
 
 #########
 # FINAL #
@@ -29,8 +29,8 @@ FROM python:3.11.4-slim-buster
 
 # install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends netcat
-COPY --from=builder /usr/src/shewrote/wheels /wheels
-COPY --from=builder /usr/src/shewrote/requirements.txt .
+COPY --from=builder /usr/src/django_app/wheels /wheels
+COPY --from=builder /usr/src/django_app/requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache /wheels/*
 

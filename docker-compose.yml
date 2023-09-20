@@ -17,9 +17,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_USER=shewrote_pg_user
-      - POSTGRES_PASSWORD=shewrote_pg_password
-      - POSTGRES_DB=shewrote_pg_dbname
+      - POSTGRES_USER=django_app_pg_user
+      - POSTGRES_PASSWORD=django_app_pg_password
+      - POSTGRES_DB=django_app_pg_dbname
   nginx:
     build: ./nginx
     volumes:
