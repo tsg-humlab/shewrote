@@ -5,7 +5,7 @@ services:
     build: .
     command: gunicorn sw_project.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - static_volume:/usr/src/shewrote/staticfiles
+      - static_volume:/home/app/web/staticfiles
     expose:
       - 8000
     env_file:
@@ -23,7 +23,7 @@ services:
   nginx:
     build: ./nginx
     volumes:
-      - static_volume:/usr/src/shewrote/staticfiles
+      - static_volume:/home/app/web/staticfiles
     ports:
       - 80:80
     depends_on:
