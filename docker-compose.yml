@@ -3,11 +3,11 @@ version: '3.8'
 services:
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn sw_project.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - .:/usr/src/shewrote/
-    ports:
-      - 8000:8000
+      - static_volume:/usr/src/shewrote/staticfiles
+    expose:
+      - 8000
     env_file:
       - ./.env_docker
     depends_on:
@@ -20,6 +20,15 @@ services:
       - POSTGRES_USER=shewrote_pg_user
       - POSTGRES_PASSWORD=shewrote_pg_password
       - POSTGRES_DB=shewrote_pg_dbname
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/usr/src/shewrote/staticfiles
+    ports:
+      - 80:80
+    depends_on:
+      - web
 
 volumes:
   postgres_data:
+  static_volume:
