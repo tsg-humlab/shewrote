@@ -27,9 +27,6 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/shewrote/wheels -r r
 # pull official base image
 FROM python:3.11.4-slim-buster
 
-# create directory for the app user
-# RUN mkdir -p /home/app
-
 # install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends netcat
 COPY --from=builder /usr/src/shewrote/wheels /wheels
