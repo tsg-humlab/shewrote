@@ -12,6 +12,7 @@ services:
       - ./.env_docker
     depends_on:
       - postgres
+    restart: unless-stopped
   postgres:
     image: postgres:15
     volumes:
@@ -20,6 +21,7 @@ services:
       - POSTGRES_USER=django_app_pg_user
       - POSTGRES_PASSWORD=django_app_pg_password
       - POSTGRES_DB=django_app_pg_dbname
+    restart: unless-stopped
   nginx:
     build: ./nginx
     volumes:
@@ -28,6 +30,7 @@ services:
       - 80:80
     depends_on:
       - web
+    restart: unless-stopped
 
 volumes:
   postgres_data:
