@@ -1,21 +1,20 @@
 from django.contrib import admin
-from .models import (Country, Place, Person, PersonViafOrCerl, Role, PersonRole, Profession, PersonProfession, Religion,
-                     PersonReligion, Marriage, Child, AlternativeName, PeriodOfResidence, TypeOfCollective, Collective,
-                     PersonCollective, CollectivePlace, Genre, Language, Work, WorkLanguage, PersonWork, Edition,
-                     PersonEdition)
+from .models import (Country, Place, Person, PersonViafOrCerl, Role, Profession, PersonProfession, Religion,
+                     PersonReligion, Marriage, AlternativeName, PeriodOfResidence, TypeOfCollective, Collective,
+                     PersonCollective, CollectivePlace, Genre, Language, Work, WorkLanguage, PersonWorkRole, Edition,
+                     PersonEditionRole, ReceptionSource, PersonReceptionSourceRole, TypeOfDocument, TypeOfReception,
+                     Reception, PersonReceptionRole, ReceptionType, ReceptionLanguage, ReceptionGenre)
 
 admin.site.register(Country)
 admin.site.register(Place)
 admin.site.register(Person)
 admin.site.register(PersonViafOrCerl)
 admin.site.register(Role)
-admin.site.register(PersonRole)
 admin.site.register(Profession)
 admin.site.register(PersonProfession)
 admin.site.register(Religion)
 admin.site.register(PersonReligion)
 admin.site.register(Marriage)
-admin.site.register(Child)
 admin.site.register(AlternativeName)
 admin.site.register(PeriodOfResidence)
 admin.site.register(TypeOfCollective)
@@ -26,6 +25,15 @@ admin.site.register(Genre)
 admin.site.register(Language)
 admin.site.register(Work)
 admin.site.register(WorkLanguage)
-admin.site.register(PersonWork)
+admin.site.register(PersonWorkRole)
 admin.site.register(Edition)
-admin.site.register(PersonEdition)
+admin.site.register(PersonEditionRole)
+admin.site.register(ReceptionSource)
+admin.site.register(PersonReceptionSourceRole)
+admin.site.register(TypeOfDocument)
+admin.site.register(TypeOfReception)
+admin.site.register(Reception)
+admin.site.register(PersonReceptionRole)
+admin.site.register(ReceptionType)
+admin.site.register(ReceptionLanguage)
+admin.site.register(ReceptionGenre)
