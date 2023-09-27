@@ -19,7 +19,7 @@ class Place(models.Model):
     modern_country = models.ForeignKey(Country, models.SET_NULL, null=True, blank=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
-    original_data = models.JSONField(blank=True)
+    original_data = models.JSONField(blank=True, editable=False)
 
 
 class Person(models.Model):
@@ -35,7 +35,6 @@ class Person(models.Model):
     short_name = models.CharField(max_length=255)
     first_name = models.CharField(max_length=255, blank=True)
     maiden_name = models.CharField(max_length=255, blank=True)
-    married_name = models.CharField(max_length=255, blank=True)  # TODO VARCHAR (255) +
     date_of_birth = models.DateField(blank=True)
     date_of_death = models.DateField(blank=True)
     alternative_birth_date = models.DateField(blank=True)
@@ -49,10 +48,12 @@ class Person(models.Model):
     professional_ecclesiastic_title = models.CharField(max_length=255, blank=True)
     aristocratic_title = models.CharField(max_length=255, blank=True)
     education = models.CharField(max_length=255, blank=True)
+    mother = models.ForeignKey("self", models.SET_NULL, null=True, blank=True, related_name="+")
+    father = models.ForeignKey("self", models.SET_NULL, null=True, blank=True, related_name="+")
     bibliography = models.TextField(blank=True)
     related_to = models.ManyToManyField("self", blank=True)
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True)
+    original_data = models.JSONField(blank=True, editable=False)
 
     def __str__(self):
         """Return the name of the Person."""
@@ -70,15 +71,6 @@ class PersonViafOrCerl(models.Model):
 class Role(models.Model):
     """Model describing the roles a Person can have."""
     role = models.CharField(max_length=255)
-
-
-class PersonRole(models.Model):
-    """Model describing the Role a Person had during a certain period."""
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, models.SET_NULL, null=True)
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
-    notes = models.CharField(max_length=255, blank=True)
 
 
 class Profession(models.Model):
@@ -112,29 +104,21 @@ class PersonReligion(models.Model):
 class Marriage(models.Model):
     """Model defining the marital status of Person to a Spouse."""
     class MaritalStatusChoices(models.TextChoices):
-        UNMARRIED = "U", _("Unmarried")
         MARRIED = "M", _("Married")
         DIVORCED = "D", _("Divorced")
         WIDOWED = "W", _("Widowed")
 
     person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="+")
     spouse = models.ForeignKey(Person, models.SET_NULL, null=True, blank=True)
+    married_name = models.CharField(max_length=255, blank=True)
     marital_status = models.CharField(max_length=1, choices=MaritalStatusChoices.choices, blank=True)
     start_year = models.IntegerField(blank=True)
     end_year = models.IntegerField(blank=True)
     notes = models.CharField(max_length=255, blank=True)
 
 
-class Child(models.Model):
-    """Model linking a Child to its parent(s) as Persons."""
-    child = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="+")
-    mother = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="+")
-    father = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="+")
-    notes = models.CharField(max_length=255, blank=True)
-
-
 class AlternativeName(models.Model):
-    """"Model describing name variations and periods they were in use."""
+    """Model describing name variations and periods they were in use."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     alternative_name = models.CharField(max_length=255)
     start_year = models.IntegerField(blank=True)
@@ -176,7 +160,7 @@ class Collective(models.Model):
         blank=True,
     )
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True)
+    original_data = models.JSONField(blank=True, editable=False)
 
     def __str__(self):
         """Return the name of the Collective"""
@@ -209,14 +193,13 @@ class Work(models.Model):
     """Represent a Work by a Person that may have multiple Editions."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255)
-    viaf_work = models.IntegerField(blank=True)  # TODO DYNAMIC LINK
+    viaf_work = models.URLField(max_length=255, blank=True)
     related_persons = models.ManyToManyField(
         Person,
-        through="PersonWork",
+        through="PersonWorkRole",
         through_fields=("work", "person"),
         blank=True,
     )
-    person_role = models.CharField(max_length=255, blank=True)  # TODO ENUM, options?
     genre = models.ForeignKey(Genre, models.SET_NULL, null=True, blank=True)
     language = models.ManyToManyField(
         Language,
@@ -225,17 +208,21 @@ class Work(models.Model):
         blank=True,
     )
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True)
+    original_data = models.JSONField(blank=True, editable=False)
 
     def __str__(self):
         """Return the title of the Work"""
         return self.title
 
 
-class PersonWork(models.Model):
-    """Many-to-Many model connecting Persons and Works."""
+class PersonWorkRole(models.Model):
+    """Many-to-Many model connecting Persons, Works, and their Roles."""
     work = models.ForeignKey(Work, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, models.SET_NULL, null=True, blank=True)
+    start_year = models.IntegerField(blank=True)
+    end_year = models.IntegerField(blank=True)
+    notes = models.CharField(max_length=255, blank=True)
 
 
 class WorkLanguage(models.Model):
@@ -254,18 +241,121 @@ class Edition(models.Model):
     cerl_publisher = models.CharField(max_length=255, blank=True)
     related_persons = models.ManyToManyField(
         Person,
-        through="PersonEdition",
+        through="PersonEditionRole",
         through_fields=("edition", "person"),
         blank=True,
     )
-    person_role = models.CharField(max_length=255, blank=True)  # TODO ENUM, options?
     genre = models.ForeignKey(Genre, models.SET_NULL, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True)
+    original_data = models.JSONField(blank=True, editable=False)
 
 
-class PersonEdition(models.Model):
+class PersonEditionRole(models.Model):
     """Many-to-Many model connecting an Edition to related Persons."""
     edition = models.ForeignKey(Edition, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, models.SET_NULL, null=True, blank=True)
+
+
+class ReceptionSource(models.Model):
+    """Defines the Source of a Reception."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    work = models.ForeignKey(Work, models.SET_NULL, blank=True, null=True, related_name="+")
+    part_of = models.ForeignKey(Work, models.SET_NULL, blank=True, null=True, related_name="+")
+    title_work = models.CharField(max_length=255, blank=True)
+    related_persons = models.ManyToManyField(
+        Person,
+        through="PersonReceptionSourceRole",
+        through_fields=("reception_source", "person"),
+        blank=True,
+    )
+    shelfmark = models.CharField(max_length=255, blank=True)
+    reference = models.TextField(blank=True)
+    date = models.DateField(blank=True)
+    url = models.URLField(max_length=255, blank=True)
+    notes = models.TextField(blank=True)
+    original_Data = models.JSONField(blank=True, editable=False)
+
+
+class PersonReceptionSourceRole(models.Model):
+    """Many-to-Many model connecting an Edition to related Persons."""
+    reception_source = models.ForeignKey(ReceptionSource, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, models.SET_NULL, null=True, blank=True)
+
+
+class TypeOfDocument(models.Model):
+    """Defines the Type of document that can exist for a Reception."""
+    type_of_document = models.CharField(max_length=255)
+
+
+class TypeOfReception(models.Model):
+    """This model defines the different types of Reception that can occur."""
+    type_of_reception = models.CharField(max_length=255)
+
+
+class Reception(models.Model):
+    """Model defining a Reception of a Work by a Source in a Place."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    person = models.ManyToManyField(
+        Person,
+        through="PersonReceptionRole",
+        through_fields=("reception", "person"),
+    )
+    source = models.ForeignKey(ReceptionSource, models.SET_NULL, null=True, blank=True)
+    title = models.TextField(blank=True)  # TODO is this the same title as in ReceptionSource?
+    part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True)
+    reference = models.TextField(blank=True)
+    place_of_reception = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
+    date_of_reception = models.IntegerField(blank=True)  # TODO date or year?
+    quotation_reception = models.TextField(blank=True)
+    document_type = models.ForeignKey(TypeOfDocument, models.SET_NULL, null=True, blank=True)
+    url = models.URLField(max_length=255, blank=True)
+    reception_type = models.ManyToManyField(
+        TypeOfReception,
+        through="ReceptionType",
+        through_fields=("reception", "type"),
+        blank=True,
+    )
+    language_of_reception = models.ManyToManyField(
+        Language,
+        through="ReceptionLanguage",
+        through_fields=("reception", "language"),
+        blank=True,
+    )
+    reception_genre = models.ManyToManyField(
+        Genre,
+        through="ReceptionGenre",
+        through_fields=("reception", "genre"),
+        blank=True,
+    )
+    viaf_work = models.URLField(max_length=255, blank=True)
+    image = models.ImageField
+    notes = models.TextField(blank=True)
+    original_data = models.JSONField(blank=True, editable=False)
+
+
+class PersonReceptionRole(models.Model):
+    """Defines the Role of a Person related to a Reception."""
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, models.SET_NULL, null=True, blank=True)
+
+
+class ReceptionType(models.Model):
+    """Model linking a Reception to its Type."""
+    reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
+    type = models.ForeignKey(TypeOfReception, models.SET_NULL, null=True)
+
+
+class ReceptionLanguage(models.Model):
+    """Model linking a Reception to the Language it was written in."""
+    reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, models.SET_NULL, null=True)
+
+
+class ReceptionGenre(models.Model):
+    """This model links a Reception to a Genre."""
+    reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, models.SET_NULL, null=True)
