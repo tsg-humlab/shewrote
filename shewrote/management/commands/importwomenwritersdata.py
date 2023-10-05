@@ -123,11 +123,10 @@ class Command(BaseCommand):
                 obj, created = Work.objects.get_or_create(title=title, genre=genre,
                                                           original_data=json.dumps(document)) # TODO add uuid
 
+                # Add languages
                 language_relations = document["@relations"].get("hasWorkLanguage", None)
                 if language_relations:
                     for language_relation in language_relations:
                         language = Language.objects.get(language=language_relation["displayName"]) # TODO this should be the '_id' uuid
                         obj.language.add(language)
-
-                # TODO isPublishedBy and isStoredAt relations to wwcollectives
 
