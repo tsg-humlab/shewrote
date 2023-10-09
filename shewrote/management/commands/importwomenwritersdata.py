@@ -2,7 +2,7 @@ import sys
 import json
 import requests
 from django.core.management.base import BaseCommand
-from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work
+from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work, Place
 
 
 ww_collections = [
@@ -103,9 +103,9 @@ class Command(BaseCommand):
 
             type_of_collective, created = TypeOfCollective.objects.get_or_create(type_of_collective=type)
 
-            obj, created = Collective.objects.get_or_create(name=name, type=type_of_collective,
+            obj, created = Collective.objects.get_or_create(id=uuid, name=name, type=type_of_collective,
                                                             start_year=0, end_year=0,
-                                                            original_data=json.dumps(collective))  # TODO add uuid
+                                                            original_data=json.dumps(collective))
 
     def create_for_wwdocuments(self, documents):
         print(f"Processing {len(documents)} documents...")
@@ -118,15 +118,32 @@ class Command(BaseCommand):
                 genre = None
                 genre_relations = document["@relations"].get("hasGenre", None)
                 if genre_relations:
-                    genre = Genre.objects.get(genre=genre_relations[0]["displayName"]) # TODO this should be the '_id' uuid
+                    genre = Genre.objects.get(genre=genre_relations[0]["displayName"])  # TODO add uuid
 
-                obj, created = Work.objects.get_or_create(title=title, genre=genre,
-                                                          original_data=json.dumps(document)) # TODO add uuid
+                obj, created = Work.objects.get_or_create(id=uuid, title=title, genre=genre,
+                                                          original_data=json.dumps(document))
 
                 # Add languages
                 language_relations = document["@relations"].get("hasWorkLanguage", None)
                 if language_relations:
                     for language_relation in language_relations:
-                        language = Language.objects.get(language=language_relation["displayName"]) # TODO this should be the '_id' uuid
+                        language = Language.objects.get(language=language_relation["displayName"])  # TODO add uuid
                         obj.language.add(language)
 
+    def create_for_wwlocations(self, locations):
+        print(f"Processing {len(locations)} locations...")
+
+        for location in locations:
+            uuid = location["_id"]
+            name = location["name"]
+
+            obj, created = Place.objects.get_or_create(id=uuid, name_of_city=name,
+                                                       cerl_id=-1, latitude=-1.0, longitude=-1.0, # TODO remove when possible
+                                                       original_data=json.dumps(location))
+
+            # Add collectives
+            collective_locations = location["@relations"].get("isLocationOf", [])
+            for collective_location in collective_locations:
+                uuid = collective_location["id"]
+                collective = Collective.objects.get(id=uuid)
+                collective.place.add(obj)
