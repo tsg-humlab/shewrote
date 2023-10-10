@@ -216,9 +216,17 @@ class Command(BaseCommand):
                                                         alternative_name_gender='', professional_ecclesiastic_title='',
                                                         aristocratic_title='', education='', bibliography='',
                                                         original_data='')
+            
+            self.add_person_relations(person, obj)
 
-            # Relations
+    def add_person_relations(self, person, obj):
             birth_place = person["@relations"].get("hasBirthPlace", None)
             if birth_place:
                 obj.place_of_birth = Place.objects.get(id=birth_place[0]["id"])
                 obj.save()
+
+            death_place = person["@relations"].get("hasDeathPlace", None)
+            if death_place:
+                obj.place_of_death = Place.objects.get(id=death_place[0]["id"])
+                obj.save()
+
