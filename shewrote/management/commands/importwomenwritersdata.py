@@ -208,3 +208,8 @@ class Command(BaseCommand):
                                                         aristocratic_title='', education='', bibliography='',
                                                         original_data='')
 
+            # Relations
+            birth_place = person["@relations"].get("hasBirthPlace", None)
+            if birth_place:
+                obj.place_of_birth = Place.objects.get(id=birth_place[0]["id"])
+                obj.save()
