@@ -1,8 +1,9 @@
 import sys
 import json
 import requests
+import re
 from django.core.management.base import BaseCommand
-from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work, Place
+from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work, Place, Person
 
 
 ww_collections = [
@@ -147,3 +148,63 @@ class Command(BaseCommand):
                 uuid = collective_location["id"]
                 collective = Collective.objects.get(id=uuid)
                 collective.place.add(obj)
+
+
+    def extract_names(self, person, name_type):
+        if person['names']:
+            components = person['names'][0]['components']
+            filtered_components = filter(lambda component: component['type'] == name_type, components)
+            return " ".join([component['value'] for component in filtered_components])
+        return ''
+
+
+    def transform_to_date(self, date):
+        # TODO remove default '-01-01' when possible
+        if not date:
+            return '0001-01-01'
+        if re.search('^\d{4}-\d\d-\d\d$', date): # YYYY-MM-DD
+            return date
+        if re.search('^\d{4}$', date): # YYYY
+            return date + "-01-01"
+        if re.search('^\d\d-\d\d-\d{4}$', date): # DD-MM-YYYY
+            day, month, year = date.split('-')
+            return f'{year}-{month}-{day}'
+        return '0001-01-01'
+
+    def create_for_wwpersons(self, persons):
+        print(f"Processing {len(persons)} persons...")
+
+        gender_choices = {
+            'FEMALE': "F",
+            'MALE': "M",
+            'UNKNOWN': "O",
+            'NOT_APPLICABLE': "N"
+        }
+
+        for person in persons:
+            uuid = person["_id"]
+            short_name = person.get('tempName', '')
+            sex = gender_choices[person['gender']]
+            forenames = self.extract_names(person, "FORENAME")
+            surnames = self.extract_names(person, "SURNAME")
+            # print(first_names, " | ", maiden_name)
+
+            date_of_birth = self.transform_to_date(person.get('birthDate'))
+            date_of_death = self.transform_to_date(person.get('deathDate'))
+
+            # See whether this person already exists
+            existing_person = Person.objects.filter(id=uuid)
+            if existing_person:
+                print(f"WARNING - A person object with id {uuid} already exists in the database.")
+                continue
+
+            obj, created = Person.objects.get_or_create(id=uuid, short_name=short_name, first_name=forenames,
+                                                        maiden_name=surnames, date_of_birth=date_of_birth,
+                                                        date_of_death=date_of_death,
+                                                        alternative_birth_date='0001-01-01',
+                                                        alternative_death_date='0001-01-01',
+                                                        flourishing_start=-1, flourishing_end=-1, sex=sex,
+                                                        alternative_name_gender='', professional_ecclesiastic_title='',
+                                                        aristocratic_title='', education='', bibliography='',
+                                                        original_data='')
+
