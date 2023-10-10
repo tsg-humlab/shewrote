@@ -33,6 +33,7 @@ class Person(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     short_name = models.CharField(max_length=255)
+    viaf_or_cerl = models.CharField(max_length=255)
     first_name = models.CharField(max_length=255, blank=True)
     maiden_name = models.CharField(max_length=255, blank=True)
     date_of_birth = models.DateField(blank=True)
@@ -60,22 +61,16 @@ class Person(models.Model):
         return self.short_name
 
 
-class PersonViafOrCerl(models.Model):
-    """Model containing VIAF or CERL related to Person."""
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    viaf = models.CharField(max_length=255, blank=True)
-    cerl = models.CharField(max_length=255, blank=True)
-    notes = models.CharField(max_length=255, blank=True)
-
-
 class Role(models.Model):
     """Model describing the roles a Person can have."""
-    role = models.CharField(max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
 
 
 class Profession(models.Model):
     """Model describing the profession of a Person."""
-    profession = models.CharField(max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
 
 
 class PersonProfession(models.Model):
@@ -89,7 +84,8 @@ class PersonProfession(models.Model):
 
 class Religion(models.Model):
     """Model describing the profession of a Person."""
-    religion = models.CharField(max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
 
 
 class PersonReligion(models.Model):
@@ -137,6 +133,7 @@ class PeriodOfResidence(models.Model):
 
 class TypeOfCollective(models.Model):
     """Model describing the different types of Collective that exist."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_collective = models.CharField(max_length=255)
 
 
@@ -181,12 +178,14 @@ class CollectivePlace(models.Model):
 
 class Genre(models.Model):
     """Model describing different genres."""
-    genre = models.CharField(max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
 
 
 class Language(models.Model):
     """Model listing various languages."""
-    language = models.CharField(max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
 
 
 class Work(models.Model):
@@ -198,13 +197,6 @@ class Work(models.Model):
         Person,
         through="PersonWorkRole",
         through_fields=("work", "person"),
-        blank=True,
-    )
-    genre = models.ForeignKey(Genre, models.SET_NULL, null=True, blank=True)
-    language = models.ManyToManyField(
-        Language,
-        through="WorkLanguage",
-        through_fields=("work", "language"),
         blank=True,
     )
     notes = models.TextField(blank=True)
@@ -225,19 +217,18 @@ class PersonWorkRole(models.Model):
     notes = models.CharField(max_length=255, blank=True)
 
 
-class WorkLanguage(models.Model):
-    """Model linking a Work to the Language it was written in."""
-    work = models.ForeignKey(Work, on_delete=models.CASCADE)
-    language = models.ForeignKey(Language, models.SET_NULL, null=True)
-
-
 class Edition(models.Model):
     """Represents an Edition of a Work published in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     related_work = models.ForeignKey(Work, on_delete=models.CASCADE)
     publication_year = models.IntegerField(blank=True)
     place_of_publication = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
-    language = models.ForeignKey(Language, models.SET_NULL, null=True, blank=True)
+    language = models.ManyToManyField(
+        Language,
+        through="EditionLanguage",
+        through_fields=("edition", "language"),
+        blank=True,
+    )
     cerl_publisher = models.CharField(max_length=255, blank=True)
     related_persons = models.ManyToManyField(
         Person,
@@ -249,6 +240,12 @@ class Edition(models.Model):
     url = models.URLField(max_length=255, blank=True)
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, editable=False)
+
+
+class EditionLanguage(models.Model):
+    """Model linking an Edition to its Language(s)."""
+    edition = models.ForeignKey(Edition, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, models.SET_NULL, null=True)
 
 
 class PersonEditionRole(models.Model):
@@ -287,11 +284,13 @@ class PersonReceptionSourceRole(models.Model):
 
 class TypeOfDocument(models.Model):
     """Defines the Type of document that can exist for a Reception."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_document = models.CharField(max_length=255)
 
 
 class TypeOfReception(models.Model):
     """This model defines the different types of Reception that can occur."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_reception = models.CharField(max_length=255)
 
 
@@ -304,11 +303,11 @@ class Reception(models.Model):
         through_fields=("reception", "person"),
     )
     source = models.ForeignKey(ReceptionSource, models.SET_NULL, null=True, blank=True)
-    title = models.TextField(blank=True)  # TODO is this the same title as in ReceptionSource?
+    title = models.TextField(blank=True)
     part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True)
     reference = models.TextField(blank=True)
     place_of_reception = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
-    date_of_reception = models.IntegerField(blank=True)  # TODO date or year?
+    date_of_reception = models.IntegerField(blank=True)
     quotation_reception = models.TextField(blank=True)
     document_type = models.ForeignKey(TypeOfDocument, models.SET_NULL, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
