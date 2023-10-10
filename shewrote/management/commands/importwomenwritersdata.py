@@ -25,7 +25,15 @@ class Command(BaseCommand):
         parser.add_argument("base_url", nargs=1)
         parser.add_argument("collections", nargs='*')
 
+        parser.add_argument(
+            "--limited",
+            action="store_true",
+            help="Import a limited number",
+        )
+
     def handle(self, *args, **options):
+        self.limited = options.get('limited', False)
+
         base_url = options['base_url'][0]
         self.objects_url = base_url + objects_path
 
@@ -42,10 +50,11 @@ class Command(BaseCommand):
         rows, start = 1000, 0
         objects = self.get_objects(collection, rows, start)
         all_objects = objects
-        while objects is not None and len(objects) == rows:
-            start += rows
-            objects = self.get_objects(collection, rows, start)
-            all_objects.extend(objects)
+        if not self.limited:
+            while objects is not None and len(objects) == rows:
+                start += rows
+                objects = self.get_objects(collection, rows, start)
+                all_objects.extend(objects)
 
         self.create_shewrote_objects(collection, all_objects)
 
