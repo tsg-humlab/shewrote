@@ -3,7 +3,8 @@ import json
 import requests
 import re
 from django.core.management.base import BaseCommand
-from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work, Place, Person
+from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work, Place, Person, \
+    PeriodOfResidence
 
 
 ww_collections = [
@@ -230,3 +231,8 @@ class Command(BaseCommand):
                 obj.place_of_death = Place.objects.get(id=death_place[0]["id"])
                 obj.save()
 
+            residence_locations = person["@relations"].get("hasResidenceLocation", None)
+            if residence_locations:
+                for residence_location in residence_locations:
+                    place = Place.objects.get(id=residence_location["id"])
+                    PeriodOfResidence.objects.create(person=obj, place=place, start_year=-1, end_year=-1, notes='')
