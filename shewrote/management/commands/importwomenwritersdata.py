@@ -81,10 +81,12 @@ class Command(BaseCommand):
 
         for language in languages:
             uuid = language["_id"]
-            name = language["name"]
+            if Language.objects.filter(id=uuid).exists():
+                print(f"WARNING - A language object with id {uuid} already exists in the database.")
+                continue
 
-            obj, created = Language.objects.get_or_create(language=name)  # TODO add uuid
-            # print(obj.language, created)
+            name = language["name"]
+            Language.objects.create(id=uuid, name=name)
 
     def create_for_wwkeywords(self, keywords):
         print(f"Processing {len(keywords)} wwkeywords...")
@@ -94,52 +96,63 @@ class Command(BaseCommand):
             value = keyword["value"]
             relation_names = set(keyword["@relations"].keys())
 
-            if "isGenreOf" in relation_names:
-                obj, created = Genre.objects.get_or_create(genre=value)  # TODO add uuid
-                # print(obj.genre, created)
-            if "isReligionOf" in relation_names:
-                obj, created = Religion.objects.get_or_create(religion=value)  # TODO add uuidO
-                # print(obj.religion, created)
-            if "isProfessionOf" in relation_names:
-                obj, created = Profession.objects.get_or_create(profession=value)  # TODO add uuid
-                # print(obj.profession, created)
+            try:
+                if "isGenreOf" in relation_names:
+                    obj, created = Genre.objects.get_or_create(id=uuid, name=value)
+                    # print(obj.genre, created)
+                if "isReligionOf" in relation_names:
+                    obj, created = Religion.objects.get_or_create(id=uuid, name=value)
+                    # print(obj.religion, created)
+                if "isProfessionOf" in relation_names:
+                    obj, created = Profession.objects.get_or_create(id=uuid, name=value)
+                    # print(obj.profession, created)
+            except IntegrityError as ie:
+                print(f"Keyword with id {uuid} was not imported due to this error: {ie}")
 
     def create_for_wwcollectives(self, collectives):
         print(f"Processing {len(collectives)} collectives...")
 
         for collective in collectives:
             uuid = collective["_id"]
+            if Collective.objects.filter(id=uuid).exists():
+                print(f"WARNING - A Collective object with id {uuid} already exists in the database.")
+                continue
+
             name = collective["name"]
             type = collective["type"]
 
             type_of_collective, created = TypeOfCollective.objects.get_or_create(type_of_collective=type)
 
-            obj, created = Collective.objects.get_or_create(id=uuid, name=name, type=type_of_collective,
-                                                            start_year=0, end_year=0,
-                                                            original_data=json.dumps(collective))
+            Collective.objects.create(id=uuid, name=name, type=type_of_collective, start_year=0, end_year=0,
+                                            original_data=json.dumps(collective))
 
     def create_for_wwdocuments(self, documents):
         print(f"Processing {len(documents)} documents...")
 
         for document in documents:
-            if document["documentType"] == "WORK":
-                uuid = document["_id"]
-                title = document["title"]
+            if document["documentType"] != "WORK":
+                continue
 
-                genre = None
-                genre_relations = document["@relations"].get("hasGenre", None)
-                if genre_relations:
-                    genre = Genre.objects.get(genre=genre_relations[0]["displayName"])  # TODO add uuid
+            uuid = document["_id"]
+            if Work.objects.filter(id=uuid).exists():
+                print(f"WARNING - A work object with id {uuid} already exists in the database.")
+                continue
 
-                obj, created = Work.objects.get_or_create(id=uuid, title=title, genre=genre,
-                                                          original_data=json.dumps(document))
+            title = document["title"]
 
-                # Add languages
-                language_relations = document["@relations"].get("hasWorkLanguage", None)
-                if language_relations:
-                    for language_relation in language_relations:
-                        language = Language.objects.get(language=language_relation["displayName"])  # TODO add uuid
-                        obj.language.add(language)
+            # genre = None
+            # genre_relations = document["@relations"].get("hasGenre", None)
+            # if genre_relations:
+            #     genre = Genre.objects.get(id=uuid, name=genre_relations[0]["displayName"])
+
+            Work.objects.create(id=uuid, title=title, original_data=json.dumps(document))
+
+            # Add languages
+            # language_relations = document["@relations"].get("hasWorkLanguage", None)
+            # if language_relations:
+            #     for language_relation in language_relations:
+            #         language = Language.objects.get(id=language_relation["id"])
+            #         obj.language.add(language)
 
     def create_for_wwlocations(self, locations):
         print(f"Processing {len(locations)} locations...")
@@ -159,14 +172,12 @@ class Command(BaseCommand):
                 collective = Collective.objects.get(id=uuid)
                 collective.place.add(obj)
 
-
     def extract_names(self, person, name_type):
         if person['names']:
             components = person['names'][0]['components']
             filtered_components = filter(lambda component: component['type'] == name_type, components)
             return " ".join([component['value'] for component in filtered_components])
         return ''
-
 
     def transform_to_date(self, date):
         # TODO remove default '-01-01' when possible
@@ -193,6 +204,10 @@ class Command(BaseCommand):
 
         for person in persons:
             uuid = person["_id"]
+            if Person.objects.filter(id=uuid).exists():
+                print(f"WARNING - A person object with id {uuid} already exists in the database.")
+                continue
+
             short_name = person.get('tempName', '')
             sex = gender_choices[person['gender']]
             forenames = self.extract_names(person, "FORENAME")
@@ -202,21 +217,12 @@ class Command(BaseCommand):
             date_of_birth = self.transform_to_date(person.get('birthDate'))
             date_of_death = self.transform_to_date(person.get('deathDate'))
 
-            # See whether this person already exists
-            existing_person = Person.objects.filter(id=uuid)
-            if existing_person:
-                print(f"WARNING - A person object with id {uuid} already exists in the database.")
-                continue
-
-            obj, created = Person.objects.get_or_create(id=uuid, short_name=short_name, first_name=forenames,
-                                                        maiden_name=surnames, date_of_birth=date_of_birth,
-                                                        date_of_death=date_of_death,
-                                                        alternative_birth_date='0001-01-01',
-                                                        alternative_death_date='0001-01-01',
-                                                        flourishing_start=-1, flourishing_end=-1, sex=sex,
-                                                        alternative_name_gender='', professional_ecclesiastic_title='',
-                                                        aristocratic_title='', education='', bibliography='',
-                                                        original_data='')
+            obj = Person.objects.create(id=uuid, short_name=short_name, first_name=forenames, maiden_name=surnames,
+                                        date_of_birth=date_of_birth, date_of_death=date_of_death,
+                                        alternative_birth_date='0001-01-01', alternative_death_date='0001-01-01',
+                                        flourishing_start=-1, flourishing_end=-1, sex=sex, alternative_name_gender='',
+                                        professional_ecclesiastic_title='', aristocratic_title='', education='',
+                                        bibliography='', original_data='')
             
             self.add_person_relations(person, obj)
 
