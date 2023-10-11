@@ -1,8 +1,12 @@
 import sys
+import os
 import json
 import requests
 import re
+import pickle
+import pathlib
 from django.core.management.base import BaseCommand
+from django.db import IntegrityError
 from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work, Place, Person, \
     PeriodOfResidence
 
@@ -32,8 +36,15 @@ class Command(BaseCommand):
             help="Import a limited number",
         )
 
+        parser.add_argument(
+            "--pickle",
+            action="store",
+            help="A path for the pickled data to load data from file or dump the downloaded data to a file.",
+        )
+
     def handle(self, *args, **options):
         self.limited = options.get('limited', False)
+        self.pickle = options.get('pickle', None)
 
         base_url = options['base_url'][0]
         self.objects_url = base_url + objects_path
@@ -43,7 +54,30 @@ class Command(BaseCommand):
             collections = ww_collections
 
         for collection in collections:
-            self.import_collection(collection)
+            collection_data = self.get_collection_data(collection)
+            self.create_shewrote_objects(collection, collection_data)
+
+    def get_collection_data(self, collection):
+        """
+        Get the WomenWriters data either from the API or from a pickled file
+        :param collection:
+        :return: collection data
+        """
+        if not self.pickle:
+            return self.import_collection(collection)
+
+        pickle_file = pathlib.Path(self.pickle) / (collection+".pkl")
+
+        # Load data from file
+        if os.path.isfile(pickle_file):
+            with open(pickle_file, "rb") as f:
+                return pickle.load(f)
+
+        # Import data and dump to file
+        collection_data = self.import_collection(collection)
+        with open(pickle_file, "wb") as f:
+            pickle.dump(collection_data, f)
+        return collection_data
 
     def import_collection(self, collection):
         print(f"Importing {collection}...")
@@ -57,7 +91,7 @@ class Command(BaseCommand):
                 objects = self.get_objects(collection, rows, start)
                 all_objects.extend(objects)
 
-        self.create_shewrote_objects(collection, all_objects)
+        return all_objects
 
     def get_objects(self, collection, rows=1000, start=0):
         print(f"Request for {rows} rows...")
