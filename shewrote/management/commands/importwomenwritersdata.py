@@ -26,6 +26,9 @@ objects_path = '/domain/{}?withRelations=true&rows={}&start={}'
 class Command(BaseCommand):
     help = "Import data from the WomenWriters database"
 
+    def __init__(self):
+        self.places = {}
+
     def add_arguments(self, parser):
         parser.add_argument("base_url", nargs=1)
         parser.add_argument("collections", nargs='*')
@@ -146,9 +149,11 @@ class Command(BaseCommand):
     def create_for_wwcollectives(self, collectives):
         print(f"Processing {len(collectives)} collectives...")
 
+        new_collectives = {}
+
         for collective in collectives:
             uuid = collective["_id"]
-            if Collective.objects.filter(id=uuid).exists():
+            if uuid in new_collectives.keys():
                 print(f"WARNING - A Collective object with id {uuid} already exists in the database.")
                 continue
 
@@ -157,18 +162,22 @@ class Command(BaseCommand):
 
             type_of_collective, created = TypeOfCollective.objects.get_or_create(type_of_collective=type)
 
-            Collective.objects.create(id=uuid, name=name, type=type_of_collective, start_year=0, end_year=0,
+            new_collectives[uuid] = Collective(id=uuid, name=name, type=type_of_collective, start_year=0, end_year=0,
                                             original_data=json.dumps(collective))
+
+        Collective.objects.bulk_create(new_collectives.values())
 
     def create_for_wwdocuments(self, documents):
         print(f"Processing {len(documents)} documents...")
+
+        works = {}
 
         for document in documents:
             if document["documentType"] != "WORK":
                 continue
 
             uuid = document["_id"]
-            if Work.objects.filter(id=uuid).exists():
+            if uuid in works.keys():
                 print(f"WARNING - A work object with id {uuid} already exists in the database.")
                 continue
 
@@ -179,7 +188,7 @@ class Command(BaseCommand):
             # if genre_relations:
             #     genre = Genre.objects.get(id=uuid, name=genre_relations[0]["displayName"])
 
-            Work.objects.create(id=uuid, title=title, original_data=json.dumps(document))
+            works[uuid] = (Work(id=uuid, title=title, original_data=json.dumps(document)))
 
             # Add languages
             # language_relations = document["@relations"].get("hasWorkLanguage", None)
@@ -188,23 +197,42 @@ class Command(BaseCommand):
             #         language = Language.objects.get(id=language_relation["id"])
             #         obj.language.add(language)
 
+        Work.objects.bulk_create(works.values())
+
     def create_for_wwlocations(self, locations):
         print(f"Processing {len(locations)} locations...")
+
+        places = {}
 
         for location in locations:
             uuid = location["_id"]
             name = location["name"]
 
-            obj, created = Place.objects.get_or_create(id=uuid, name_of_city=name,
+            places[uuid] = Place(id=uuid, name_of_city=name,
                                                        cerl_id=-1, latitude=-1.0, longitude=-1.0, # TODO remove when possible
                                                        original_data=json.dumps(location))
 
+        Place.objects.bulk_create(places.values())
+        for obj in places.values():
             # Add collectives
             collective_locations = location["@relations"].get("isLocationOf", [])
             for collective_location in collective_locations:
                 uuid = collective_location["id"]
                 collective = Collective.objects.get(id=uuid)
                 collective.place.add(obj)
+
+        self.places = places
+
+    def get_place(self, uuid):
+        if uuid in self.places.keys():
+            return self.places[uuid]
+
+        try:
+            place = Place.objects.get(id=uuid)
+            self.places[place.id] = place
+        except IntegrityError:
+            place = None
+        return place
 
     def extract_names(self, person, name_type):
         if person['names']:
@@ -236,9 +264,11 @@ class Command(BaseCommand):
             'NOT_APPLICABLE': "N"
         }
 
+        new_persons = {}
+
         for person in persons:
             uuid = person["_id"]
-            if Person.objects.filter(id=uuid).exists():
+            if uuid in new_persons.keys():
                 print(f"WARNING - A person object with id {uuid} already exists in the database.")
                 continue
 
@@ -246,33 +276,30 @@ class Command(BaseCommand):
             sex = gender_choices[person['gender']]
             forenames = self.extract_names(person, "FORENAME")
             surnames = self.extract_names(person, "SURNAME")
-            # print(first_names, " | ", maiden_name)
 
             date_of_birth = self.transform_to_date(person.get('birthDate'))
             date_of_death = self.transform_to_date(person.get('deathDate'))
+            
+            birth_place = person["@relations"].get("hasBirthPlace", None)
+            place_of_birth = self.get_place(birth_place[0]["id"]) if birth_place else None
+            death_place = person["@relations"].get("hasDeathPlace", None)
+            place_of_death = self.get_place(death_place[0]["id"]) if death_place else None
 
-            obj = Person.objects.create(id=uuid, short_name=short_name, first_name=forenames, maiden_name=surnames,
+            new_persons[uuid] = Person(id=uuid, short_name=short_name, first_name=forenames, maiden_name=surnames,
                                         date_of_birth=date_of_birth, date_of_death=date_of_death,
+                                        place_of_birth=place_of_birth, place_of_death=place_of_death,
                                         alternative_birth_date='0001-01-01', alternative_death_date='0001-01-01',
                                         flourishing_start=-1, flourishing_end=-1, sex=sex, alternative_name_gender='',
                                         professional_ecclesiastic_title='', aristocratic_title='', education='',
                                         bibliography='', original_data='')
-            
+
+        Person.objects.bulk_create(new_persons.values())
+        for obj in new_persons.values():
             self.add_person_relations(person, obj)
 
     def add_person_relations(self, person, obj):
-            birth_place = person["@relations"].get("hasBirthPlace", None)
-            if birth_place:
-                obj.place_of_birth = Place.objects.get(id=birth_place[0]["id"])
-                obj.save()
-
-            death_place = person["@relations"].get("hasDeathPlace", None)
-            if death_place:
-                obj.place_of_death = Place.objects.get(id=death_place[0]["id"])
-                obj.save()
-
-            residence_locations = person["@relations"].get("hasResidenceLocation", None)
-            if residence_locations:
-                for residence_location in residence_locations:
-                    place = Place.objects.get(id=residence_location["id"])
-                    PeriodOfResidence.objects.create(person=obj, place=place, start_year=-1, end_year=-1, notes='')
+        residence_locations = person["@relations"].get("hasResidenceLocation", None)
+        if residence_locations:
+            for residence_location in residence_locations:
+                place = Place.objects.get(id=residence_location["id"])
+                PeriodOfResidence.objects.create(person=obj, place=place, start_year=-1, end_year=-1, notes='')
