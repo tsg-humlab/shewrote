@@ -1,0 +1,19 @@
+{% extends 'shewrote/base.html' %}
+
+{% block content %}
+
+    <p>Persons</p>
+    <a href="{% url 'shewrote:new_person' %}">Add a new person</a>
+
+    <ul>
+        {% for person in persons %}
+            <li>
+                <a href="{% url 'shewrote:person' person.id %}">
+                {{ person.short_name }}</a>
+            </li>
+        {% empty %}
+            <li>No persons have been added yet.</li>
+        {% endfor %}
+    </ul>
+
+{% endblock content %}
