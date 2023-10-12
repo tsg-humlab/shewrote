@@ -38,3 +38,22 @@ def new_person(request):
     # Display a blank or invalid form
     context = {'form': form}
     return render(request, 'shewrote/new_person.html', context)
+
+
+def edit_person(request, person_id):
+    """Edit an existing person."""
+    entry = Person.objects.get(id=person_id)
+
+    if request.method != 'POST':
+        # Initial request, pre-fill form with the current person.
+        form = PersonForm(instance=entry)
+    else:
+        # POST data submitted; process data.
+        form = PersonForm(instance=entry, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('shewrote:person', person_id=entry.id)
+
+    context = {'person': entry, 'form': form}
+    return render(request, 'shewrote/edit_person.html', context)
+

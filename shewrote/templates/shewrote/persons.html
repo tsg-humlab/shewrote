@@ -9,7 +9,8 @@
         {% for person in persons %}
             <li>
                 <a href="{% url 'shewrote:person' person.id %}">
-                {{ person.short_name }}</a>
+                {{ person.short_name }}</a> -
+                <a href="{% url 'shewrote:edit_person' person.id %}">Edit</a>
             </li>
         {% empty %}
             <li>No persons have been added yet.</li>

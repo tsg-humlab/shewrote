@@ -1,0 +1,15 @@
+{% extends 'shewrote/base.html' %}
+
+{% block content %}
+
+    <p><a href="{% url 'shewrote:person' person.id %}">{{ person }}</a></p>
+
+    <p>Edit entry:</p>
+
+    <form action="{% url 'shewrote:edit_person' person.id %}" method="post">
+        {% csrf_token %}
+        {{ form.as_div }}
+        <button name="submit">Save changes</button>
+    </form>
+
+{% endblock content %}
