@@ -1,22 +1,30 @@
 {% extends 'shewrote/base.html' %}
 
+{% block page_header %}
+    <h1>{{ person.short_name }} ({{ person.date_of_birth }} - {{ person.date_of_death }})</h1>
+{% endblock page_header %}
+
 {% block content %}
-
-    <h3>{{ person.short_name }} ({{ person.date_of_birth }} - {{ person.date_of_death }})</h3>
-
-    <p><label>Name variations / spellings</label> {{ person.first_name }} {{ person.maiden_name }}</p>
-    <p><label>Pseudonyms</label> </p>
-    <p><label>Person type</label> </p>
-    <p><label>Gender</label> {{ person.sex }}</p>
-    <p><label>Birth date</label> {{ person.date_of_birth }}</p>
-    <p><label>Birth place</label> {{ person.place_of_birth }}</p>
-    <p><label>Lived in</label> </p>
-    <p><label>Death date</label> {{ person.date_of_death }}</p>
-    <p><label>Death place</label> {{ person.place_of_death }}</p>
-    <p><label>Related to</label> {{ person.related_to }}</p>
-    <p><label>Bibliography</label> {{ person.bibliography }}</p>
-    <p><label>Provisional Notes</label> {{ person.notes }}</p>
-    <p><label>Persistent ID</label> </p>
+    <div class="card mb-3">
+        <h4 class="card-header">
+            Basic info - <small><a href="{%  url 'shewrote:edit_person' person.id %}">Edit</a></small>
+        </h4>
+        <div class="card-body">
+            <p>Name variations / spellings {{ person.first_name }} {{ person.maiden_name }}</p>
+            <p>Pseudonyms</p>
+            <p>Person type</p>
+            <p>Gender {{ person.sex }}
+            <p>Birth date {{ person.date_of_birth }}</p>
+            <p>Birth place {{ person.place_of_birth }}</p>
+            <p>Lived in </p>
+            <p>Death date {{ person.date_of_death }}</p>
+            <p>Death place {{ person.place_of_death }}</p>
+            <p>Related to {{ person.related_to }}</p>
+            <p>Bibliography {{ person.bibliography }}</p>
+            <p>Provisional Notes {{ person.notes }}</p>
+            <p>Persistent ID </p>
+        </div>
+    </div>
 
     <p><label>VIAF or CERL</label> {{ person.viaf_or_cerl }} </p>
     <p><label>Alt. birth date</label> {{ person.alternative_birth_date }}</p>

@@ -14,7 +14,7 @@ class Country(models.Model):
 class Place(models.Model):
     """Represents a Place in a country and its location in the world."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name_of_city = models.CharField(max_length=255, blank=True)
+    name = models.CharField(max_length=255, blank=True, unique=True)
     cerl_id = models.IntegerField(blank=True, null=True)
     modern_country = models.ForeignKey(Country, models.SET_NULL, null=True, blank=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
@@ -33,7 +33,7 @@ class Person(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     short_name = models.CharField(max_length=255)
-    viaf_or_cerl = models.CharField(max_length=255)
+    viaf_or_cerl = models.CharField(max_length=255, blank=True)
     first_name = models.CharField(max_length=255, blank=True)
     maiden_name = models.CharField(max_length=255, blank=True)
     date_of_birth = models.CharField(max_length=50, blank=True)
