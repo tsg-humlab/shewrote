@@ -1,10 +1,124 @@
 {% extends 'shewrote/base.html' %}
 
 {% block page_header %}
-    <h1>{{ person.short_name }} ({{ person.date_of_birth }} - {{ person.date_of_death }})</h1>
+    <h1>{{ person.short_name }} <small style="color: #777">({{ person.date_of_birth }} - {{ person.date_of_death }})</small></h1>
 {% endblock page_header %}
 
 {% block content %}
+    <div class="row">
+        <div class="d-flex align-items-start">
+            <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="navigation" aria-orientation="vertical">
+                <button class="nav-link active" data-bs-toggle="collapse" data-bs-target="#collapseBasic" type="button"
+                        aria-controls="collapseBasic" aria-selected="true">Basic info</button>
+                <button class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapsePersonal" type="button"
+                        aria-controls="collapsePersonal" aria-selected="false">Personal situation</button>
+                <button class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapseProfession" type="button"
+                        aria-controls="collapseProfession" aria-selected="false">Professional situation</button>
+                <button class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapsePublication" type="button"
+                        aria-controls="collapsePublication" aria-selected="false">Publications</button>
+                <button class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapseReception" type="button"
+                        aria-controls="collapseReception" aria-selected="false">Receptions</button>
+            </div>
+
+            <div class="col">
+                <div class="accordion" id="personDetails">
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseBasic" aria-expanded="true" aria-controls="collapseBasic">
+                                <h4>Basic info</h4>
+                            </button>
+                        </div>
+                        <div id="collapseBasic" class="accordion-collapse collapse show" data-bs-parent="#personDetails">
+                            <div class="accordion-body">
+                                <p>Name variations / spellings {{ person.first_name }} {{ person.maiden_name }}</p>
+                                <p>Pseudonyms</p>
+                                <p>Person type</p>
+                                <p>Gender {{ person.sex }}</p>
+                                <p>Birth date {{ person.date_of_birth }}</p>
+                                <p>Birth place {{ person.place_of_birth }}</p>
+                                <p>Lived in </p>
+                                <p>Death date {{ person.date_of_death }}</p>
+                                <p>Death place {{ person.place_of_death }}</p>
+                                <p>Related to {{ person.related_to }}</p>
+                                <p>Bibliography {{ person.bibliography }}</p>
+                                <p>Provisional Notes {{ person.notes }}</p>
+                                <p>Persistent ID </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsePersonal" aria-expanded="false" aria-controls="collapsePersonal">
+                                <h4>Personal situation</h4>
+                            </button>
+                        </div>
+                        <div id="collapsePersonal" class="accordion-collapse collapse" data-bs-parent="#personDetails">
+                            <div class="accordion-body">
+                                <p>Marital status</p>
+                                <p>Children</p>
+                                <p>Social class</p>
+                                <p>Education</p>
+                                <p>Religion / ideology</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseProfession" aria-expanded="false" aria-controls="collapseProfession">
+                                <h4>Professional situation</h4>
+                            </button>
+                        </div>
+                        <div id="collapseProfession" class="accordion-collapse collapse" data-bs-parent="#personDetails">
+                            <div class="accordion-body">
+                                <p>Profession(s)</p>
+                                <p>Financial aspects</p>
+                                <p>Collaborations</p>
+                                <p>Memberships</p>
+                                <p>Publication languages</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsePublication" aria-expanded="false" aria-controls="collapsePublication">
+                                <h4>Publications</h4>
+                            </button>
+                        </div>
+                        <div id="collapsePublication" class="accordion-collapse collapse" data-bs-parent="#personDetails">
+                            <div class="accordion-body">
+                                <p>Author of</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseReception" aria-expanded="false" aria-controls="collapseReception">
+                                <h4>Receptions</h4>
+                            </button>
+                        </div>
+                        <div id="collapseReception" class="accordion-collapse collapse" data-bs-parent="#personDetails">
+                            <div class="accordion-body">
+                                <p>Biography</p>
+                                <p>Commented on in</p>
+                                <p>Mentioned in</p>
+                                <p>Referenced in</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--
     <div class="card mb-3">
         <h4 class="card-header">
             Basic info - <small><a href="{%  url 'shewrote:edit_person' person.id %}">Edit</a></small>
@@ -36,6 +150,6 @@
     <p><label>Aristocratic title</label> {{ person.aristocratic_title }}</p>
     <p><label>Education</label> {{ person.education }}</p>
     <p><label>Mother</label> {{ person.mother }}</p>
-    <p><label>Father</label> {{ person.father }}</p>
+    <p><label>Father</label> {{ person.father }}</p>-->
 
 {% endblock content %}
