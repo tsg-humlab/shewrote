@@ -1,0 +1,24 @@
+{% extends 'shewrote/base.html' %}
+
+{% block page_header %}
+    <div class="row pb-2 mb-2 border-bottom">
+        <h1>Persons</h1>
+    </div>
+{% endblock page_header %}
+
+{% block content %}
+    <a class="btn btn-primary btn-sm mt-1 mb-1" href="{% url 'shewrote:new_person' %}">Add person &raquo</a>
+
+    <ul class="list-group border-bottom pb-2 mb-4">
+        {% for person in persons %}
+            <li class="list-group-item border-0">
+                <a href="{% url 'shewrote:person' person.id %}">
+                {{ person.short_name }}</a> -
+                <a href="{% url 'shewrote:edit_person' person.id %}">Edit</a>
+            </li>
+        {% empty %}
+            <li class="list-group-item border-0">No persons have been added yet.</li>
+        {% endfor %}
+    </ul>
+
+{% endblock content %}

@@ -14,12 +14,12 @@ class Country(models.Model):
 class Place(models.Model):
     """Represents a Place in a country and its location in the world."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name_of_city = models.CharField(max_length=255, blank=True)
-    cerl_id = models.IntegerField(blank=True)
+    name = models.CharField(max_length=255, blank=True, unique=True)
+    cerl_id = models.IntegerField(blank=True, null=True)
     modern_country = models.ForeignKey(Country, models.SET_NULL, null=True, blank=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
-    original_data = models.JSONField(blank=True, editable=False)
+    original_data = models.JSONField(blank=True, null=True, editable=False)
 
 
 class Person(models.Model):
@@ -33,15 +33,15 @@ class Person(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     short_name = models.CharField(max_length=255)
-    viaf_or_cerl = models.CharField(max_length=255)
+    viaf_or_cerl = models.CharField(max_length=255, blank=True)
     first_name = models.CharField(max_length=255, blank=True)
     maiden_name = models.CharField(max_length=255, blank=True)
-    date_of_birth = models.DateField(blank=True)
-    date_of_death = models.DateField(blank=True)
-    alternative_birth_date = models.DateField(blank=True)
-    alternative_death_date = models.DateField(blank=True)
-    flourishing_start = models.IntegerField(blank=True)
-    flourishing_end = models.IntegerField(blank=True)
+    date_of_birth = models.CharField(max_length=50, blank=True)
+    date_of_death = models.CharField(max_length=50, blank=True)
+    alternative_birth_date = models.CharField(max_length=50, blank=True)
+    alternative_death_date = models.CharField(max_length=50, blank=True)
+    flourishing_start = models.IntegerField(blank=True, null=True)
+    flourishing_end = models.IntegerField(blank=True, null=True)
     sex = models.CharField(max_length=1, choices=GenderChoices.choices, blank=True)
     alternative_name_gender = models.CharField(max_length=1, choices=GenderChoices.choices, blank=True)
     place_of_birth = models.ForeignKey(Place, models.SET_NULL, blank=True, null=True, related_name="+")
@@ -54,7 +54,7 @@ class Person(models.Model):
     bibliography = models.TextField(blank=True)
     related_to = models.ManyToManyField("self", blank=True)
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True, editable=False)
+    original_data = models.JSONField(blank=True, null=True, editable=False)
 
     def __str__(self):
         """Return the name of the Person."""
@@ -77,8 +77,8 @@ class PersonProfession(models.Model):
     """Model linking a Person to a Profession during a period of time."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     profession = models.ForeignKey(Profession, models.SET_NULL, null=True)
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
 
@@ -92,8 +92,8 @@ class PersonReligion(models.Model):
     """Model linking a Person to a Profession during a period of time."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     religion = models.ForeignKey(Religion, models.SET_NULL, null=True)
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
 
@@ -108,8 +108,8 @@ class Marriage(models.Model):
     spouse = models.ForeignKey(Person, models.SET_NULL, null=True, blank=True)
     married_name = models.CharField(max_length=255, blank=True)
     marital_status = models.CharField(max_length=1, choices=MaritalStatusChoices.choices, blank=True)
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
 
@@ -117,8 +117,8 @@ class AlternativeName(models.Model):
     """Model describing name variations and periods they were in use."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     alternative_name = models.CharField(max_length=255)
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
 
@@ -126,8 +126,8 @@ class PeriodOfResidence(models.Model):
     """Model linking Person to Place over a period of time."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
 
@@ -148,8 +148,8 @@ class Collective(models.Model):
         through_fields=("collective", "place"),
         blank=True,
     )
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     has_members = models.ManyToManyField(
         Person,
         through="PersonCollective",
@@ -157,7 +157,7 @@ class Collective(models.Model):
         blank=True,
     )
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True, editable=False)
+    original_data = models.JSONField(blank=True, null=True, editable=False)
 
     def __str__(self):
         """Return the name of the Collective"""
@@ -200,7 +200,7 @@ class Work(models.Model):
         blank=True,
     )
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True, editable=False)
+    original_data = models.JSONField(blank=True, null=True, editable=False)
 
     def __str__(self):
         """Return the title of the Work"""
@@ -212,8 +212,8 @@ class PersonWorkRole(models.Model):
     work = models.ForeignKey(Work, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, models.SET_NULL, null=True, blank=True)
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
 
@@ -221,7 +221,7 @@ class Edition(models.Model):
     """Represents an Edition of a Work published in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     related_work = models.ForeignKey(Work, on_delete=models.CASCADE)
-    publication_year = models.IntegerField(blank=True)
+    publication_year = models.IntegerField(blank=True, null=True)
     place_of_publication = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
     language = models.ManyToManyField(
         Language,
@@ -239,7 +239,7 @@ class Edition(models.Model):
     genre = models.ForeignKey(Genre, models.SET_NULL, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True, editable=False)
+    original_data = models.JSONField(blank=True, null=True, editable=False)
 
 
 class EditionLanguage(models.Model):
@@ -269,10 +269,10 @@ class ReceptionSource(models.Model):
     )
     shelfmark = models.CharField(max_length=255, blank=True)
     reference = models.TextField(blank=True)
-    date = models.DateField(blank=True)
+    date = models.DateField(blank=True, null=True)
     url = models.URLField(max_length=255, blank=True)
     notes = models.TextField(blank=True)
-    original_Data = models.JSONField(blank=True, editable=False)
+    original_Data = models.JSONField(blank=True, null=True, editable=False)
 
 
 class PersonReceptionSourceRole(models.Model):
@@ -332,7 +332,7 @@ class Reception(models.Model):
     viaf_work = models.URLField(max_length=255, blank=True)
     image = models.ImageField
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True, editable=False)
+    original_data = models.JSONField(blank=True, null=True, editable=False)
 
 
 class PersonReceptionRole(models.Model):

@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     # Project apps.
     'shewrote',
 
+    # Third party apps.
+    'django_bootstrap5',
+
     # Default django apps.
     'django.contrib.admin',
     'django.contrib.auth',

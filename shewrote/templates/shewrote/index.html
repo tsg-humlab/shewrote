@@ -1,0 +1,21 @@
+{% extends 'shewrote/base.html' %}
+
+{% block page_header %}
+    <div class="p-3 mb-4 bg-light border rounded-3">
+        <div class="container-fluid py-4">
+            <h1 class="display-3">Studying Historical Early Women’s Reception: Oeuvres, Texts, Engagements</h1>
+            <p class="lead">The SHEWROTE database allows users to stock, share and analyze historical data documenting
+                the international reception of works by women writers before c. 1940. The data includes evidence of book
+                ownership, readership, re-editions, translations, intertextual references and commentary on (works by)
+                women writers. The database is coordinated by members of the international NEWW Network (New approaches
+                to European Women’s Writing, created in 2005) and the DARIAH-EU working group ‘Women Writers in
+                History’. For more information on this working group, please see
+                <a href="https://www.dariah.eu/activities/working-groups/women-writers-in-history/">DARIAH.EU</a>.</p>
+            <a class="btn btn-primary btn-lg mt-1" href="{% url 'shewrote:persons' %}">Get started &raquo</a>
+        </div>
+    </div>
+{% endblock page_header %}
+
+{% block content %}
+
+{% endblock content %}
