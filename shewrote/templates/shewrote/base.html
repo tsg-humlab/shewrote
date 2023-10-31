@@ -9,7 +9,7 @@
     {% bootstrap_css %}
     {% bootstrap_javascript %}
 
-    {{ form.media.css }}
+    {% block extra_head %}{% endblock extra_head %}
 </head>
 <body>
     <nav class="navbar navbar-expand-md mb-4 border" style="background-color: #009688">
