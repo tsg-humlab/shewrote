@@ -39,6 +39,7 @@ INSTALLED_APPS = [
 
     # Third party apps.
     'django_bootstrap5',
+    'django_select2',
 
     # Default django apps.
     'django.contrib.admin',
@@ -91,6 +92,14 @@ DATABASES = {
         "PASSWORD": config("SQL_PASSWORD", default=""),
         "HOST": config("SQL_HOST", default=""),
         "PORT": config("SQL_PORT", default=""),
+    }
+}
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "sw_cache_table",
     }
 }
 
