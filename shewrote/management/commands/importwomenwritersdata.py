@@ -162,8 +162,8 @@ class Command(BaseCommand):
 
             type_of_collective, created = TypeOfCollective.objects.get_or_create(type_of_collective=type)
 
-            new_collectives[uuid] = Collective(id=uuid, name=name, type=type_of_collective, start_year=0, end_year=0,
-                                            original_data=json.dumps(collective))
+            new_collectives[uuid] = Collective(id=uuid, name=name, type=type_of_collective,
+                                               original_data=json.dumps(collective))
 
         Collective.objects.bulk_create(new_collectives.values())
 
@@ -188,7 +188,7 @@ class Command(BaseCommand):
             # if genre_relations:
             #     genre = Genre.objects.get(id=uuid, name=genre_relations[0]["displayName"])
 
-            works[uuid] = (Work(id=uuid, title=title, original_data=json.dumps(document)))
+            works[uuid] = Work(id=uuid, title=title, original_data=json.dumps(document))
 
             # Add languages
             # language_relations = document["@relations"].get("hasWorkLanguage", None)
@@ -203,16 +203,27 @@ class Command(BaseCommand):
         print(f"Processing {len(locations)} locations...")
 
         places = {}
+        names = set()
 
         for location in locations:
             uuid = location["_id"]
             name = location["name"]
 
-            places[uuid] = Place(id=uuid, name_of_city=name,
-                                                       cerl_id=-1, latitude=-1.0, longitude=-1.0, # TODO remove when possible
-                                                       original_data=json.dumps(location))
+            if name in names:
+                print(f"WARNING - A place object with name {name} already exists in the database. Using id {uuid} as name")
+                name = uuid
+
+            if uuid in places.keys():
+                print(f"WARNING - A place object with id {uuid} already exists in the database.")
+                continue
+
+            places[uuid] = Place(id=uuid, name=name, cerl_id=-1,
+                                 latitude=-1.0, longitude=-1.0, # TODO remove when possible
+                                 original_data=json.dumps(location))
+            names.add(name)
 
         Place.objects.bulk_create(places.values())
+
         for obj in places.values():
             # Add collectives
             collective_locations = location["@relations"].get("isLocationOf", [])
@@ -272,7 +283,9 @@ class Command(BaseCommand):
                 print(f"WARNING - A person object with id {uuid} already exists in the database.")
                 continue
 
-            short_name = person.get('tempName', '')
+            short_name = person.get('@displayName', '')
+            if not short_name:
+                short_name = person.get('tempName', '')
             sex = gender_choices[person['gender']]
             forenames = self.extract_names(person, "FORENAME")
             surnames = self.extract_names(person, "SURNAME")
@@ -286,12 +299,11 @@ class Command(BaseCommand):
             place_of_death = self.get_place(death_place[0]["id"]) if death_place else None
 
             new_persons[uuid] = Person(id=uuid, short_name=short_name, first_name=forenames, maiden_name=surnames,
-                                        date_of_birth=date_of_birth, date_of_death=date_of_death,
-                                        place_of_birth=place_of_birth, place_of_death=place_of_death,
-                                        alternative_birth_date='0001-01-01', alternative_death_date='0001-01-01',
-                                        flourishing_start=-1, flourishing_end=-1, sex=sex, alternative_name_gender='',
-                                        professional_ecclesiastic_title='', aristocratic_title='', education='',
-                                        bibliography='', original_data='')
+                                       date_of_birth=date_of_birth, date_of_death=date_of_death,
+                                       place_of_birth=place_of_birth, place_of_death=place_of_death,
+                                       alternative_birth_date='', alternative_death_date='', sex=sex,
+                                       alternative_name_gender='', professional_ecclesiastic_title='',
+                                       aristocratic_title='', education='', bibliography='', original_data='')
 
         Person.objects.bulk_create(new_persons.values())
         for obj in new_persons.values():
@@ -302,4 +314,4 @@ class Command(BaseCommand):
         if residence_locations:
             for residence_location in residence_locations:
                 place = Place.objects.get(id=residence_location["id"])
-                PeriodOfResidence.objects.create(person=obj, place=place, start_year=-1, end_year=-1, notes='')
+                PeriodOfResidence.objects.create(person=obj, place=place, notes='')
