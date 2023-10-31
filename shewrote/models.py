@@ -10,6 +10,10 @@ class Country(models.Model):
     alternative_country_name = models.CharField(max_length=255, blank=True)
     notes = models.CharField(max_length=255, blank=True)
 
+    def __str__(self):
+        """Return the modern name of the country."""
+        return self.modern_country
+
 
 class Place(models.Model):
     """Represents a Place in a country and its location in the world."""
@@ -20,6 +24,10 @@ class Place(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
+
+    def __str__(self):
+        """Return the Place name."""
+        return self.name
 
 
 class Person(models.Model):
@@ -66,11 +74,19 @@ class Role(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
 
+    def __str__(self):
+        """Return the name of the Role."""
+        return self.name
+
 
 class Profession(models.Model):
     """Model describing the profession of a Person."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        """Return the name of the Profession."""
+        return self.name
 
 
 class PersonProfession(models.Model):
@@ -86,6 +102,10 @@ class Religion(models.Model):
     """Model describing the profession of a Person."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        """Return the name of the Religion."""
+        return self.name
 
 
 class PersonReligion(models.Model):
@@ -121,6 +141,10 @@ class AlternativeName(models.Model):
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
+    def __str__(self):
+        """Return the Alternative Name for a Person during a period."""
+        return self.alternative_name
+
 
 class PeriodOfResidence(models.Model):
     """Model linking Person to Place over a period of time."""
@@ -135,6 +159,10 @@ class TypeOfCollective(models.Model):
     """Model describing the different types of Collective that exist."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_collective = models.CharField(max_length=255)
+
+    def __str__(self):
+        """Returns the name of the type of Collective."""
+        return self.type_of_collective
 
 
 class Collective(models.Model):
@@ -160,7 +188,7 @@ class Collective(models.Model):
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
     def __str__(self):
-        """Return the name of the Collective"""
+        """Returns the name of the Collective."""
         return self.name
 
 
@@ -181,11 +209,19 @@ class Genre(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
 
+    def __str__(self):
+        """Returns the name of the Genre."""
+        return self.name
+
 
 class Language(models.Model):
     """Model listing various languages."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        """Returns the name of the language."""
+        return self.name
 
 
 class Work(models.Model):
@@ -203,7 +239,7 @@ class Work(models.Model):
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
     def __str__(self):
-        """Return the title of the Work"""
+        """Returns the title of the Work"""
         return self.title
 
 
@@ -274,6 +310,10 @@ class ReceptionSource(models.Model):
     notes = models.TextField(blank=True)
     original_Data = models.JSONField(blank=True, null=True, editable=False)
 
+    def __str__(self):
+        """Returns the title of the Reception Source."""
+        return self.title_work
+
 
 class PersonReceptionSourceRole(models.Model):
     """Many-to-Many model connecting an Edition to related Persons."""
@@ -287,11 +327,19 @@ class TypeOfDocument(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_document = models.CharField(max_length=255)
 
+    def __str__(self):
+        """Returns the name of the Type of Document."""
+        return self.type_of_document
+
 
 class TypeOfReception(models.Model):
     """This model defines the different types of Reception that can occur."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_reception = models.CharField(max_length=255)
+
+    def __str__(self):
+        """Returns the name of the Type of Reception."""
+        return self.type_of_reception
 
 
 class Reception(models.Model):
@@ -333,6 +381,10 @@ class Reception(models.Model):
     image = models.ImageField
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
+
+    def __str__(self):
+        """Returns the title of the Reception."""
+        return self.title
 
 
 class PersonReceptionRole(models.Model):
