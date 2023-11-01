@@ -227,7 +227,7 @@ class Language(models.Model):
 class Work(models.Model):
     """Represent a Work by a Person that may have multiple Editions."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=1024)
     viaf_work = models.URLField(max_length=255, blank=True)
     related_persons = models.ManyToManyField(
         Person,
