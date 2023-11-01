@@ -10,16 +10,24 @@ class Country(models.Model):
     alternative_country_name = models.CharField(max_length=255, blank=True)
     notes = models.CharField(max_length=255, blank=True)
 
+    def __str__(self):
+        """Return the modern name of the country."""
+        return self.modern_country
+
 
 class Place(models.Model):
     """Represents a Place in a country and its location in the world."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name_of_city = models.CharField(max_length=255, blank=True)
-    cerl_id = models.IntegerField(blank=True)
+    name = models.CharField(max_length=255, blank=True, unique=True)
+    cerl_id = models.IntegerField(blank=True, null=True)
     modern_country = models.ForeignKey(Country, models.SET_NULL, null=True, blank=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
-    original_data = models.JSONField(blank=True, editable=False)
+    original_data = models.JSONField(blank=True, null=True, editable=False)
+
+    def __str__(self):
+        """Return the Place name."""
+        return self.name
 
 
 class Person(models.Model):
@@ -33,14 +41,15 @@ class Person(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     short_name = models.CharField(max_length=255)
+    viaf_or_cerl = models.CharField(max_length=255, blank=True)
     first_name = models.CharField(max_length=255, blank=True)
     maiden_name = models.CharField(max_length=255, blank=True)
-    date_of_birth = models.DateField(blank=True)
-    date_of_death = models.DateField(blank=True)
-    alternative_birth_date = models.DateField(blank=True)
-    alternative_death_date = models.DateField(blank=True)
-    flourishing_start = models.IntegerField(blank=True)
-    flourishing_end = models.IntegerField(blank=True)
+    date_of_birth = models.CharField(max_length=50, blank=True)
+    date_of_death = models.CharField(max_length=50, blank=True)
+    alternative_birth_date = models.CharField(max_length=50, blank=True)
+    alternative_death_date = models.CharField(max_length=50, blank=True)
+    flourishing_start = models.IntegerField(blank=True, null=True)
+    flourishing_end = models.IntegerField(blank=True, null=True)
     sex = models.CharField(max_length=1, choices=GenderChoices.choices, blank=True)
     alternative_name_gender = models.CharField(max_length=1, choices=GenderChoices.choices, blank=True)
     place_of_birth = models.ForeignKey(Place, models.SET_NULL, blank=True, null=True, related_name="+")
@@ -53,51 +62,58 @@ class Person(models.Model):
     bibliography = models.TextField(blank=True)
     related_to = models.ManyToManyField("self", blank=True)
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True, editable=False)
+    original_data = models.JSONField(blank=True, null=True, editable=False)
 
     def __str__(self):
         """Return the name of the Person."""
         return self.short_name
 
 
-class PersonViafOrCerl(models.Model):
-    """Model containing VIAF or CERL related to Person."""
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    viaf = models.CharField(max_length=255, blank=True)
-    cerl = models.CharField(max_length=255, blank=True)
-    notes = models.CharField(max_length=255, blank=True)
-
-
 class Role(models.Model):
     """Model describing the roles a Person can have."""
-    role = models.CharField(max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        """Return the name of the Role."""
+        return self.name
 
 
 class Profession(models.Model):
     """Model describing the profession of a Person."""
-    profession = models.CharField(max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        """Return the name of the Profession."""
+        return self.name
 
 
 class PersonProfession(models.Model):
     """Model linking a Person to a Profession during a period of time."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     profession = models.ForeignKey(Profession, models.SET_NULL, null=True)
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
 
 class Religion(models.Model):
     """Model describing the profession of a Person."""
-    religion = models.CharField(max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        """Return the name of the Religion."""
+        return self.name
 
 
 class PersonReligion(models.Model):
     """Model linking a Person to a Profession during a period of time."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     religion = models.ForeignKey(Religion, models.SET_NULL, null=True)
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
 
@@ -112,8 +128,8 @@ class Marriage(models.Model):
     spouse = models.ForeignKey(Person, models.SET_NULL, null=True, blank=True)
     married_name = models.CharField(max_length=255, blank=True)
     marital_status = models.CharField(max_length=1, choices=MaritalStatusChoices.choices, blank=True)
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
 
@@ -121,23 +137,32 @@ class AlternativeName(models.Model):
     """Model describing name variations and periods they were in use."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     alternative_name = models.CharField(max_length=255)
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        """Return the Alternative Name for a Person during a period."""
+        return self.alternative_name
 
 
 class PeriodOfResidence(models.Model):
     """Model linking Person to Place over a period of time."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
 
 class TypeOfCollective(models.Model):
     """Model describing the different types of Collective that exist."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_collective = models.CharField(max_length=255)
+
+    def __str__(self):
+        """Returns the name of the type of Collective."""
+        return self.type_of_collective
 
 
 class Collective(models.Model):
@@ -151,8 +176,8 @@ class Collective(models.Model):
         through_fields=("collective", "place"),
         blank=True,
     )
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     has_members = models.ManyToManyField(
         Person,
         through="PersonCollective",
@@ -160,10 +185,10 @@ class Collective(models.Model):
         blank=True,
     )
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True, editable=False)
+    original_data = models.JSONField(blank=True, null=True, editable=False)
 
     def __str__(self):
-        """Return the name of the Collective"""
+        """Returns the name of the Collective."""
         return self.name
 
 
@@ -181,12 +206,22 @@ class CollectivePlace(models.Model):
 
 class Genre(models.Model):
     """Model describing different genres."""
-    genre = models.CharField(max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        """Returns the name of the Genre."""
+        return self.name
 
 
 class Language(models.Model):
     """Model listing various languages."""
-    language = models.CharField(max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        """Returns the name of the language."""
+        return self.name
 
 
 class Work(models.Model):
@@ -200,18 +235,11 @@ class Work(models.Model):
         through_fields=("work", "person"),
         blank=True,
     )
-    genre = models.ForeignKey(Genre, models.SET_NULL, null=True, blank=True)
-    language = models.ManyToManyField(
-        Language,
-        through="WorkLanguage",
-        through_fields=("work", "language"),
-        blank=True,
-    )
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True, editable=False)
+    original_data = models.JSONField(blank=True, null=True, editable=False)
 
     def __str__(self):
-        """Return the title of the Work"""
+        """Returns the title of the Work"""
         return self.title
 
 
@@ -220,24 +248,23 @@ class PersonWorkRole(models.Model):
     work = models.ForeignKey(Work, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, models.SET_NULL, null=True, blank=True)
-    start_year = models.IntegerField(blank=True)
-    end_year = models.IntegerField(blank=True)
+    start_year = models.IntegerField(blank=True, null=True)
+    end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
-
-
-class WorkLanguage(models.Model):
-    """Model linking a Work to the Language it was written in."""
-    work = models.ForeignKey(Work, on_delete=models.CASCADE)
-    language = models.ForeignKey(Language, models.SET_NULL, null=True)
 
 
 class Edition(models.Model):
     """Represents an Edition of a Work published in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     related_work = models.ForeignKey(Work, on_delete=models.CASCADE)
-    publication_year = models.IntegerField(blank=True)
+    publication_year = models.IntegerField(blank=True, null=True)
     place_of_publication = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
-    language = models.ForeignKey(Language, models.SET_NULL, null=True, blank=True)
+    language = models.ManyToManyField(
+        Language,
+        through="EditionLanguage",
+        through_fields=("edition", "language"),
+        blank=True,
+    )
     cerl_publisher = models.CharField(max_length=255, blank=True)
     related_persons = models.ManyToManyField(
         Person,
@@ -248,7 +275,13 @@ class Edition(models.Model):
     genre = models.ForeignKey(Genre, models.SET_NULL, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True, editable=False)
+    original_data = models.JSONField(blank=True, null=True, editable=False)
+
+
+class EditionLanguage(models.Model):
+    """Model linking an Edition to its Language(s)."""
+    edition = models.ForeignKey(Edition, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, models.SET_NULL, null=True)
 
 
 class PersonEditionRole(models.Model):
@@ -272,10 +305,14 @@ class ReceptionSource(models.Model):
     )
     shelfmark = models.CharField(max_length=255, blank=True)
     reference = models.TextField(blank=True)
-    date = models.DateField(blank=True)
+    date = models.DateField(blank=True, null=True)
     url = models.URLField(max_length=255, blank=True)
     notes = models.TextField(blank=True)
-    original_Data = models.JSONField(blank=True, editable=False)
+    original_Data = models.JSONField(blank=True, null=True, editable=False)
+
+    def __str__(self):
+        """Returns the title of the Reception Source."""
+        return self.title_work
 
 
 class PersonReceptionSourceRole(models.Model):
@@ -287,12 +324,22 @@ class PersonReceptionSourceRole(models.Model):
 
 class TypeOfDocument(models.Model):
     """Defines the Type of document that can exist for a Reception."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_document = models.CharField(max_length=255)
+
+    def __str__(self):
+        """Returns the name of the Type of Document."""
+        return self.type_of_document
 
 
 class TypeOfReception(models.Model):
     """This model defines the different types of Reception that can occur."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_reception = models.CharField(max_length=255)
+
+    def __str__(self):
+        """Returns the name of the Type of Reception."""
+        return self.type_of_reception
 
 
 class Reception(models.Model):
@@ -304,11 +351,11 @@ class Reception(models.Model):
         through_fields=("reception", "person"),
     )
     source = models.ForeignKey(ReceptionSource, models.SET_NULL, null=True, blank=True)
-    title = models.TextField(blank=True)  # TODO is this the same title as in ReceptionSource?
+    title = models.TextField(blank=True)
     part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True)
     reference = models.TextField(blank=True)
     place_of_reception = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
-    date_of_reception = models.IntegerField(blank=True)  # TODO date or year?
+    date_of_reception = models.IntegerField(blank=True)
     quotation_reception = models.TextField(blank=True)
     document_type = models.ForeignKey(TypeOfDocument, models.SET_NULL, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
@@ -333,7 +380,11 @@ class Reception(models.Model):
     viaf_work = models.URLField(max_length=255, blank=True)
     image = models.ImageField
     notes = models.TextField(blank=True)
-    original_data = models.JSONField(blank=True, editable=False)
+    original_data = models.JSONField(blank=True, null=True, editable=False)
+
+    def __str__(self):
+        """Returns the title of the Reception."""
+        return self.title
 
 
 class PersonReceptionRole(models.Model):

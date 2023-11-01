@@ -41,6 +41,10 @@ INSTALLED_APPS = [
     # Project apps.
     'shewrote',
 
+    # Third party apps.
+    'django_bootstrap5',
+    'django_select2',
+
     # Default django apps.
     'django.contrib.admin',
     'django.contrib.auth',
@@ -122,6 +126,14 @@ except ConnectionRefusedError:
             'TIMEOUT': 60*60*24  # 24 hours
         }
     }
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "sw_cache_table",
+    }
+}
 
 
 # Password validation

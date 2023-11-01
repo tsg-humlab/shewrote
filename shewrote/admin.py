@@ -1,14 +1,13 @@
 from django.contrib import admin
-from .models import (Country, Place, Person, PersonViafOrCerl, Role, Profession, PersonProfession, Religion,
-                     PersonReligion, Marriage, AlternativeName, PeriodOfResidence, TypeOfCollective, Collective,
-                     PersonCollective, CollectivePlace, Genre, Language, Work, WorkLanguage, PersonWorkRole, Edition,
-                     PersonEditionRole, ReceptionSource, PersonReceptionSourceRole, TypeOfDocument, TypeOfReception,
-                     Reception, PersonReceptionRole, ReceptionType, ReceptionLanguage, ReceptionGenre)
+from .models import (Country, Place, Person, Role, Profession, PersonProfession, Religion, PersonReligion, Marriage,
+                     AlternativeName, PeriodOfResidence, TypeOfCollective, Collective, PersonCollective,
+                     CollectivePlace, Genre, Language, Work, PersonWorkRole, Edition, PersonEditionRole,
+                     ReceptionSource, PersonReceptionSourceRole, TypeOfDocument, TypeOfReception, Reception,
+                     PersonReceptionRole, ReceptionType, ReceptionLanguage, ReceptionGenre)
 
 admin.site.register(Country)
 admin.site.register(Place)
 admin.site.register(Person)
-admin.site.register(PersonViafOrCerl)
 admin.site.register(Role)
 admin.site.register(Profession)
 admin.site.register(PersonProfession)
@@ -24,7 +23,6 @@ admin.site.register(CollectivePlace)
 admin.site.register(Genre)
 admin.site.register(Language)
 admin.site.register(Work)
-admin.site.register(WorkLanguage)
 admin.site.register(PersonWorkRole)
 admin.site.register(Edition)
 admin.site.register(PersonEditionRole)
