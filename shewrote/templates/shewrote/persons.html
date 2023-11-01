@@ -9,11 +9,23 @@
 {% block content %}
     <a class="btn btn-primary btn-sm mt-1 mb-1" href="{% url 'shewrote:new_person' %}">Add person &raquo</a>
 
+    <form action="" method="get">
+        <input type="text" id="short_name" name="short_name" value="{{ short_name }}"
+               size=30 placeholder="Enter (part of) a short name"/>
+        <button type="submit" class="btn btn-secondary btn-sm mt-1 mb-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+              <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+            </svg>
+            Filter
+        </button>
+        {% if count %}{{ count }} persons found.{% endif %}
+    </form>
+
     <div class="pagination border-bottom">
         <span class="step-links">
             {% if persons.has_previous %}
-                <a href="?page=1">&laquo; first</a>
-                <a href="?page={{ persons.previous_page_number }}">previous</a>
+                <a href="?short_name={{ short_name }}&page=1">&laquo; first</a>
+                <a href="?short_name={{ short_name }}&page={{ persons.previous_page_number }}">previous</a>
             {% endif %}
 
             <span class="current">
@@ -21,8 +33,8 @@
             </span>
 
             {% if persons.has_next %}
-                <a href="?page={{ persons.next_page_number }}">next</a>
-                <a href="?page={{ persons.paginator.num_pages }}">last &raquo;</a>
+                <a href="?short_name={{ short_name }}&page={{ persons.next_page_number }}">next</a>
+                <a href="?short_name={{ short_name }}&page={{ persons.paginator.num_pages }}">last &raquo;</a>
             {% endif %}
         </span>
     </div>
@@ -35,7 +47,7 @@
                 <a href="{% url 'shewrote:edit_person' person.id %}">Edit</a>
             </li>
         {% empty %}
-            <li class="list-group-item border-0">No persons have been added yet.</li>
+            <li class="list-group-item border-0">No persons found.</li>
         {% endfor %}
     </ul>
 
