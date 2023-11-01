@@ -1,6 +1,7 @@
 from django import forms
+from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
-from .models import Person
+from .models import Person, Place
 
 
 class PersonForm(forms.ModelForm):
@@ -40,4 +41,14 @@ class PersonForm(forms.ModelForm):
         widgets = {
             'bibliography': forms.Textarea(attrs={'cols': 80}),
             'notes': forms.Textarea(attrs={'cols': 80}),
+            'place_of_birth': ModelSelect2Widget(model=Place, search_fields=['name__icontains'],
+                                                     attrs={'data-placeholder': "Select a place"}),
+            'place_of_death': ModelSelect2Widget(model=Place, search_fields=['name__icontains'],
+                                                     attrs={'data-placeholder': "Select a place"}),
+            'mother': ModelSelect2Widget(model=Person, search_fields=['short_name__icontains'],
+                                                     attrs={'data-placeholder': "Select a person"}),
+            'father': ModelSelect2Widget(model=Person, search_fields=['short_name__icontains'],
+                                                     attrs={'data-placeholder': "Select a person"}),
+            'related_to': ModelSelect2MultipleWidget(model=Person, search_fields=['short_name__icontains'],
+                                                     attrs={'data-placeholder': "Select multiple persons"})
         }

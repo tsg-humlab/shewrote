@@ -11,8 +11,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+import socket
 from pathlib import Path
 from decouple import config
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,6 +43,7 @@ INSTALLED_APPS = [
 
     # Third party apps.
     'django_bootstrap5',
+    'django_select2',
 
     # Default django apps.
     'django.contrib.admin',
@@ -93,6 +98,34 @@ DATABASES = {
         "PORT": config("SQL_PORT", default=""),
     }
 }
+
+# Check the availability of Redis at startup
+# otherwise use a database cache
+socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+REDIS_PORT = config('REDIS_PORT', cast=int, default=6379)
+REDIS_HOST = config('REDIS_HOST', default='127.0.0.1')
+
+try:
+    socket.connect((REDIS_HOST, REDIS_PORT))
+    socket.close()
+    logger.warning(f"Starting with Redis cache (redis://{REDIS_HOST}:{REDIS_PORT})")
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}",
+            "TIMEOUT": 60*60*24  # 24 hours
+        }
+    }
+except ConnectionRefusedError:
+    logger.warning("Starting with database cache")
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': config('CACHE_LOCATION', default="sw_cache_table"),
+            'TIMEOUT': 60*60*24  # 24 hours
+        }
+    }
 
 
 # Password validation
