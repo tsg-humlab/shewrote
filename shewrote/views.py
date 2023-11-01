@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.core.paginator import Paginator
 from .models import Person
 from .forms import PersonForm
 
@@ -12,7 +13,11 @@ def index(request):
 def persons(request):
     """Show all persons."""
     persons = Person.objects.order_by('short_name')
-    context = {'persons': persons}
+    paginator = Paginator(persons, 25)
+
+    page_number = request.GET.get("page")
+    paginated_persons = paginator.get_page(page_number)
+    context = {'persons': paginated_persons}
     return render(request, 'shewrote/persons.html', context)
 
 
