@@ -2,7 +2,4 @@
 .idea/
 db.sqlite3
 **/__pycache__
-<<<<<<< HEAD
-=======
 .env*
->>>>>>> d9f392c406d2c2c6df79df3ee9e84d35b997b19e
