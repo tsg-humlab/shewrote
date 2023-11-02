@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 from .models import Person
 from .forms import PersonForm
 
@@ -30,6 +31,7 @@ def person(request, person_id):
     return render(request, 'shewrote/person.html', context)
 
 
+@login_required
 def new_person(request):
     """Add a new person."""
     if request.method != 'POST':
@@ -47,6 +49,7 @@ def new_person(request):
     return render(request, 'shewrote/new_person.html', context)
 
 
+@login_required
 def edit_person(request, person_id):
     """Edit an existing person."""
     entry = Person.objects.get(id=person_id)
