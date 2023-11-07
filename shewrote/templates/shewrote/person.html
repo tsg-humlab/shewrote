@@ -55,7 +55,7 @@
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Birth place</th>
-                                            <td>{{ person.place_of_birth }}</td>
+                                            <td>{{ person.place_of_birth|default_if_none:"-" }}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Lived in</th>
@@ -67,7 +67,7 @@
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Death place</th>
-                                            <td>{{ person.place_of_death }}</td>
+                                            <td>{{ person.place_of_death|default_if_none:"-" }}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Related to</th>
