@@ -71,7 +71,15 @@
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Related to</th>
-                                            <td>{{ person.related_to|default:"-" }}</td>
+                                            <td>
+                                                {% if person.related_to.all %}
+                                                    {% for related_person in person.related_to.all %}
+                                                        {{ related_person }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Bibliography</th>
