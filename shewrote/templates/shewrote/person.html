@@ -47,15 +47,15 @@
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Gender</th>
-                                            <td>{{ person.get_sex_display }}</td>
+                                            <td>{{ person.get_sex_display|default:"-" }}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Birth date</th>
-                                            <td>{{ person.date_of_birth }}</td>
+                                            <td>{{ person.date_of_birth|default:"-" }}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Birth place</th>
-                                            <td>{{ person.place_of_birth|default_if_none:"-" }}</td>
+                                            <td>{{ person.place_of_birth|default:"-" }}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Lived in</th>
@@ -63,23 +63,23 @@
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Death date</th>
-                                            <td>{{ person.date_of_death }}</td>
+                                            <td>{{ person.date_of_death|default:"-" }}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Death place</th>
-                                            <td>{{ person.place_of_death|default_if_none:"-" }}</td>
+                                            <td>{{ person.place_of_death|default:"-" }}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Related to</th>
-                                            <td>{{ person.related_to }}</td>
+                                            <td>{{ person.related_to|default:"-" }}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Bibliography</th>
-                                            <td>{{ person.bibliography }}</td>
+                                            <td>{{ person.bibliography|default:"-" }}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Provisional Notes</th>
-                                            <td>{{ person.notes }}</td>
+                                            <td>{{ person.notes|default:"-" }}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Persistent ID</th>
