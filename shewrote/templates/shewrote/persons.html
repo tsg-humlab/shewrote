@@ -1,4 +1,5 @@
 {% extends 'shewrote/base.html' %}
+{% load django_bootstrap5 %}
 
 {% block page_header %}
     <div class="row pb-2 mb-2 border-bottom">
@@ -24,21 +25,7 @@
     </form>
 
     <div class="pagination border-bottom">
-        <span class="step-links">
-            {% if persons.has_previous %}
-                <a href="?short_name={{ short_name }}&page=1">&laquo; first</a>
-                <a href="?short_name={{ short_name }}&page={{ persons.previous_page_number }}">previous</a>
-            {% endif %}
-
-            <span class="current">
-                Page {{ persons.number }} of {{ persons.paginator.num_pages }}.
-            </span>
-
-            {% if persons.has_next %}
-                <a href="?short_name={{ short_name }}&page={{ persons.next_page_number }}">next</a>
-                <a href="?short_name={{ short_name }}&page={{ persons.paginator.num_pages }}">last &raquo;</a>
-            {% endif %}
-        </span>
+        {% bootstrap_pagination persons url=request.get_full_path %}
     </div>
 
     <ul class="list-group border-bottom pb-2 mb-4">
