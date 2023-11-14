@@ -336,11 +336,24 @@ class Command(BaseCommand):
 
     def add_person_works(self, person):
         person_works = []
-        # isCreatorOf
-        creator, created = Role.objects.get_or_create(name="creator")
-        works = person["@relations"].get("isCreatorOf", [])
-        person_works.extend([
-            PersonWorkRole(person_id=person["_id"], work_id=work["id"], role=creator)
-            for work in works if work["id"] in self.works.keys()
-        ])
+
+        roles = [
+            ("isCreatorOf", "is creator of"),
+            ("isPersonReferencedIn", "is referenced in"),
+            ("isPersonQuotedIn", "is quoted in"),
+            ("hasObituary", "has obituary"),
+            ("isPersonMentionedIn", "is mentioned in"),
+            ("isPersonListedOn", "is listed on"),
+            ("isPersonAwarded", "is awarded"),
+            ("isDedicatedPersonOf", "is dedidicated person of"),
+            ("isPersonCommentedOnIn", "is commented on in"),
+            ("hasBiography", "has biography"),
+        ]
+
+        for old_role, new_role in roles:
+            role, created = Role.objects.get_or_create(name=new_role)
+            works = person["@relations"].get(old_role, [])
+            person_works.extend([PersonWorkRole(person_id=person["_id"], work_id=work["id"], role=role)
+                                 for work in works if work["id"] in self.works.keys()])
+
         return person_works
