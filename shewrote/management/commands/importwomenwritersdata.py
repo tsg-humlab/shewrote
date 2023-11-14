@@ -8,7 +8,7 @@ import pathlib
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work, Place, Person, \
-    PeriodOfResidence
+    PeriodOfResidence, PersonCollective
 
 
 ww_collections = [
@@ -305,13 +305,22 @@ class Command(BaseCommand):
                                        alternative_name_gender='', professional_ecclesiastic_title='',
                                        aristocratic_title='', education='', bibliography='', original_data='')
 
-        Person.objects.bulk_create(new_persons.values())
-        for obj in new_persons.values():
-            self.add_person_relations(person, obj)
 
-    def add_person_relations(self, person, obj):
+
+        Person.objects.bulk_create(new_persons.values())
+        new_personcollectives = []
+        for person in persons:
+            self.add_person_relations(person)
+            new_personcollectives.extend(self.add_member_relations(person))
+        PersonCollective.objects.bulk_create(new_personcollectives)
+
+    def add_person_relations(self, person):
         residence_locations = person["@relations"].get("hasResidenceLocation", None)
         if residence_locations:
             for residence_location in residence_locations:
-                place = Place.objects.get(id=residence_location["id"])
-                PeriodOfResidence.objects.create(person=obj, place=place, notes='')
+                PeriodOfResidence.objects.create(person_id=person["_id"], place_id=residence_location["id"], notes='')
+
+    def add_member_relations(self, person):
+        memberships = person["@relations"].get("isMemberOf", [])
+        return [PersonCollective(person_id=person["_id"], collective_id=membership["id"]) for membership in memberships]
+
