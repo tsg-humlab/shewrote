@@ -308,17 +308,18 @@ class Command(BaseCommand):
 
 
         Person.objects.bulk_create(new_persons.values())
+        new_periodofresidences = []
         new_personcollectives = []
         for person in persons:
-            self.add_person_relations(person)
+            new_periodofresidences.extend(self.add_periodofresidence_relations(person))
             new_personcollectives.extend(self.add_member_relations(person))
+        PeriodOfResidence.objects.bulk_create(new_periodofresidences)
         PersonCollective.objects.bulk_create(new_personcollectives)
 
-    def add_person_relations(self, person):
-        residence_locations = person["@relations"].get("hasResidenceLocation", None)
-        if residence_locations:
-            for residence_location in residence_locations:
-                PeriodOfResidence.objects.create(person_id=person["_id"], place_id=residence_location["id"], notes='')
+    def add_periodofresidence_relations(self, person):
+        residence_locations = person["@relations"].get("hasResidenceLocation", [])
+        return [PeriodOfResidence(person_id=person["_id"], place_id=residence_location["id"], notes='')
+                for residence_location in residence_locations]
 
     def add_member_relations(self, person):
         memberships = person["@relations"].get("isMemberOf", [])
