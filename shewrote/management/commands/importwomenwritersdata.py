@@ -8,7 +8,7 @@ import pathlib
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work, Place, Person, \
-    PeriodOfResidence, PersonCollective
+    PeriodOfResidence, PersonCollective, PersonReligion
 
 
 ww_collections = [
@@ -305,16 +305,18 @@ class Command(BaseCommand):
                                        alternative_name_gender='', professional_ecclesiastic_title='',
                                        aristocratic_title='', education='', bibliography='', original_data='')
 
-
-
+        # Bulk create Persons and relations
         Person.objects.bulk_create(new_persons.values())
         new_periodofresidences = []
         new_personcollectives = []
+        new_personreligions = []
         for person in persons:
             new_periodofresidences.extend(self.add_periodofresidence_relations(person))
             new_personcollectives.extend(self.add_member_relations(person))
+            new_personreligions.extend(self.add_person_religions(person))
         PeriodOfResidence.objects.bulk_create(new_periodofresidences)
         PersonCollective.objects.bulk_create(new_personcollectives)
+        PersonReligion.objects.bulk_create(new_personreligions)
 
     def add_periodofresidence_relations(self, person):
         residence_locations = person["@relations"].get("hasResidenceLocation", [])
@@ -325,3 +327,6 @@ class Command(BaseCommand):
         collectives = person["@relations"].get("isMemberOf", [])
         return [PersonCollective(person_id=person["_id"], collective_id=collective["id"]) for collective in collectives]
 
+    def add_person_religions(self, person):
+        religions = person["@relations"].get("hasReligion", [])
+        return [PersonReligion(person_id=person["_id"], religion_id=religion["id"], notes='') for religion in religions]
