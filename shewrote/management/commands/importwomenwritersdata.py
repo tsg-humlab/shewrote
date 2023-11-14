@@ -322,6 +322,6 @@ class Command(BaseCommand):
                 for residence_location in residence_locations]
 
     def add_member_relations(self, person):
-        memberships = person["@relations"].get("isMemberOf", [])
-        return [PersonCollective(person_id=person["_id"], collective_id=membership["id"]) for membership in memberships]
+        collectives = person["@relations"].get("isMemberOf", [])
+        return [PersonCollective(person_id=person["_id"], collective_id=collective["id"]) for collective in collectives]
 
