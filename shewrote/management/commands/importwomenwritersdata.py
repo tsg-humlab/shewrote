@@ -8,7 +8,7 @@ import pathlib
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work, Place, Person, \
-    PeriodOfResidence, PersonCollective, PersonReligion
+    PeriodOfResidence, PersonCollective, PersonReligion, PersonWorkRole, Role
 
 
 ww_collections = [
@@ -170,14 +170,14 @@ class Command(BaseCommand):
     def create_for_wwdocuments(self, documents):
         print(f"Processing {len(documents)} documents...")
 
-        works = {}
+        self.works = {}
 
         for document in documents:
             if document["documentType"] != "WORK":
                 continue
 
             uuid = document["_id"]
-            if uuid in works.keys():
+            if uuid in self.works.keys():
                 print(f"WARNING - A work object with id {uuid} already exists in the database.")
                 continue
 
@@ -188,7 +188,7 @@ class Command(BaseCommand):
             # if genre_relations:
             #     genre = Genre.objects.get(id=uuid, name=genre_relations[0]["displayName"])
 
-            works[uuid] = Work(id=uuid, title=title, original_data=json.dumps(document))
+            self.works[uuid] = Work(id=uuid, title=title, original_data=json.dumps(document))
 
             # Add languages
             # language_relations = document["@relations"].get("hasWorkLanguage", None)
@@ -197,7 +197,7 @@ class Command(BaseCommand):
             #         language = Language.objects.get(id=language_relation["id"])
             #         obj.language.add(language)
 
-        Work.objects.bulk_create(works.values())
+        Work.objects.bulk_create(self.works.values())
 
     def create_for_wwlocations(self, locations):
         print(f"Processing {len(locations)} locations...")
@@ -310,13 +310,16 @@ class Command(BaseCommand):
         new_periodofresidences = []
         new_personcollectives = []
         new_personreligions = []
+        new_personworks = []
         for person in persons:
             new_periodofresidences.extend(self.add_periodofresidence_relations(person))
             new_personcollectives.extend(self.add_member_relations(person))
             new_personreligions.extend(self.add_person_religions(person))
+            new_personworks.extend(self.add_person_works(person))
         PeriodOfResidence.objects.bulk_create(new_periodofresidences)
         PersonCollective.objects.bulk_create(new_personcollectives)
         PersonReligion.objects.bulk_create(new_personreligions)
+        PersonWorkRole.objects.bulk_create(new_personworks)
 
     def add_periodofresidence_relations(self, person):
         residence_locations = person["@relations"].get("hasResidenceLocation", [])
@@ -330,3 +333,14 @@ class Command(BaseCommand):
     def add_person_religions(self, person):
         religions = person["@relations"].get("hasReligion", [])
         return [PersonReligion(person_id=person["_id"], religion_id=religion["id"], notes='') for religion in religions]
+
+    def add_person_works(self, person):
+        person_works = []
+        # isCreatorOf
+        creator, created = Role.objects.get_or_create(name="creator")
+        works = person["@relations"].get("isCreatorOf", [])
+        person_works.extend([
+            PersonWorkRole(person_id=person["_id"], work_id=work["id"], role=creator)
+            for work in works if work["id"] in self.works.keys()
+        ])
+        return person_works
