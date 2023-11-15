@@ -10,6 +10,9 @@ class Country(models.Model):
     alternative_country_name = models.CharField(max_length=255, blank=True)
     notes = models.CharField(max_length=255, blank=True)
 
+    class Meta:
+        verbose_name_plural = 'countries'
+
     def __str__(self):
         """Return the modern name of the country."""
         return self.modern_country
