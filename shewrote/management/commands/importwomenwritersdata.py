@@ -305,6 +305,9 @@ class Command(BaseCommand):
                                        alternative_name_gender='', professional_ecclesiastic_title='',
                                        aristocratic_title='', education='', bibliography='', original_data='')
 
+        self.bulk_create_persons_and_relations(persons)
+
+    def bulk_create_persons_and_relations(self, persons):
         # Bulk create Persons and relations
         new_periodofresidences = []
         new_personcollectives = []
