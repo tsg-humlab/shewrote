@@ -8,7 +8,7 @@ import pathlib
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work, Place, Person, \
-    PeriodOfResidence, PersonCollective, PersonReligion, PersonWorkRole, Role
+    PeriodOfResidence, PersonCollective, PersonReligion, PersonWorkRole, Role, AlternativeName
 
 
 ww_collections = [
@@ -326,6 +326,7 @@ class Command(BaseCommand):
         PersonCollective.objects.bulk_create(new_personcollectives)
         PersonReligion.objects.bulk_create(new_personreligions)
         PersonWorkRole.objects.bulk_create(new_personworks)
+        AlternativeName.objects.bulk_create(self.add_pseudonyms(persons))
 
     def add_periodofresidence_relations(self, person):
         residence_locations = person["@relations"].get("hasResidenceLocation", [])
@@ -378,3 +379,11 @@ class Command(BaseCommand):
         educations = person["@relations"].get("hasEducation", [])
         new_person = self.new_persons[person["_id"]]
         new_person.education = "; ".join([education["displayName"] for education in educations])
+
+    def add_pseudonyms(self, persons):
+        new_alternativenames = []
+        for person in persons:
+            pseudonyms = person["@relations"].get("hasPseudonym", [])
+            new_alternativenames.extend([AlternativeName(person_id=person["_id"], alternative_name=pseudonym["displayName"])
+                    for pseudonym in pseudonyms])
+        return new_alternativenames
