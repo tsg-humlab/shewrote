@@ -275,11 +275,11 @@ class Command(BaseCommand):
             'NOT_APPLICABLE': "N"
         }
 
-        new_persons = {}
+        self.new_persons = {}
 
         for person in persons:
             uuid = person["_id"]
-            if uuid in new_persons.keys():
+            if uuid in self.new_persons.keys():
                 print(f"WARNING - A person object with id {uuid} already exists in the database.")
                 continue
 
@@ -298,7 +298,7 @@ class Command(BaseCommand):
             death_place = person["@relations"].get("hasDeathPlace", None)
             place_of_death = self.get_place(death_place[0]["id"]) if death_place else None
 
-            new_persons[uuid] = Person(id=uuid, short_name=short_name, first_name=forenames, maiden_name=surnames,
+            self.new_persons[uuid] = Person(id=uuid, short_name=short_name, first_name=forenames, maiden_name=surnames,
                                        date_of_birth=date_of_birth, date_of_death=date_of_death,
                                        place_of_birth=place_of_birth, place_of_death=place_of_death,
                                        alternative_birth_date='', alternative_death_date='', sex=sex,
@@ -306,7 +306,6 @@ class Command(BaseCommand):
                                        aristocratic_title='', education='', bibliography='', original_data='')
 
         # Bulk create Persons and relations
-        Person.objects.bulk_create(new_persons.values())
         new_periodofresidences = []
         new_personcollectives = []
         new_personreligions = []
@@ -316,6 +315,9 @@ class Command(BaseCommand):
             new_personcollectives.extend(self.add_member_relations(person))
             new_personreligions.extend(self.add_person_religions(person))
             new_personworks.extend(self.add_person_works(person))
+            self.add_parents(person)
+
+        Person.objects.bulk_create(self.new_persons.values())
         PeriodOfResidence.objects.bulk_create(new_periodofresidences)
         PersonCollective.objects.bulk_create(new_personcollectives)
         PersonReligion.objects.bulk_create(new_personreligions)
@@ -357,3 +359,13 @@ class Command(BaseCommand):
                                  for work in works if work["id"] in self.works.keys()])
 
         return person_works
+
+    def add_parents(self, person):
+        new_person = self.new_persons[person["_id"]]
+        parents = person["@relations"].get("isChildOf", [])
+        for parent in parents:
+            new_parent = self.new_persons[parent["id"]]
+            if new_parent.sex == Person.GenderChoices.FEMALE:
+                new_person.mother_id = new_parent.id
+            elif new_parent.sex == Person.GenderChoices.MALE:
+                new_person.father_id = new_parent.id
