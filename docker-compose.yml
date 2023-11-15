@@ -6,6 +6,7 @@ services:
     command: gunicorn sw_project.wsgi:application --bind 0.0.0.0:8000 --log-level debug
     volumes:
       - static_volume:/home/app/web/staticfiles
+      - tmp_volume:/home/app/web/tmp
     expose:
       - 8000
     env_file:
@@ -41,3 +42,4 @@ services:
 volumes:
   postgres_data:
   static_volume:
+  tmp_volume:
