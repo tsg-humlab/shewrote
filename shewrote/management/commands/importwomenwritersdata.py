@@ -316,6 +316,7 @@ class Command(BaseCommand):
             new_personreligions.extend(self.add_person_religions(person))
             new_personworks.extend(self.add_person_works(person))
             self.add_parents(person)
+            self.add_educations(person)
 
         Person.objects.bulk_create(self.new_persons.values())
         PeriodOfResidence.objects.bulk_create(new_periodofresidences)
@@ -369,3 +370,8 @@ class Command(BaseCommand):
                 new_person.mother_id = new_parent.id
             elif new_parent.sex == Person.GenderChoices.MALE:
                 new_person.father_id = new_parent.id
+
+    def add_educations(self, person):
+        educations = person["@relations"].get("hasEducation", [])
+        new_person = self.new_persons[person["_id"]]
+        new_person.education = "; ".join([education["displayName"] for education in educations])
