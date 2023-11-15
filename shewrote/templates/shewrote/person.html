@@ -210,7 +210,22 @@
                         </div>
                         <div id="collapsePublication" class="accordion-collapse collapse" data-bs-parent="#personDetails">
                             <div class="accordion-body">
-                                <p>Author of</p>
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">is creator of</th>
+                                            <td>
+                                                <ul>
+                                                    {% for work in person.get_created_works %}
+                                                        <li>
+                                                            {{ work }}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
