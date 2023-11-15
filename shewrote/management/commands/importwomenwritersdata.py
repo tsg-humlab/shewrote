@@ -299,11 +299,12 @@ class Command(BaseCommand):
             place_of_death = self.get_place(death_place[0]["id"]) if death_place else None
 
             self.new_persons[uuid] = Person(id=uuid, short_name=short_name, first_name=forenames, maiden_name=surnames,
-                                       date_of_birth=date_of_birth, date_of_death=date_of_death,
-                                       place_of_birth=place_of_birth, place_of_death=place_of_death,
-                                       alternative_birth_date='', alternative_death_date='', sex=sex,
-                                       alternative_name_gender='', professional_ecclesiastic_title='',
-                                       aristocratic_title='', education='', bibliography='', original_data='')
+                                            date_of_birth=date_of_birth, date_of_death=date_of_death,
+                                            place_of_birth=place_of_birth, place_of_death=place_of_death,
+                                            alternative_birth_date='', alternative_death_date='', sex=sex,
+                                            alternative_name_gender='', professional_ecclesiastic_title='',
+                                            aristocratic_title='', education='', bibliography='',
+                                            original_data=json.dumps(person))
 
         self.bulk_create_persons_and_relations(persons)
 
