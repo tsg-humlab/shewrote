@@ -239,10 +239,58 @@
                         </div>
                         <div id="collapseReception" class="accordion-collapse collapse" data-bs-parent="#personDetails">
                             <div class="accordion-body">
-                                <p>Biography</p>
-                                <p>Commented on in</p>
-                                <p>Mentioned in</p>
-                                <p>Referenced in</p>
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Biography</th>
+                                            <td>
+                                                <ul>
+                                                    {% for work in has_biography %}
+                                                        <li>
+                                                            {{ work }}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Commented on in</th>
+                                            <td>
+                                                <ul>
+                                                    {% for work in is_commented_on_in %}
+                                                        <li>
+                                                            {{ work }}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Mentioned in</th>
+                                            <td>
+                                                <ul>
+                                                    {% for work in is_mentioned_in %}
+                                                        <li>
+                                                            {{ work }}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Referenced in</th>
+                                            <td>
+                                                <ul>
+                                                    {% for work in is_referenced_in %}
+                                                        <li>
+                                                            {{ work }}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

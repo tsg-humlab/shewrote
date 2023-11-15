@@ -29,7 +29,11 @@ def person(request, person_id):
     person = Person.objects.get(id=person_id)
     context = {
         'person': person,
-        'is_creator_of_works': person.get_created_works("is creator of")
+        'is_creator_of_works': person.get_created_works("is creator of"),
+        'has_biography': person.get_created_works("has biography"),
+        'is_commented_on_in': person.get_created_works("is commented on in"),
+        'is_mentioned_in': person.get_created_works("is mentioned in"),
+        'is_referenced_in': person.get_created_works("is referenced in")
     }
     return render(request, 'shewrote/person.html', context)
 
