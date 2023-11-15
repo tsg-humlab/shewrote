@@ -1,7 +1,21 @@
 {% extends 'shewrote/base.html' %}
 
 {% block page_header %}
-    <h1>{{ person.short_name }} <small style="color: #777">({{ person.date_of_birth }} - {{ person.date_of_death }})</small></h1>
+    <h1>
+        {{ person.short_name }}
+        <small class="text-muted">
+            ({{ person.date_of_birth }} - {{ person.date_of_death }})
+            {% if person.sex == "M" %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-gender-male" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2H9.5zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+                </svg>
+            {% elif person.sex == "F" %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-gender-female" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5z"/>
+                </svg>
+            {% endif %}
+        </small>
+    </h1>
 {% endblock page_header %}
 
 {% block content %}
@@ -31,19 +45,70 @@
                         </div>
                         <div id="collapseBasic" class="accordion-collapse collapse show" data-bs-parent="#personDetails">
                             <div class="accordion-body">
-                                <p>Name variations / spellings {{ person.first_name }} {{ person.maiden_name }}</p>
-                                <p>Pseudonyms</p>
-                                <p>Person type</p>
-                                <p>Gender {{ person.sex }}</p>
-                                <p>Birth date {{ person.date_of_birth }}</p>
-                                <p>Birth place {{ person.place_of_birth }}</p>
-                                <p>Lived in </p>
-                                <p>Death date {{ person.date_of_death }}</p>
-                                <p>Death place {{ person.place_of_death }}</p>
-                                <p>Related to {{ person.related_to }}</p>
-                                <p>Bibliography {{ person.bibliography }}</p>
-                                <p>Provisional Notes {{ person.notes }}</p>
-                                <p>Persistent ID </p>
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Name variations / spellings</th>
+                                            <td>{{ person.first_name }} {{ person.maiden_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Pseudonyms</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Person type</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Gender</th>
+                                            <td>{{ person.get_sex_display|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Birth date</th>
+                                            <td>{{ person.date_of_birth|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Birth place</th>
+                                            <td>{{ person.place_of_birth|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Lived in</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Death date</th>
+                                            <td>{{ person.date_of_death|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Death place</th>
+                                            <td>{{ person.place_of_death|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Related to</th>
+                                            <td>
+                                                {% if person.related_to.all %}
+                                                    {% for related_person in person.related_to.all %}
+                                                        {{ related_person }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Bibliography</th>
+                                            <td>{{ person.bibliography|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Provisional Notes</th>
+                                            <td>{{ person.notes|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Persistent ID</th>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
