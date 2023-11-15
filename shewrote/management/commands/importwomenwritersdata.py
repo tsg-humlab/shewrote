@@ -163,7 +163,7 @@ class Command(BaseCommand):
             type_of_collective, created = TypeOfCollective.objects.get_or_create(type_of_collective=type)
 
             new_collectives[uuid] = Collective(id=uuid, name=name, type=type_of_collective,
-                                               original_data=json.dumps(collective))
+                                               original_data=collective)
 
         Collective.objects.bulk_create(new_collectives.values())
 
@@ -188,7 +188,7 @@ class Command(BaseCommand):
             # if genre_relations:
             #     genre = Genre.objects.get(id=uuid, name=genre_relations[0]["displayName"])
 
-            self.works[uuid] = Work(id=uuid, title=title, original_data=json.dumps(document))
+            self.works[uuid] = Work(id=uuid, title=title, original_data=document)
 
             # Add languages
             # language_relations = document["@relations"].get("hasWorkLanguage", None)
@@ -219,7 +219,7 @@ class Command(BaseCommand):
 
             places[uuid] = Place(id=uuid, name=name, cerl_id=-1,
                                  latitude=-1.0, longitude=-1.0, # TODO remove when possible
-                                 original_data=json.dumps(location))
+                                 original_data=location)
             names.add(name)
 
         Place.objects.bulk_create(places.values())
@@ -304,7 +304,7 @@ class Command(BaseCommand):
                                             alternative_birth_date='', alternative_death_date='', sex=sex,
                                             alternative_name_gender='', professional_ecclesiastic_title='',
                                             aristocratic_title='', education='', bibliography='',
-                                            original_data=json.dumps(person))
+                                            original_data=person)
 
         self.bulk_create_persons_and_relations(persons)
 
