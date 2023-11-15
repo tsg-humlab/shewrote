@@ -252,19 +252,6 @@ class Command(BaseCommand):
             return " ".join([component['value'] for component in filtered_components])
         return ''
 
-    def transform_to_date(self, date):
-        # TODO remove default '-01-01' when possible
-        if not date:
-            return '0001-01-01'
-        if re.search('^\d{4}-\d\d-\d\d$', date): # YYYY-MM-DD
-            return date
-        if re.search('^\d{4}$', date): # YYYY
-            return date + "-01-01"
-        if re.search('^\d\d-\d\d-\d{4}$', date): # DD-MM-YYYY
-            day, month, year = date.split('-')
-            return f'{year}-{month}-{day}'
-        return '0001-01-01'
-
     def create_for_wwpersons(self, persons):
         print(f"Processing {len(persons)} persons...")
 
@@ -289,9 +276,6 @@ class Command(BaseCommand):
             sex = gender_choices[person['gender']]
             forenames = self.extract_names(person, "FORENAME")
             surnames = self.extract_names(person, "SURNAME")
-
-            date_of_birth = self.transform_to_date(person.get('birthDate'))
-            date_of_death = self.transform_to_date(person.get('deathDate'))
             
             birth_place = person["@relations"].get("hasBirthPlace", None)
             place_of_birth = self.get_place(birth_place[0]["id"]) if birth_place else None
@@ -299,7 +283,8 @@ class Command(BaseCommand):
             place_of_death = self.get_place(death_place[0]["id"]) if death_place else None
 
             self.new_persons[uuid] = Person(id=uuid, short_name=short_name, first_name=forenames, maiden_name=surnames,
-                                            date_of_birth=date_of_birth, date_of_death=date_of_death,
+                                            date_of_birth=person.get('birthDate', ''),
+                                            date_of_death=person.get('deathDate', ''),
                                             place_of_birth=place_of_birth, place_of_death=place_of_death,
                                             alternative_birth_date='', alternative_death_date='', sex=sex,
                                             alternative_name_gender='', professional_ecclesiastic_title='',
