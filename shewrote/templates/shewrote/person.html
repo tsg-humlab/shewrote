@@ -122,11 +122,40 @@
                         </div>
                         <div id="collapsePersonal" class="accordion-collapse collapse" data-bs-parent="#personDetails">
                             <div class="accordion-body">
-                                <p>Marital status</p>
-                                <p>Children</p>
-                                <p>Social class</p>
-                                <p>Education</p>
-                                <p>Religion / ideology</p>
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Marital status</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Children</th>
+                                            <td>
+                                                {% for child in person.get_children %}
+                                                    <a href="{% url 'shewrote:person' child.id %}">
+                                                        {{ child }}
+                                                    </a>{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Social class</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Education</th>
+                                            <td>{{ person.education }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Religion / ideology</th>
+                                            <td>
+                                                {% for religion in person.get_religions %}
+                                                    {{ religion }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

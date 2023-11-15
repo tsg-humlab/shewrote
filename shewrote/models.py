@@ -71,6 +71,15 @@ class Person(models.Model):
         """Return the name of the Person."""
         return self.short_name
 
+    def get_children(self):
+        if self.sex == Person.GenderChoices.FEMALE:
+            return Person.objects.filter(mother=self).order_by('date_of_birth')
+        elif self.sex == Person.GenderChoices.MALE:
+            return Person.objects.filter(father=self).order_by('date_of_birth')
+
+    def get_religions(self):
+        return Religion.objects.filter(personreligion__person=self)
+
 
 class Role(models.Model):
     """Model describing the roles a Person can have."""
