@@ -309,61 +309,63 @@ class Command(BaseCommand):
 
     def bulk_create_persons_and_relations(self, persons):
         # Bulk create Persons and relations
-        new_periodofresidences = []
-        new_personcollectives = []
-        new_personreligions = []
-        new_personworks = []
         for person in persons:
-            new_periodofresidences.extend(self.add_periodofresidence_relations(person))
-            new_personcollectives.extend(self.add_member_relations(person))
-            new_personreligions.extend(self.add_person_religions(person))
-            new_personworks.extend(self.add_person_works(person))
             self.add_parents(person)
             self.add_educations(person)
 
         Person.objects.bulk_create(self.new_persons.values())
-        PeriodOfResidence.objects.bulk_create(new_periodofresidences)
-        PersonCollective.objects.bulk_create(new_personcollectives)
-        PersonReligion.objects.bulk_create(new_personreligions)
-        PersonWorkRole.objects.bulk_create(new_personworks)
-        AlternativeName.objects.bulk_create(self.add_pseudonyms(persons))
+        PeriodOfResidence.objects.bulk_create(self.get_periodofresidences(persons))
+        PersonCollective.objects.bulk_create(self.get_personcollectives(persons))
+        PersonReligion.objects.bulk_create(self.get_personreligions(persons))
+        PersonWorkRole.objects.bulk_create(self.get_personworkroles(persons))
+        AlternativeName.objects.bulk_create(self.get_alternativenames(persons))
 
-    def add_periodofresidence_relations(self, person):
-        residence_locations = person["@relations"].get("hasResidenceLocation", [])
-        return [PeriodOfResidence(person_id=person["_id"], place_id=residence_location["id"], notes='')
-                for residence_location in residence_locations]
+    def get_periodofresidences(self, persons):
+        new_periodofresidences = []
+        for person in persons:
+            residence_locations = person["@relations"].get("hasResidenceLocation", [])
+            new_periodofresidences.extend([PeriodOfResidence(person_id=person["_id"], place_id=residence_location["id"], notes='')
+                    for residence_location in residence_locations])
+        return new_periodofresidences
 
-    def add_member_relations(self, person):
-        collectives = person["@relations"].get("isMemberOf", [])
-        return [PersonCollective(person_id=person["_id"], collective_id=collective["id"]) for collective in collectives]
+    def get_personcollectives(self, persons):
+        new_personcollectives = []
+        for person in persons:
+            collectives = person["@relations"].get("isMemberOf", [])
+            new_personcollectives.extend([PersonCollective(person_id=person["_id"], collective_id=collective["id"])
+                                          for collective in collectives])
+        return new_personcollectives
 
-    def add_person_religions(self, person):
-        religions = person["@relations"].get("hasReligion", [])
-        return [PersonReligion(person_id=person["_id"], religion_id=religion["id"], notes='') for religion in religions]
+    def get_personreligions(self, persons):
+        new_personreligions = []
+        for person in persons:
+            religions = person["@relations"].get("hasReligion", [])
+            new_personreligions.extend([PersonReligion(person_id=person["_id"], religion_id=religion["id"], notes='')
+                                        for religion in religions])
+        return new_personreligions
 
-    def add_person_works(self, person):
-        person_works = []
+    def get_personworkroles(self, persons):
+        new_personworks = []
+        for person in persons:
+            roles = [
+                ("isCreatorOf", "is creator of"),
+                ("isPersonReferencedIn", "is referenced in"),
+                ("isPersonQuotedIn", "is quoted in"),
+                ("hasObituary", "has obituary"),
+                ("isPersonMentionedIn", "is mentioned in"),
+                ("isPersonListedOn", "is listed on"),
+                ("isPersonAwarded", "is awarded"),
+                ("isDedicatedPersonOf", "is dedidicated person of"),
+                ("isPersonCommentedOnIn", "is commented on in"),
+                ("hasBiography", "has biography"),
+            ]
 
-        roles = [
-            ("isCreatorOf", "is creator of"),
-            ("isPersonReferencedIn", "is referenced in"),
-            ("isPersonQuotedIn", "is quoted in"),
-            ("hasObituary", "has obituary"),
-            ("isPersonMentionedIn", "is mentioned in"),
-            ("isPersonListedOn", "is listed on"),
-            ("isPersonAwarded", "is awarded"),
-            ("isDedicatedPersonOf", "is dedidicated person of"),
-            ("isPersonCommentedOnIn", "is commented on in"),
-            ("hasBiography", "has biography"),
-        ]
-
-        for old_role, new_role in roles:
-            role, created = Role.objects.get_or_create(name=new_role)
-            works = person["@relations"].get(old_role, [])
-            person_works.extend([PersonWorkRole(person_id=person["_id"], work_id=work["id"], role=role)
-                                 for work in works if work["id"] in self.works.keys()])
-
-        return person_works
+            for old_role, new_role in roles:
+                role, created = Role.objects.get_or_create(name=new_role)
+                works = person["@relations"].get(old_role, [])
+                new_personworks.extend([PersonWorkRole(person_id=person["_id"], work_id=work["id"], role=role)
+                                        for work in works if work["id"] in self.works.keys()])
+        return new_personworks
 
     def add_parents(self, person):
         new_person = self.new_persons[person["_id"]]
@@ -380,7 +382,7 @@ class Command(BaseCommand):
         new_person = self.new_persons[person["_id"]]
         new_person.education = "; ".join([education["displayName"] for education in educations])
 
-    def add_pseudonyms(self, persons):
+    def get_alternativenames(self, persons):
         new_alternativenames = []
         for person in persons:
             pseudonyms = person["@relations"].get("hasPseudonym", [])
