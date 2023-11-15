@@ -216,7 +216,7 @@
                                             <th scope="row" class="w-25">is creator of</th>
                                             <td>
                                                 <ul>
-                                                    {% for work in person.get_created_works %}
+                                                    {% for work in is_creator_of_works %}
                                                         <li>
                                                             {{ work }}
                                                         </li>

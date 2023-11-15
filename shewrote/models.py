@@ -91,8 +91,8 @@ class Person(models.Model):
         print(dict(works_per_role).items())
         return dict(works_per_role)
 
-    def get_created_works(self):
-        return Work.objects.filter(personworkrole__person=self, personworkrole__role__name="is creator of")
+    def get_created_works(self, role_name):
+        return Work.objects.filter(personworkrole__person=self, personworkrole__role__name=role_name)
 
 
 class Role(models.Model):
