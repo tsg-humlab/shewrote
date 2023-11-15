@@ -80,6 +80,9 @@ class Person(models.Model):
     def get_religions(self):
         return Religion.objects.filter(personreligion__person=self)
 
+    def get_collectives(self):
+        return Collective.objects.filter(personcollective__person=self)
+
 
 class Role(models.Model):
     """Model describing the roles a Person can have."""

@@ -169,11 +169,34 @@
                         </div>
                         <div id="collapseProfession" class="accordion-collapse collapse" data-bs-parent="#personDetails">
                             <div class="accordion-body">
-                                <p>Profession(s)</p>
-                                <p>Financial aspects</p>
-                                <p>Collaborations</p>
-                                <p>Memberships</p>
-                                <p>Publication languages</p>
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Profession(s)</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Financial aspects</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Collaborations</th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Memberships</th>
+                                            <td>
+                                                {% for collective in person.get_collectives %}
+                                                    {{ collective }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}                                                
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Publication languages</th>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
