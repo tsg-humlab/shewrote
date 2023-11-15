@@ -84,14 +84,7 @@ class Person(models.Model):
     def get_collectives(self):
         return Collective.objects.filter(personcollective__person=self)
 
-    def get_works_per_role(self):
-        works_per_role = defaultdict(list)
-        for personworkrole in PersonWorkRole.objects.filter(person=self):
-            works_per_role[personworkrole.role.name].append(personworkrole.work)
-        print(dict(works_per_role).items())
-        return dict(works_per_role)
-
-    def get_created_works(self, role_name):
+    def get_works_for_role(self, role_name):
         return Work.objects.filter(personworkrole__person=self, personworkrole__role__name=role_name)
 
 
