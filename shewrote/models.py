@@ -60,7 +60,6 @@ class Person(models.Model):
     place_of_death = models.ForeignKey(Place, models.SET_NULL, blank=True, null=True, related_name="+")
     professional_ecclesiastic_title = models.CharField(max_length=255, blank=True)
     aristocratic_title = models.CharField(max_length=255, blank=True)
-    education = models.CharField(max_length=255, blank=True)
     mother = models.ForeignKey("self", models.SET_NULL, null=True, blank=True, related_name="+")
     father = models.ForeignKey("self", models.SET_NULL, null=True, blank=True, related_name="+")
     bibliography = models.TextField(blank=True)
@@ -86,6 +85,22 @@ class Person(models.Model):
 
     def get_works_for_role(self, role_name):
         return Work.objects.filter(personworkrole__person=self, personworkrole__role__name=role_name)
+
+
+class Education(models.Model):
+    """Represents the type of Education a Person received."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, blank=True, unique=True)
+
+    def __str__(self):
+        """Return the name of the Education."""
+        return self.name
+
+
+class PersonEducation(models.Model):
+    """Model linking Person to Education."""
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    education = models.ForeignKey(Education, on_delete=models.CASCADE)
 
 
 class Role(models.Model):
