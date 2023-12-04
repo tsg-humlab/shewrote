@@ -11,7 +11,7 @@ class PersonForm(forms.ModelForm):
             'short_name', 'viaf_or_cerl', 'first_name', 'maiden_name', 'date_of_birth', 'date_of_death',
             'alternative_birth_date', 'alternative_death_date', 'flourishing_start', 'flourishing_end', 'sex',
             'alternative_name_gender', 'place_of_birth', 'place_of_death', 'professional_ecclesiastic_title',
-            'aristocratic_title', 'education', 'mother', 'father', 'bibliography', 'related_to', 'notes',
+            'aristocratic_title', 'mother', 'father', 'bibliography', 'related_to', 'notes',
         ]
         labels = {
             'short_name': 'Short name',
@@ -30,7 +30,6 @@ class PersonForm(forms.ModelForm):
             'place_of_death': 'Death place',
             'professional_ecclesiastic_title': 'Ecclesiastic title',
             'aristocratic_title': 'Aristocratic title',
-            'education': 'Education',
             'mother': 'Mother',
             'father': 'Father',
             'bibliography': 'Bibliography',
