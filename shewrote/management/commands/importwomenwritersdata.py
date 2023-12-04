@@ -8,7 +8,8 @@ import pathlib
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work, Place, Person, \
-    PeriodOfResidence, PersonCollective, PersonReligion, PersonWorkRole, Role, AlternativeName
+    PeriodOfResidence, PersonCollective, PersonReligion, PersonWorkRole, Role, AlternativeName, Education, \
+    PersonEducation
 
 
 ww_collections = [
@@ -142,6 +143,9 @@ class Command(BaseCommand):
                     # print(obj.religion, created)
                 if "isProfessionOf" in relation_names:
                     obj, created = Profession.objects.get_or_create(id=uuid, name=value)
+                    # print(obj.profession, created)
+                if "isEducationOf" in relation_names:
+                    obj, created = Education.objects.get_or_create(id=uuid, name=value)
                     # print(obj.profession, created)
             except IntegrityError as ie:
                 print(f"Keyword with id {uuid} was not imported due to this error: {ie}")
@@ -288,7 +292,7 @@ class Command(BaseCommand):
                                             place_of_birth=place_of_birth, place_of_death=place_of_death,
                                             alternative_birth_date='', alternative_death_date='', sex=sex,
                                             alternative_name_gender='', professional_ecclesiastic_title='',
-                                            aristocratic_title='', education='', bibliography='',
+                                            aristocratic_title='', bibliography='',
                                             original_data=person)
 
         self.bulk_create_persons_and_relations(persons)
@@ -297,13 +301,13 @@ class Command(BaseCommand):
         # Bulk create Persons and relations
         for person in persons:
             self.add_parents(person)
-            self.add_educations(person)
 
         Person.objects.bulk_create(self.new_persons.values())
         PeriodOfResidence.objects.bulk_create(self.get_periodofresidences(persons))
         PersonCollective.objects.bulk_create(self.get_personcollectives(persons))
         PersonReligion.objects.bulk_create(self.get_personreligions(persons))
         PersonWorkRole.objects.bulk_create(self.get_personworkroles(persons))
+        PersonEducation.objects.bulk_create(self.get_personeducations(persons))
         AlternativeName.objects.bulk_create(self.get_alternativenames(persons))
 
     def get_periodofresidences(self, persons):
@@ -363,10 +367,12 @@ class Command(BaseCommand):
             elif new_parent.sex == Person.GenderChoices.MALE:
                 new_person.father_id = new_parent.id
 
-    def add_educations(self, person):
-        educations = person["@relations"].get("hasEducation", [])
-        new_person = self.new_persons[person["_id"]]
-        new_person.education = "; ".join([education["displayName"] for education in educations])
+    def get_personeducations(self, persons):
+        personeducations = []
+        for person in persons:
+            personeducations.extend([PersonEducation(person_id=person["_id"], education_id=education["id"])
+                                     for education in person["@relations"].get("hasEducation", [])])
+        return personeducations
 
     def get_alternativenames(self, persons):
         new_alternativenames = []
