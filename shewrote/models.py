@@ -25,8 +25,8 @@ class Place(models.Model):
     name = models.CharField(max_length=255, blank=True, unique=True)
     cerl_id = models.IntegerField(blank=True, null=True)
     modern_country = models.ForeignKey(Country, models.SET_NULL, null=True, blank=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
     def __str__(self):
@@ -85,6 +85,9 @@ class Person(models.Model):
 
     def get_works_for_role(self, role_name):
         return Work.objects.filter(personworkrole__person=self, personworkrole__role__name=role_name)
+
+    def get_education(self):
+        return Education.objects.filter(personeducation__person=self)
 
 
 class Education(models.Model):

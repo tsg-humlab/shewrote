@@ -144,7 +144,11 @@
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Education</th>
-                                            <td>{{ person.education }}</td>
+                                            <td>
+                                                {% for education in person.get_education %}
+                                                    {{ education }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Religion / ideology</th>
