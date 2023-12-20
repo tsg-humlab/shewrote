@@ -89,6 +89,18 @@ class Person(models.Model):
     def get_education(self):
         return Education.objects.filter(personeducation__person=self)
 
+    def get_alternative_names(self):
+        return AlternativeName.objects.filter(person=self)
+
+    def get_marriages(self):
+        return Marriage.objects.filter(person=self)
+
+    def get_professions(self):
+        return PersonProfession.objects.filter(person=self)
+
+    def get_places_of_residence(self):
+        return PeriodOfResidence.objects.filter(person=self)
+
 
 class Education(models.Model):
     """Represents the type of Education a Person received."""
