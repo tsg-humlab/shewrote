@@ -8,7 +8,8 @@ import pathlib
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work, Place, Person, \
-    PeriodOfResidence
+    PeriodOfResidence, PersonCollective, PersonReligion, PersonWorkRole, Role, AlternativeName, Education, \
+    PersonEducation
 
 
 ww_collections = [
@@ -143,6 +144,9 @@ class Command(BaseCommand):
                 if "isProfessionOf" in relation_names:
                     obj, created = Profession.objects.get_or_create(id=uuid, name=value)
                     # print(obj.profession, created)
+                if "isEducationOf" in relation_names:
+                    obj, created = Education.objects.get_or_create(id=uuid, name=value)
+                    # print(obj.profession, created)
             except IntegrityError as ie:
                 print(f"Keyword with id {uuid} was not imported due to this error: {ie}")
 
@@ -163,21 +167,21 @@ class Command(BaseCommand):
             type_of_collective, created = TypeOfCollective.objects.get_or_create(type_of_collective=type)
 
             new_collectives[uuid] = Collective(id=uuid, name=name, type=type_of_collective,
-                                               original_data=json.dumps(collective))
+                                               original_data=collective)
 
         Collective.objects.bulk_create(new_collectives.values())
 
     def create_for_wwdocuments(self, documents):
         print(f"Processing {len(documents)} documents...")
 
-        works = {}
+        self.works = {}
 
         for document in documents:
             if document["documentType"] != "WORK":
                 continue
 
             uuid = document["_id"]
-            if uuid in works.keys():
+            if uuid in self.works.keys():
                 print(f"WARNING - A work object with id {uuid} already exists in the database.")
                 continue
 
@@ -188,7 +192,7 @@ class Command(BaseCommand):
             # if genre_relations:
             #     genre = Genre.objects.get(id=uuid, name=genre_relations[0]["displayName"])
 
-            works[uuid] = Work(id=uuid, title=title, original_data=json.dumps(document))
+            self.works[uuid] = Work(id=uuid, title=title, original_data=document)
 
             # Add languages
             # language_relations = document["@relations"].get("hasWorkLanguage", None)
@@ -197,7 +201,7 @@ class Command(BaseCommand):
             #         language = Language.objects.get(id=language_relation["id"])
             #         obj.language.add(language)
 
-        Work.objects.bulk_create(works.values())
+        Work.objects.bulk_create(self.works.values())
 
     def create_for_wwlocations(self, locations):
         print(f"Processing {len(locations)} locations...")
@@ -219,7 +223,7 @@ class Command(BaseCommand):
 
             places[uuid] = Place(id=uuid, name=name, cerl_id=-1,
                                  latitude=-1.0, longitude=-1.0, # TODO remove when possible
-                                 original_data=json.dumps(location))
+                                 original_data=location)
             names.add(name)
 
         Place.objects.bulk_create(places.values())
@@ -252,19 +256,6 @@ class Command(BaseCommand):
             return " ".join([component['value'] for component in filtered_components])
         return ''
 
-    def transform_to_date(self, date):
-        # TODO remove default '-01-01' when possible
-        if not date:
-            return '0001-01-01'
-        if re.search('^\d{4}-\d\d-\d\d$', date): # YYYY-MM-DD
-            return date
-        if re.search('^\d{4}$', date): # YYYY
-            return date + "-01-01"
-        if re.search('^\d\d-\d\d-\d{4}$', date): # DD-MM-YYYY
-            day, month, year = date.split('-')
-            return f'{year}-{month}-{day}'
-        return '0001-01-01'
-
     def create_for_wwpersons(self, persons):
         print(f"Processing {len(persons)} persons...")
 
@@ -275,11 +266,11 @@ class Command(BaseCommand):
             'NOT_APPLICABLE': "N"
         }
 
-        new_persons = {}
+        self.new_persons = {}
 
         for person in persons:
             uuid = person["_id"]
-            if uuid in new_persons.keys():
+            if uuid in self.new_persons.keys():
                 print(f"WARNING - A person object with id {uuid} already exists in the database.")
                 continue
 
@@ -289,29 +280,104 @@ class Command(BaseCommand):
             sex = gender_choices[person['gender']]
             forenames = self.extract_names(person, "FORENAME")
             surnames = self.extract_names(person, "SURNAME")
-
-            date_of_birth = self.transform_to_date(person.get('birthDate'))
-            date_of_death = self.transform_to_date(person.get('deathDate'))
             
             birth_place = person["@relations"].get("hasBirthPlace", None)
             place_of_birth = self.get_place(birth_place[0]["id"]) if birth_place else None
             death_place = person["@relations"].get("hasDeathPlace", None)
             place_of_death = self.get_place(death_place[0]["id"]) if death_place else None
 
-            new_persons[uuid] = Person(id=uuid, short_name=short_name, first_name=forenames, maiden_name=surnames,
-                                       date_of_birth=date_of_birth, date_of_death=date_of_death,
-                                       place_of_birth=place_of_birth, place_of_death=place_of_death,
-                                       alternative_birth_date='', alternative_death_date='', sex=sex,
-                                       alternative_name_gender='', professional_ecclesiastic_title='',
-                                       aristocratic_title='', education='', bibliography='', original_data='')
+            self.new_persons[uuid] = Person(id=uuid, short_name=short_name, first_name=forenames, maiden_name=surnames,
+                                            date_of_birth=person.get('birthDate', ''),
+                                            date_of_death=person.get('deathDate', ''),
+                                            place_of_birth=place_of_birth, place_of_death=place_of_death,
+                                            alternative_birth_date='', alternative_death_date='', sex=sex,
+                                            alternative_name_gender='', professional_ecclesiastic_title='',
+                                            aristocratic_title='', bibliography='',
+                                            original_data=person)
 
-        Person.objects.bulk_create(new_persons.values())
-        for obj in new_persons.values():
-            self.add_person_relations(person, obj)
+        self.bulk_create_persons_and_relations(persons)
 
-    def add_person_relations(self, person, obj):
-        residence_locations = person["@relations"].get("hasResidenceLocation", None)
-        if residence_locations:
-            for residence_location in residence_locations:
-                place = Place.objects.get(id=residence_location["id"])
-                PeriodOfResidence.objects.create(person=obj, place=place, notes='')
+    def bulk_create_persons_and_relations(self, persons):
+        # Bulk create Persons and relations
+        for person in persons:
+            self.add_parents(person)
+
+        Person.objects.bulk_create(self.new_persons.values())
+        PeriodOfResidence.objects.bulk_create(self.get_periodofresidences(persons))
+        PersonCollective.objects.bulk_create(self.get_personcollectives(persons))
+        PersonReligion.objects.bulk_create(self.get_personreligions(persons))
+        PersonWorkRole.objects.bulk_create(self.get_personworkroles(persons))
+        PersonEducation.objects.bulk_create(self.get_personeducations(persons))
+        AlternativeName.objects.bulk_create(self.get_alternativenames(persons))
+
+    def get_periodofresidences(self, persons):
+        new_periodofresidences = []
+        for person in persons:
+            residence_locations = person["@relations"].get("hasResidenceLocation", [])
+            new_periodofresidences.extend([PeriodOfResidence(person_id=person["_id"], place_id=residence_location["id"], notes='')
+                    for residence_location in residence_locations])
+        return new_periodofresidences
+
+    def get_personcollectives(self, persons):
+        new_personcollectives = []
+        for person in persons:
+            collectives = person["@relations"].get("isMemberOf", [])
+            new_personcollectives.extend([PersonCollective(person_id=person["_id"], collective_id=collective["id"])
+                                          for collective in collectives])
+        return new_personcollectives
+
+    def get_personreligions(self, persons):
+        new_personreligions = []
+        for person in persons:
+            religions = person["@relations"].get("hasReligion", [])
+            new_personreligions.extend([PersonReligion(person_id=person["_id"], religion_id=religion["id"], notes='')
+                                        for religion in religions])
+        return new_personreligions
+
+    def get_personworkroles(self, persons):
+        new_personworks = []
+        for person in persons:
+            roles = [
+                ("isCreatorOf", "is creator of"),
+                ("isPersonReferencedIn", "is referenced in"),
+                ("isPersonQuotedIn", "is quoted in"),
+                ("hasObituary", "has obituary"),
+                ("isPersonMentionedIn", "is mentioned in"),
+                ("isPersonListedOn", "is listed on"),
+                ("isPersonAwarded", "is awarded"),
+                ("isDedicatedPersonOf", "is dedidicated person of"),
+                ("isPersonCommentedOnIn", "is commented on in"),
+                ("hasBiography", "has biography"),
+            ]
+
+            for old_role, new_role in roles:
+                role, created = Role.objects.get_or_create(name=new_role)
+                works = person["@relations"].get(old_role, [])
+                new_personworks.extend([PersonWorkRole(person_id=person["_id"], work_id=work["id"], role=role)
+                                        for work in works if work["id"] in self.works.keys()])
+        return new_personworks
+
+    def add_parents(self, person):
+        new_person = self.new_persons[person["_id"]]
+        parents = person["@relations"].get("isChildOf", [])
+        for parent in parents:
+            new_parent = self.new_persons[parent["id"]]
+            if new_parent.sex == Person.GenderChoices.FEMALE:
+                new_person.mother_id = new_parent.id
+            elif new_parent.sex == Person.GenderChoices.MALE:
+                new_person.father_id = new_parent.id
+
+    def get_personeducations(self, persons):
+        personeducations = []
+        for person in persons:
+            personeducations.extend([PersonEducation(person_id=person["_id"], education_id=education["id"])
+                                     for education in person["@relations"].get("hasEducation", [])])
+        return personeducations
+
+    def get_alternativenames(self, persons):
+        new_alternativenames = []
+        for person in persons:
+            pseudonyms = person["@relations"].get("hasPseudonym", [])
+            new_alternativenames.extend([AlternativeName(person_id=person["_id"], alternative_name=pseudonym["displayName"])
+                    for pseudonym in pseudonyms])
+        return new_alternativenames

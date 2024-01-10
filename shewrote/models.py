@@ -1,4 +1,5 @@
 import uuid
+from collections import defaultdict
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -24,8 +25,8 @@ class Place(models.Model):
     name = models.CharField(max_length=255, blank=True, unique=True)
     cerl_id = models.IntegerField(blank=True, null=True)
     modern_country = models.ForeignKey(Country, models.SET_NULL, null=True, blank=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
     def __str__(self):
@@ -51,15 +52,14 @@ class Person(models.Model):
     date_of_death = models.CharField(max_length=50, blank=True)
     alternative_birth_date = models.CharField(max_length=50, blank=True)
     alternative_death_date = models.CharField(max_length=50, blank=True)
-    flourishing_start = models.IntegerField(blank=True, null=True)
-    flourishing_end = models.IntegerField(blank=True, null=True)
+    flourishing_start = models.CharField(max_length=255, blank=True, null=True)
+    flourishing_end = models.CharField(max_length=255, blank=True, null=True)
     sex = models.CharField(max_length=1, choices=GenderChoices.choices, blank=True)
     alternative_name_gender = models.CharField(max_length=1, choices=GenderChoices.choices, blank=True)
     place_of_birth = models.ForeignKey(Place, models.SET_NULL, blank=True, null=True, related_name="+")
     place_of_death = models.ForeignKey(Place, models.SET_NULL, blank=True, null=True, related_name="+")
     professional_ecclesiastic_title = models.CharField(max_length=255, blank=True)
     aristocratic_title = models.CharField(max_length=255, blank=True)
-    education = models.CharField(max_length=255, blank=True)
     mother = models.ForeignKey("self", models.SET_NULL, null=True, blank=True, related_name="+")
     father = models.ForeignKey("self", models.SET_NULL, null=True, blank=True, related_name="+")
     bibliography = models.TextField(blank=True)
@@ -70,6 +70,52 @@ class Person(models.Model):
     def __str__(self):
         """Return the name of the Person."""
         return self.short_name
+
+    def get_children(self):
+        if self.sex == Person.GenderChoices.FEMALE:
+            return Person.objects.filter(mother=self).order_by('date_of_birth')
+        elif self.sex == Person.GenderChoices.MALE:
+            return Person.objects.filter(father=self).order_by('date_of_birth')
+
+    def get_religions(self):
+        return Religion.objects.filter(personreligion__person=self)
+
+    def get_collectives(self):
+        return Collective.objects.filter(personcollective__person=self)
+
+    def get_works_for_role(self, role_name):
+        return Work.objects.filter(personworkrole__person=self, personworkrole__role__name=role_name)
+
+    def get_education(self):
+        return Education.objects.filter(personeducation__person=self)
+
+    def get_alternative_names(self):
+        return AlternativeName.objects.filter(person=self)
+
+    def get_marriages(self):
+        return Marriage.objects.filter(person=self)
+
+    def get_professions(self):
+        return PersonProfession.objects.filter(person=self)
+
+    def get_places_of_residence(self):
+        return PeriodOfResidence.objects.filter(person=self)
+
+
+class Education(models.Model):
+    """Represents the type of Education a Person received."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, blank=True, unique=True)
+
+    def __str__(self):
+        """Return the name of the Education."""
+        return self.name
+
+
+class PersonEducation(models.Model):
+    """Model linking Person to Education."""
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    education = models.ForeignKey(Education, on_delete=models.CASCADE)
 
 
 class Role(models.Model):

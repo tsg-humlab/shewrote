@@ -27,7 +27,14 @@ def persons(request):
 def person(request, person_id):
     """Show a single person and all their details."""
     person = Person.objects.get(id=person_id)
-    context = {'person': person}
+    context = {
+        'person': person,
+        'is_creator_of': person.get_works_for_role("is creator of"),
+        'has_biography': person.get_works_for_role("has biography"),
+        'is_commented_on_in': person.get_works_for_role("is commented on in"),
+        'is_mentioned_in': person.get_works_for_role("is mentioned in"),
+        'is_referenced_in': person.get_works_for_role("is referenced in")
+    }
     return render(request, 'shewrote/person.html', context)
 
 
