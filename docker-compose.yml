@@ -19,6 +19,7 @@ services:
     image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+      - postgres_dumps:/postgres_dumps
     environment:
       - POSTGRES_USER=django_app_pg_user
       - POSTGRES_PASSWORD=django_app_pg_password
@@ -41,5 +42,6 @@ services:
 
 volumes:
   postgres_data:
+  postgres_dumps:
   static_volume:
   tmp_volume:

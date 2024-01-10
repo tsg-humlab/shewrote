@@ -13,7 +13,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # install system dependencies
-RUN apt-get update && \
+RUN apt-get update -y && apt-get upgrade -y &&\
     apt-get install -y --no-install-recommends gcc
 
 # install python dependencies
@@ -28,10 +28,10 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/django_app/wheels -r
 FROM python:3.11.4-slim-buster
 
 # install dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends netcat
+RUN apt-get update -y && apt-get upgrade -y && apt-get install -y --no-install-recommends netcat
 COPY --from=builder /usr/src/django_app/wheels /wheels
 COPY --from=builder /usr/src/django_app/requirements.txt .
-RUN pip install --upgrade pip
+#RUN pip install --upgrade pip
 RUN pip install --no-cache /wheels/*
 
 # create the app user
