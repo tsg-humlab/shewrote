@@ -1,7 +1,7 @@
 from django import forms
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
-from .models import Person, Place
+from .models import Person, Place, Education, PersonEducation
 
 
 class PersonForm(forms.ModelForm):
@@ -51,3 +51,42 @@ class PersonForm(forms.ModelForm):
             'related_to': ModelSelect2MultipleWidget(model=Person, search_fields=['short_name__icontains'],
                                                      attrs={'data-placeholder': "Select multiple persons"})
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.add_personeducation_field()
+
+    def add_personeducation_field(self):
+        personeducations = forms.ModelMultipleChoiceField(
+            label="Education",
+            widget=ModelSelect2MultipleWidget(
+                model=Education,
+                search_fields=['name'],
+                attrs={"data-minimum-input-length": 0,}
+            ),
+            queryset=Education.objects.all(),
+            required=False,
+            initial=Education.objects.filter(personeducation__person=self.instance)
+        )
+        self.fields['personeducation'] = personeducations
+
+    def save_personeducations(self):
+        educations_in_form = self.cleaned_data['personeducation']
+        existing_educations = Education.objects.filter(personeducation__person=self.instance)
+
+        # Delete Educations that were removed in the form
+        educations_to_delete = existing_educations.exclude(pk__in=educations_in_form.values_list('pk', flat=True))
+        for education in educations_to_delete:
+            PersonEducation.objects.get(person=self.instance, education=education).delete()
+
+        # Save Educations that were added in the form
+        new_educations = educations_in_form.exclude(pk__in=existing_educations.values_list('pk', flat=True))
+        for education in new_educations:
+            PersonEducation(person=self.instance, education=education).save()
+
+    def save(self, commit=True):
+        self.instance = super(PersonForm, self).save(commit=commit)
+        if commit:
+            self.save_personeducations()
+
+        return self.instance
