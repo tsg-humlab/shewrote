@@ -1,10 +1,13 @@
 from django import forms
+from django.urls import reverse_lazy
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
+from apiconnectors.widgets import ApiSelectWidget
 
 from .models import Person, Place
 
 
 class PersonForm(forms.ModelForm):
+    suggest_select_ids = ['viaf_or_cerl']
     class Meta:
         model = Person
         fields = [
@@ -38,6 +41,11 @@ class PersonForm(forms.ModelForm):
         }
 
         widgets = {
+            'viaf_or_cerl': ApiSelectWidget(
+                url=reverse_lazy('person_viaf_suggest'),
+                attrs={'data-html': True,
+                       'data-placeholder': "Search for a person"}
+            ),
             'bibliography': forms.Textarea(attrs={'cols': 80}),
             'notes': forms.Textarea(attrs={'cols': 80}),
             'place_of_birth': ModelSelect2Widget(model=Place, search_fields=['name__icontains'],
