@@ -59,3 +59,8 @@ class PersonForm(forms.ModelForm):
             'related_to': ModelSelect2MultipleWidget(model=Person, search_fields=['short_name__icontains'],
                                                      attrs={'data-placeholder': "Select multiple persons"})
         }
+
+    class Media:
+        js = (
+            'js/viaf_select.js',
+        )
