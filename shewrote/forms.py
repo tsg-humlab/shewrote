@@ -7,7 +7,7 @@ from .models import Person, Place
 
 
 class PersonForm(forms.ModelForm):
-    suggest_select_ids = ['viaf_or_cerl']
+    suggest_select_ids = ['person_viaf_suggest']
     class Meta:
         model = Person
         fields = [
@@ -41,7 +41,7 @@ class PersonForm(forms.ModelForm):
         }
 
         widgets = {
-            'viaf_or_cerl': ApiSelectWidget(
+            'person_viaf_suggest': ApiSelectWidget(
                 url=reverse_lazy('person_viaf_suggest'),
                 attrs={'data-html': True,
                        'data-placeholder': "Search for a person"}

@@ -19,5 +19,5 @@ urlpatterns = [
     path('edit_person/<uuid:person_id>/', views.edit_person, name='edit_person'),
 
     # VIAF API
-    path(r'person_viaf_suggest', PersonVIAFSuggest.as_view(), name='person_viaf_suggest'),
+    path('person_viaf_suggest', PersonVIAFSuggest.as_view(), name='person_viaf_suggest'),
 ]
