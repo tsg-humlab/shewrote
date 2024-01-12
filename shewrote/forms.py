@@ -41,8 +41,8 @@ class PersonForm(forms.ModelForm):
         }
 
         widgets = {
-            'person_viaf_suggest': ApiSelectWidget(
-                url=reverse_lazy('person_viaf_suggest'),
+            'viaf_or_cerl': ApiSelectWidget(
+                url=reverse_lazy('shewrote:person_viaf_suggest'),
                 attrs={'data-html': True,
                        'data-placeholder': "Search for a person"}
             ),

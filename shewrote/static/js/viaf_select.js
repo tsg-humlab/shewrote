@@ -35,7 +35,7 @@ function prepare_select_widget(viaf_select_id) {
 
 $(document).ready(function(){
         // For VIAF search box, ...
-        var viaf_select_id = 'viaf_id';
+        var viaf_select_id = 'viaf_or_cerl';
         if('js_variables' in window && 'viaf_select_id' in js_variables) {
             viaf_select_id = js_variables['viaf_select_id'];
         }
