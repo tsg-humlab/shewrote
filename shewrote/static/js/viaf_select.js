@@ -46,5 +46,10 @@ $(document).ready(function(){
                 prepare_select_widget(currentValue);
             });
         }
+
+        // TODO Workaround to make ApiSelectWidget take Bootstrap 5 style
+        setTimeout(function() {
+            $('.select2-container--default').addClass('select2-container--bootstrap-5').removeClass('select2-container--default');
+        }, 200);
 });
 
