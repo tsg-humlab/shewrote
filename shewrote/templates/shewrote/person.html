@@ -198,6 +198,23 @@
                                             </td>
                                         </tr>
                                         <tr>
+                                            <th  scope="row" class="w-25">
+                                                Parents
+                                            </th>
+                                            <td>
+                                                {% if person.mother %}
+                                                <a href="{% url 'shewrote:person' person.mother.id %}">
+                                                    {{ person.mother|default:"" }}
+                                                </a>
+                                                {% endif %}
+                                                {% if person.father %}
+                                                <a href="{% url 'shewrote:person' person.father.id %}">
+                                                    {{ person.father|default:"" }}
+                                                </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <th scope="row" class="w-25">Children</th>
                                             <td>
                                                 {% for child in person.get_children %}
