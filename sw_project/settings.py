@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     # Third party apps.
     'django_bootstrap5',
     'django_select2',
+    'dal',
+    'dal_select2',
 
     # Default django apps.
     'django.contrib.admin',
@@ -173,3 +175,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Select2
+SELECT2_CSS = [
+    'css/select2-bootstrap-5-theme.min.css',
+]
+SELECT2_THEME = 'bootstrap-5'

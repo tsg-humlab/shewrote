@@ -1,10 +1,13 @@
 from django import forms
+from django.urls import reverse_lazy
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
+from apiconnectors.widgets import ApiSelectWidget
 
 from .models import Person, Place
 
 
 class PersonForm(forms.ModelForm):
+    suggest_select_ids = ['person_viaf_suggest']
     class Meta:
         model = Person
         fields = [
@@ -38,6 +41,11 @@ class PersonForm(forms.ModelForm):
         }
 
         widgets = {
+            'viaf_or_cerl': ApiSelectWidget(
+                url=reverse_lazy('shewrote:person_viaf_suggest'),
+                attrs={'data-html': True,
+                       'data-placeholder': "Search for a person"}
+            ),
             'bibliography': forms.Textarea(attrs={'cols': 80}),
             'notes': forms.Textarea(attrs={'cols': 80}),
             'place_of_birth': ModelSelect2Widget(model=Place, search_fields=['name__icontains'],
@@ -51,3 +59,8 @@ class PersonForm(forms.ModelForm):
             'related_to': ModelSelect2MultipleWidget(model=Person, search_fields=['short_name__icontains'],
                                                      attrs={'data-placeholder': "Select multiple persons"})
         }
+
+    class Media:
+        js = (
+            'js/viaf_select.js',
+        )

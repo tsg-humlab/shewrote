@@ -1,4 +1,5 @@
 Django==4.2.5
+django_autocomplete_light
 django_bootstrap5
 django-select2==8.1.2
 gunicorn==21.2.0
@@ -6,3 +7,5 @@ python-decouple==3.8
 psycopg2-binary==2.9.6
 requests==2.31.0
 redis==5.0.1
+attrdict @ git+https://github.com/vanlummelhuizen/AttrDict.git@17cdd4de23cd4177d41568ef1b2eaef7e73a3fec
+rdflib==7.0.0

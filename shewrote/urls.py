@@ -3,6 +3,7 @@
 from django.urls import path
 
 from . import views
+from shewrote.views import PersonVIAFSuggest
 
 app_name = 'shewrote'
 urlpatterns = [
@@ -16,4 +17,7 @@ urlpatterns = [
     path('new_person/', views.new_person, name='new_person'),
     # Page for editing an existing person
     path('edit_person/<uuid:person_id>/', views.edit_person, name='edit_person'),
+
+    # VIAF API
+    path('person_viaf_suggest', PersonVIAFSuggest.as_view(), name='person_viaf_suggest'),
 ]
