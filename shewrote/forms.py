@@ -18,7 +18,7 @@ class PersonForm(forms.ModelForm):
         ]
         labels = {
             'short_name': 'Short name',
-            'viaf_or_cerl': 'VIAF or CERL',
+            'viaf_or_cerl': 'VIAF',
             'first_name': 'First name',
             'maiden_name': 'Maiden name',
             'date_of_birth': 'Date of birth',
