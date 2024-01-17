@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from .models import Person
-from .forms import PersonForm
+from .forms import PersonForm, ShortPersonForm
 
 from dal import autocomplete
 from django.http import JsonResponse
@@ -61,6 +62,30 @@ def new_person(request):
     return render(request, 'shewrote/new_person.html', context)
 
 
+def short_new_person(request):
+    """Add a new person."""
+    if request.method != 'POST':
+        # No data submitted, create a blank form
+        form = ShortPersonForm()
+    else:
+        # Process the POST data
+        form = PersonForm(data=request.POST)
+        if form.is_valid():
+            object = form.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                data = {
+                    'pk': object.pk,
+                    'short_name': object.short_name,
+                }
+                return JsonResponse(data)
+            return redirect('shewrote:persons')
+
+    # Display a blank or invalid form
+    context = {'form': form}
+    return render(request, 'shewrote/new_person.html', context)
+
+
+
 @login_required
 def edit_person(request, person_id):
     """Edit an existing person."""
@@ -76,7 +101,11 @@ def edit_person(request, person_id):
             form.save()
             return redirect('shewrote:person', person_id=entry.id)
 
-    context = {'person': entry, 'form': form}
+    context = {
+        'person': entry,
+        'form': form,
+        'addanother_person_form': ShortPersonForm()
+    }
     return render(request, 'shewrote/edit_person.html', context)
 
 

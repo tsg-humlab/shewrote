@@ -1,5 +1,6 @@
 {% extends 'shewrote/base.html' %}
 {% load django_bootstrap5 %}
+{% load i18n %}
 
 {% block extra_head %}
     {{ form.media.css }}
@@ -17,4 +18,86 @@
     </form>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     {{ form.media.js }}
+
+{% if addanother_person_form %}
+<!-- Add another Modal -->
+<div id="addanotherModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{% translate "Add another person" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+        <form id="addanother-person-form" action="{% url 'shewrote:short_new_person' %}" method="post">
+          <div class="modal-body">
+              <div id="addanother-person-message">
+
+              </div>
+                <table class="table">
+                    {% csrf_token %}
+                    {% bootstrap_form addanother_person_form %}
+                </table>
+          </div>
+          <div class="modal-footer">
+            <input type="submit" class="btn btn-success" value="{% translate 'Add' %}"/>
+            <input type="reset" class="btn btn-default" data-dismiss="modal" value="{% translate 'Cancel' %}"/>
+          </div>
+        </form>
+    </div>
+
+  </div>
+</div>
+{% endif %}
+
+{{ addanother_person_form.media.js }}
+<script>
+function handleAddanotherPersonResponse(response) {
+    console.log(response);
+    if(response.pk) { // Success!
+        var source_id = $('#addanother-person-message').attr('source_id');
+        console.log("source_id: " + source_id);
+        $('#'+source_id).val(null).trigger('change');
+        var newOption = new Option(response.short_name, response.pk, true, true);
+        $('#'+source_id).append(newOption).trigger('change');
+        $('#addanotherModal').modal('toggle');
+    } else {
+        $('#addanother-person-message').append('{% translate "Something went wrong. Please review the form." %}');
+    }
+}
+
+$(document).ready(function(){
+        // Determine where the addanotherModal was triggered
+        // and register the id in the form of the modal.
+        $('#addanotherModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget)
+            console.log(button.parent().children("select"));
+            var source_id = button.parent().children("select").attr('id')
+            console.log(source_id);
+            $('#addanother-person-message').attr('source_id', source_id)
+        });
+
+        $('#addanotherModal').on('hide.bs.modal', function(event) {
+            $('#addanother-person-form').trigger("reset");
+        });
+
+        $('#addanother-person-form').submit(function(event) {
+            event.preventDefault();
+            $.ajax({
+                 type:"POST",
+                 url: $('#addanother-person-form').attr('action'),
+                 data: $('#addanother-person-form').serialize(),
+                 success: function(response){
+                     handleAddanotherPersonResponse(response);
+                 },
+                 error: function(response){
+                    console.log(response);
+                    $('#addanother-person-message').append('{% translate "Something went wrong. Please review the form." %}');
+                 }
+            });
+        });
+});
+</script>
+
 {% endblock content %}
