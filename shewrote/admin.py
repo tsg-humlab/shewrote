@@ -7,7 +7,14 @@ from .models import (Country, Place, Person, Education, PersonEducation, Role, P
 
 admin.site.register(Country)
 admin.site.register(Place)
-admin.site.register(Person)
+
+# admin.site.register(Person)
+@admin.register(Person)
+class PersonAdmin(admin.ModelAdmin):
+    search_fields = ['short_name']
+    ordering = ['short_name']
+
+
 admin.site.register(Education)
 admin.site.register(PersonEducation)
 admin.site.register(Role)
@@ -15,7 +22,13 @@ admin.site.register(Profession)
 admin.site.register(PersonProfession)
 admin.site.register(Religion)
 admin.site.register(PersonReligion)
-admin.site.register(Marriage)
+
+# admin.site.register(Marriage)
+@admin.register(Marriage)
+class MarriageAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['person', 'spouse']
+
+
 admin.site.register(AlternativeName)
 admin.site.register(PeriodOfResidence)
 admin.site.register(TypeOfCollective)
