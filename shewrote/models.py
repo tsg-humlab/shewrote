@@ -195,13 +195,21 @@ class AlternativeName(models.Model):
         return self.alternative_name
 
 
-class PeriodOfResidence(models.Model):
+class   PeriodOfResidence(models.Model):
     """Model linking Person to Place over a period of time."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
     start_year = models.IntegerField(blank=True, null=True)
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        verbose_name_plural = "periods of residence"
+
+    def __str__(self):
+        from_string = f"from {self.start_year}" if self.start_year else ""
+        until_string = f" until {self.end_year}" if self.end_year else ""
+        return f"{self.person} lived in {self.place}{from_string}{until_string}"
 
 
 class TypeOfCollective(models.Model):
