@@ -14,7 +14,7 @@ ENV PYTHONUNBUFFERED 1
 
 # install system dependencies
 RUN apt-get update -y && apt-get upgrade -y &&\
-    apt-get install -y --no-install-recommends gcc
+    apt-get install -y --no-install-recommends gcc git
 
 # install python dependencies
 COPY ./requirements.txt .
