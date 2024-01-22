@@ -134,7 +134,12 @@
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Lived in</th>
-                                            <td></td>
+                                            <td>
+                                                {% for period_of_residence in person.get_places_of_residence %}
+                                                    {{ period_of_residence.place }}
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Related to</th>
