@@ -47,7 +47,7 @@ class PersonForm(forms.ModelForm):
             'alternative_name_gender': 'Alt. gender',
             'place_of_birth': 'Birth place',
             'place_of_death': 'Death place',
-            'professional_ecclesiastic_title': 'Ecclesiastic title',
+            'professional_ecclesiastic_title': 'Professional or ecclesiastical title',
             'aristocratic_title': 'Aristocratic title',
             'mother': 'Mother',
             'father': 'Father',
