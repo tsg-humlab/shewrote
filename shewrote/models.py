@@ -4,6 +4,8 @@ from collections import defaultdict
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from easyaudit.models import CRUDEvent
+
 
 class Country(models.Model):
     """Model representing a list of country names."""
@@ -100,6 +102,9 @@ class Person(models.Model):
 
     def get_places_of_residence(self):
         return PeriodOfResidence.objects.filter(person=self)
+
+    def get_last_edit(self):
+        return CRUDEvent.objects.filter(object_id=self.id).latest('datetime')
 
 
 class Education(models.Model):
