@@ -43,7 +43,7 @@ class PersonForm(forms.ModelForm):
             'alternative_death_date': 'Alt. death date',
             'flourishing_start': 'Flourishing start',
             'flourishing_end': 'Flourishing end',
-            'sex': 'Gender',
+            'sex': 'Sex',
             'alternative_name_gender': 'Alt. gender',
             'place_of_birth': 'Birth place',
             'place_of_death': 'Death place',
@@ -133,7 +133,7 @@ class ShortPersonForm(forms.ModelForm):
             'maiden_name': 'Maiden name',
             'date_of_birth': 'Date of birth',
             'date_of_death': 'Date of death',
-            'sex': 'Gender',
+            'sex': 'Sex',
             'notes': 'Notes',
         }
 
