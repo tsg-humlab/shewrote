@@ -105,13 +105,13 @@
                                         </tr>
                                         {% if person.alternative_birth_date %}
                                             <tr>
-                                                <th scope="row">Alternative birth date</th>
+                                                <th scope="row">Birth date Notes</th>
                                                 <td>{{ person.alternative_birth_date|default:"-" }}</td>
                                             </tr>
                                         {% endif %}
                                         {% if person.alternative_death_date %}
                                             <tr>
-                                                <th scope="row">Alternative death date</th>
+                                                <th scope="row">Death date Notes</th>
                                                 <td>{{ person.alternative_death_date|default:"-" }}</td>
                                             </tr>
                                         {% endif %}
