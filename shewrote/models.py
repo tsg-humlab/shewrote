@@ -68,6 +68,7 @@ class Person(models.Model):
     related_to = models.ManyToManyField("self", blank=True)
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
+    place_of_residence_notes = models.TextField(blank=True)
 
     def __str__(self):
         """Return the name of the Person."""

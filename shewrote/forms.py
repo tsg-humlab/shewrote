@@ -30,7 +30,7 @@ class PersonForm(forms.ModelForm):
             'short_name', 'viaf_or_cerl', 'first_name', 'maiden_name', 'date_of_birth', 'date_of_death',
             'alternative_birth_date', 'alternative_death_date', 'flourishing_start', 'flourishing_end', 'sex',
             'alternative_name_gender', 'place_of_birth', 'place_of_death', 'professional_ecclesiastic_title',
-            'aristocratic_title', 'mother', 'father', 'bibliography', 'related_to', 'notes',
+            'aristocratic_title', 'mother', 'father', 'bibliography', 'related_to', 'notes', 'place_of_residence_notes'
         ]
         labels = {
             'short_name': 'Short name',
@@ -84,6 +84,15 @@ class PersonForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.add_personeducation_field()
         self.add_periodsofresidence_field()
+
+        # Set the order to accomodate the fields added above
+        self.order_fields(field_order=[
+            'short_name', 'viaf_or_cerl', 'first_name', 'maiden_name', 'date_of_birth', 'date_of_death',
+            'alternative_birth_date', 'alternative_death_date', 'flourishing_start', 'flourishing_end', 'sex',
+            'alternative_name_gender', 'place_of_birth', 'place_of_death', 'professional_ecclesiastic_title',
+            'aristocratic_title', 'mother', 'father', 'bibliography', 'related_to', 'notes',
+            'personeducation', 'periodofresidence', 'place_of_residence_notes'
+        ])
 
     def add_personeducation_field(self):
         personeducations = forms.ModelMultipleChoiceField(
