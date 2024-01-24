@@ -4,7 +4,7 @@ from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 from apiconnectors.widgets import ApiSelectWidget
 from django.utils.safestring import SafeString
 
-from .models import Person, Place, Education, PersonEducation
+from .models import Person, Place, Education, PersonEducation, PeriodOfResidence
 
 
 class AddAnotherWidget(ModelSelect2Widget):
@@ -83,13 +83,14 @@ class PersonForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.add_personeducation_field()
+        self.add_periodsofresidence_field()
 
     def add_personeducation_field(self):
         personeducations = forms.ModelMultipleChoiceField(
             label="Education",
             widget=ModelSelect2MultipleWidget(
                 model=Education,
-                search_fields=['name'],
+                search_fields=['name__icontains'],
                 attrs={"data-minimum-input-length": 0,}
             ),
             queryset=Education.objects.all(),
@@ -97,6 +98,20 @@ class PersonForm(forms.ModelForm):
             initial=Education.objects.filter(personeducation__person=self.instance)
         )
         self.fields['personeducation'] = personeducations
+
+    def add_periodsofresidence_field(self):
+        periodsofresidence = forms.ModelMultipleChoiceField(
+            label="Lived in",
+            widget=ModelSelect2MultipleWidget(
+                model=Place,
+                search_fields=['name__icontains'],
+                attrs={"data-minimum-input-length": 0,}
+            ),
+            queryset=Place.objects.all(),
+            required=False,
+            initial=Place.objects.filter(periodofresidence__person=self.instance).distinct()
+        )
+        self.fields['periodofresidence'] = periodsofresidence
 
     def save_personeducations(self):
         educations_in_form = self.cleaned_data['personeducation']
@@ -112,10 +127,25 @@ class PersonForm(forms.ModelForm):
         for education in new_educations:
             PersonEducation(person=self.instance, education=education).save()
 
+    def save_periodsofresidence(self):
+        places_in_form = self.cleaned_data['periodofresidence']
+        existing_places = Place.objects.filter(periodofresidence__person=self.instance)
+
+        # Delete Places that were removed in the form
+        places_to_delete = existing_places.exclude(pk__in=places_in_form.values_list('pk', flat=True))
+        for place in places_to_delete:
+            PeriodOfResidence.objects.filter(person=self.instance, place=place).delete()
+
+        # Save Places that were added in the form
+        new_places = places_in_form.exclude(pk__in=existing_places.values_list('pk', flat=True))
+        for place in new_places:
+            PeriodOfResidence(person=self.instance, place=place).save()
+
     def save(self, commit=True):
         self.instance = super(PersonForm, self).save(commit=commit)
         if commit:
             self.save_personeducations()
+            self.save_periodsofresidence()
 
         return self.instance
 
