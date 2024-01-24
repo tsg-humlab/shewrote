@@ -62,6 +62,7 @@ def new_person(request):
     return render(request, 'shewrote/new_person.html', context)
 
 
+@login_required
 def short_new_person(request):
     """Add a new person."""
     if request.method != 'POST':
