@@ -65,7 +65,7 @@ class Person(models.Model):
     mother = models.ForeignKey("self", models.SET_NULL, null=True, blank=True, related_name="+")
     father = models.ForeignKey("self", models.SET_NULL, null=True, blank=True, related_name="+")
     bibliography = models.TextField(blank=True)
-    related_to = models.ManyToManyField("self", blank=True)
+    related_to = models.ManyToManyField("self", blank=True, through="PersonPersonRelation")
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
     place_of_residence_notes = models.TextField(blank=True)
@@ -106,6 +106,14 @@ class Person(models.Model):
 
     def get_last_edit(self):
         return CRUDEvent.objects.filter(object_id=self.id).latest('datetime')
+
+
+class PersonPersonRelation(models.Model):
+    from_person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="from_relations")
+    to_person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="to_relations")
+
+    class Meta:
+        unique_together = ['from_person', 'to_person']
 
 
 class Education(models.Model):
