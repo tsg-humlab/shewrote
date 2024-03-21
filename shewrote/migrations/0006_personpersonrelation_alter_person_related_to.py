@@ -13,8 +13,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.SeparateDatabaseAndState(
             database_operations=[
-                # Old table name from checking with sqlmigrate, new table
-                # name from AuthorBook._meta.db_table.
                 migrations.RunSQL(
                     sql="ALTER TABLE shewrote_person_related_to RENAME TO shewrote_personpersonrelation",
                     reverse_sql="ALTER TABLE shewrote_personpersonrelation RENAME TO shewrote_person_related_to",
