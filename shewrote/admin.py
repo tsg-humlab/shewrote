@@ -38,8 +38,21 @@ admin.site.register(PersonCollective)
 admin.site.register(CollectivePlace)
 admin.site.register(Genre)
 admin.site.register(Language)
-admin.site.register(Work)
-admin.site.register(PersonWorkRole)
+
+
+@admin.register(Work)
+class WorkAdmin(admin.ModelAdmin):
+    search_fields = ['title']
+
+
+@admin.register(PersonWorkRole)
+class PersonWorkRoleAdmin(admin.ModelAdmin):
+    list_display = ["person", "role", "work"]
+    list_display_links = ["person", "role", "work"]
+    search_fields = ["person__short_name", "role__name", "work__title"]
+    autocomplete_fields = ['work', 'person']
+
+
 admin.site.register(Edition)
 admin.site.register(EditionLanguage)
 admin.site.register(PersonEditionRole)
