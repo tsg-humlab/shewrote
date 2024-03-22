@@ -6,12 +6,24 @@ from .models import (Country, Place, Person, Education, PersonEducation, Role, P
                      Reception, PersonReceptionRole, ReceptionType, ReceptionLanguage, ReceptionGenre)
 
 admin.site.register(Country)
-admin.site.register(Place)
+
+
+@admin.register(Place)
+class PlaceAdmin(admin.ModelAdmin):
+    search_fields = ["name"]
+
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     search_fields = ['short_name']
     ordering = ['short_name']
+    autocomplete_fields = [
+        "place_of_birth",
+        "place_of_death",
+        "mother",
+        "father",
+        "related_to",
+    ]
 
 admin.site.register(Education)
 admin.site.register(PersonEducation)
