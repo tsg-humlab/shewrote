@@ -13,6 +13,19 @@ class PlaceAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
+class PersonWorkRoleInline(admin.TabularInline):
+    model = PersonWorkRole
+    fields = [
+        "role",
+        "work",
+        "start_year",
+        "end_year",
+        "notes"
+    ]
+    autocomplete_fields = ['work', 'person']
+    verbose_name = "Person Work Relation"
+
+
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     search_fields = ['short_name']
@@ -24,6 +37,31 @@ class PersonAdmin(admin.ModelAdmin):
         "father",
         "related_to",
     ]
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": ["short_name", "viaf_or_cerl", "first_name", "maiden_name",
+                           "date_of_birth", "place_of_birth", "date_of_death", "place_of_death"]
+            },
+        ),
+        (
+            "Relations",
+            {
+                # "classes": ("collapse",),
+                "fields": ["mother", "father", "related_to"]
+            }
+        ),
+        (
+            "Professional",
+            {
+                # "classes": ("collapse",),
+                "fields": ["professional_ecclesiastic_title", "aristocratic_title", "flourishing_start",
+                           "flourishing_end", "bibliography"]
+            }
+        )
+    ]
+    inlines = [PersonWorkRoleInline]
 
 admin.site.register(Education)
 admin.site.register(PersonEducation)
