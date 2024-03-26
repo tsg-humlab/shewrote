@@ -23,7 +23,7 @@ class PersonWorkRoleInline(admin.TabularInline):
         "notes"
     ]
     autocomplete_fields = ['work', 'person']
-    verbose_name = "Person Work Relation"
+    verbose_name = "Work"
 
 
 @admin.register(Person)
