@@ -24,6 +24,20 @@ class AlternativeNameInline(admin.TabularInline):
     extra = 0
 
 
+class PeriodsOfResidenceInline(admin.TabularInline):
+    model = PeriodOfResidence
+    fields = [
+        "place",
+        "start_year",
+        "end_year",
+        "notes"
+    ]
+    extra = 0
+    autocomplete_fields = ['place']
+    verbose_name = "Lived in"
+    verbose_name_plural = "Lived in"
+
+
 class PersonWorkRoleInline(admin.TabularInline):
     model = PersonWorkRole
     fields = [
@@ -73,7 +87,7 @@ class PersonAdmin(admin.ModelAdmin):
             }
         )
     ]
-    inlines = [AlternativeNameInline, PersonWorkRoleInline]
+    inlines = [AlternativeNameInline, PeriodsOfResidenceInline, PersonWorkRoleInline]
 
 admin.site.register(Education)
 admin.site.register(PersonEducation)
