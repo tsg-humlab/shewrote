@@ -13,6 +13,17 @@ class PlaceAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
+class AlternativeNameInline(admin.TabularInline):
+    model = AlternativeName
+    fields = [
+        "alternative_name",
+        "start_year",
+        "end_year",
+        "notes"
+    ]
+    extra = 0
+
+
 class PersonWorkRoleInline(admin.TabularInline):
     model = PersonWorkRole
     fields = [
@@ -22,6 +33,7 @@ class PersonWorkRoleInline(admin.TabularInline):
         "end_year",
         "notes"
     ]
+    extra = 0
     autocomplete_fields = ['work', 'person']
     verbose_name = "Work"
 
@@ -61,7 +73,7 @@ class PersonAdmin(admin.ModelAdmin):
             }
         )
     ]
-    inlines = [PersonWorkRoleInline]
+    inlines = [AlternativeNameInline, PersonWorkRoleInline]
 
 admin.site.register(Education)
 admin.site.register(PersonEducation)
