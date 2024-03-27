@@ -54,6 +54,8 @@ class PersonWorkRoleInline(admin.TabularInline):
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
+    list_display = ["short_name", "first_name", "maiden_name", "sex", "date_of_birth", "place_of_birth",
+                    "date_of_death", "place_of_death", "notes", 'view_on_site']
     search_fields = ['short_name']
     ordering = ['short_name']
     autocomplete_fields = [
