@@ -58,6 +58,7 @@ class PersonAdmin(admin.ModelAdmin):
                     "date_of_death", "place_of_death", "notes", 'view_on_site']
     search_fields = ['short_name']
     ordering = ['short_name']
+    list_filter = ["sex", "place_of_birth__modern_country__modern_country"]
     autocomplete_fields = [
         "place_of_birth",
         "place_of_death",
