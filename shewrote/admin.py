@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from .models import (Country, Place, Person, Education, PersonEducation, Role, Profession, PersonProfession, Religion,
                      PersonReligion, Marriage, AlternativeName, PeriodOfResidence, TypeOfCollective, Collective,
                      PersonCollective, CollectivePlace, Genre, Language, Work, PersonWorkRole, Edition, EditionLanguage,
@@ -91,6 +92,9 @@ class PersonAdmin(admin.ModelAdmin):
         )
     ]
     inlines = [AlternativeNameInline, PeriodsOfResidenceInline, PersonWorkRoleInline]
+
+    def view_on_site(self, obj):
+        return mark_safe(f'<a href="{obj.get_absolute_url()}">view on site</a>')
 
 admin.site.register(Education)
 admin.site.register(PersonEducation)
