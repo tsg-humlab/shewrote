@@ -3,6 +3,8 @@ from collections import defaultdict
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
+
 
 from easyaudit.models import CRUDEvent
 
@@ -73,6 +75,9 @@ class Person(models.Model):
     def __str__(self):
         """Return the name of the Person."""
         return self.short_name
+
+    def get_absolute_url(self):
+        return reverse("shewrote:person", kwargs={"person_id": self.pk})
 
     def get_children(self):
         if self.sex == Person.GenderChoices.FEMALE:
