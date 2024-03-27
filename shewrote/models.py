@@ -320,6 +320,9 @@ class PersonWorkRole(models.Model):
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
+    def __str__(self):
+        return f'{self.person} {self.role} {self.work}'
+
 
 class Edition(models.Model):
     """Represents an Edition of a Work published in a Place."""
