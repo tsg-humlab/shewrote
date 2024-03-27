@@ -70,23 +70,23 @@ class PersonAdmin(admin.ModelAdmin):
         (
             None,
             {
-                "fields": ["short_name", "viaf_or_cerl", "first_name", "maiden_name",
-                           "date_of_birth", "place_of_birth", "date_of_death", "place_of_death"]
+                "fields": [("short_name", "viaf_or_cerl"), ("first_name", "maiden_name",),
+                           ("date_of_birth", "place_of_birth"), ("date_of_death", "place_of_death")],
             },
         ),
         (
             "Relations",
             {
                 # "classes": ("collapse",),
-                "fields": ["mother", "father", "related_to"]
+                "fields": [("mother", "father"), "related_to"]
             }
         ),
         (
             "Professional",
             {
                 # "classes": ("collapse",),
-                "fields": ["professional_ecclesiastic_title", "aristocratic_title", "flourishing_start",
-                           "flourishing_end", "bibliography"]
+                "fields": [("aristocratic_title", "professional_ecclesiastic_title"), ("flourishing_start",
+                           "flourishing_end"), "bibliography"]
             }
         )
     ]
