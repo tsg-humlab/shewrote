@@ -94,7 +94,8 @@ class PersonAdmin(admin.ModelAdmin):
     inlines = [AlternativeNameInline, PeriodsOfResidenceInline, PersonWorkRoleInline]
 
     def view_on_site(self, obj):
-        return mark_safe(f'<a href="{obj.get_absolute_url()}">view on site</a>')
+        icon = '<img src="/static/admin/img/icon-viewlink.svg" alt="View on site" title="View on site">'
+        return mark_safe(f'<a href="{obj.get_absolute_url()}">{icon}</i></a>')
 
 admin.site.register(Education)
 admin.site.register(PersonEducation)
