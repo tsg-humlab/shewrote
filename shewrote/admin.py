@@ -56,7 +56,7 @@ class PersonWorkRoleInline(admin.TabularInline):
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     list_display = ["short_name", "first_name", "maiden_name", "sex", "date_of_birth", "place_of_birth",
-                    "date_of_death", "place_of_death", "notes", 'view_on_site']
+                    "date_of_death", "place_of_death", "notes", 'view_on_site_link']
     search_fields = ['short_name']
     ordering = ['short_name']
     list_filter = ["sex", "place_of_birth__modern_country__modern_country"]
@@ -93,7 +93,7 @@ class PersonAdmin(admin.ModelAdmin):
     ]
     inlines = [AlternativeNameInline, PeriodsOfResidenceInline, PersonWorkRoleInline]
 
-    def view_on_site(self, obj):
+    def view_on_site_link(self, obj):
         icon = '<img src="/static/admin/img/icon-viewlink.svg" alt="View on site" title="View on site">'
         return mark_safe(f'<a href="{obj.get_absolute_url()}">{icon}</i></a>')
 
