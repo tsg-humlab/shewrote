@@ -53,6 +53,25 @@ class PersonWorkRoleInline(admin.TabularInline):
     verbose_name = "Work"
 
 
+class PersonReceptionRoleInline(admin.TabularInline):
+    model = PersonReceptionRole
+    fields = [
+        "person",
+        "reception",
+        "role",
+    ]
+    autocomplete_fields = ['person', 'reception', 'role']
+    extra = 0
+
+
+class PersonReceptionRoleInlineFromPerson(PersonReceptionRoleInline):
+    verbose_name = "Reception"
+
+
+class PersonReceptionRoleInlineFromReception(PersonReceptionRoleInline):
+    verbose_name = "Person"
+
+
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     list_display = ["short_name", "first_name", "maiden_name", "sex", "date_of_birth", "place_of_birth",
@@ -91,7 +110,8 @@ class PersonAdmin(admin.ModelAdmin):
             }
         )
     ]
-    inlines = [AlternativeNameInline, PeriodsOfResidenceInline, PersonWorkRoleInline]
+    inlines = [AlternativeNameInline, PeriodsOfResidenceInline, PersonWorkRoleInline,
+               PersonReceptionRoleInlineFromPerson]
 
     def view_on_site_link(self, obj):
         icon = '<img src="/static/admin/img/icon-viewlink.svg" alt="View on site" title="View on site">'
@@ -165,17 +185,6 @@ class TypeOfDocumentAdmin(admin.ModelAdmin):
 admin.site.register(TypeOfReception)
 
 
-class PersonReceptionRoleInline(admin.TabularInline):
-    model = PersonReceptionRole
-    fields = [
-        "person",
-        "reception",
-        "role",
-    ]
-    autocomplete_fields = ['person', 'reception', 'role']
-    extra = 0
-
-
 @admin.register(Reception)
 class ReceptionAdmin(admin.ModelAdmin):
     list_display = ['title', 'reference']
@@ -187,7 +196,7 @@ class ReceptionAdmin(admin.ModelAdmin):
         'place_of_reception',
         'document_type',
     ]
-    inlines = [PersonReceptionRoleInline]
+    inlines = [PersonReceptionRoleInlineFromReception]
 
 
 @admin.register(PersonReceptionRole)
