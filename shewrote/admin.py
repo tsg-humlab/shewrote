@@ -99,7 +99,13 @@ class PersonAdmin(admin.ModelAdmin):
 
 admin.site.register(Education)
 admin.site.register(PersonEducation)
-admin.site.register(Role)
+
+
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
 admin.site.register(Profession)
 admin.site.register(PersonProfession)
 admin.site.register(Religion)
@@ -140,12 +146,55 @@ class PersonWorkRoleAdmin(admin.ModelAdmin):
 admin.site.register(Edition)
 admin.site.register(EditionLanguage)
 admin.site.register(PersonEditionRole)
-admin.site.register(ReceptionSource)
+
+
+@admin.register(ReceptionSource)
+class ReceptionSourceAdmin(admin.ModelAdmin):
+    search_fields = ['title_work']
+    autocomplete_fields = ['work', 'part_of']
+
+
 admin.site.register(PersonReceptionSourceRole)
-admin.site.register(TypeOfDocument)
+
+
+@admin.register(TypeOfDocument)
+class TypeOfDocumentAdmin(admin.ModelAdmin):
+    search_fields = ['type_of_document']
+
+
 admin.site.register(TypeOfReception)
-admin.site.register(Reception)
-admin.site.register(PersonReceptionRole)
+
+
+class PersonReceptionRoleInline(admin.TabularInline):
+    model = PersonReceptionRole
+    fields = [
+        "person",
+        "reception",
+        "role",
+    ]
+    autocomplete_fields = ['person', 'reception', 'role']
+    extra = 0
+
+
+@admin.register(Reception)
+class ReceptionAdmin(admin.ModelAdmin):
+    list_display = ['title', 'reference']
+    list_display_links = ['title', 'reference']
+    search_fields = ['title', 'reference']
+    autocomplete_fields = [
+        'source',
+        'part_of_work',
+        'place_of_reception',
+        'document_type',
+    ]
+    inlines = [PersonReceptionRoleInline]
+
+
+@admin.register(PersonReceptionRole)
+class PersonReceptionRole(admin.ModelAdmin):
+    search_fields = []
+
+
 admin.site.register(ReceptionType)
 admin.site.register(ReceptionLanguage)
 admin.site.register(ReceptionGenre)
