@@ -93,6 +93,13 @@ class PersonReligionInline(admin.TabularInline):
     verbose_name = "Religion"
 
 
+class PersonCollectiveInline(admin.TabularInline):
+    model = PersonCollective
+    fields = ["person", "collective"]
+    extra = 0
+    verbose_name = "Collective"
+
+
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     list_display = ["short_name", "first_name", "maiden_name", "sex", "date_of_birth", "place_of_birth",
@@ -133,7 +140,7 @@ class PersonAdmin(admin.ModelAdmin):
     ]
     inlines = [PersonEducationInline, PersonProfessionInline, PersonReligionInline,
                AlternativeNameInline, PeriodsOfResidenceInline,
-               PersonWorkRoleInline, PersonReceptionRoleInlineFromPerson]
+               PersonWorkRoleInline, PersonCollectiveInline, PersonReceptionRoleInlineFromPerson]
 
     def view_on_site_link(self, obj):
         icon = '<img src="/static/admin/img/icon-viewlink.svg" alt="View on site" title="View on site">'
