@@ -74,7 +74,7 @@ class PersonReceptionRoleInlineFromReception(PersonReceptionRoleInline):
 
 class PersonProfessionInline(admin.TabularInline):
     model = PersonProfession
-    fields = ["person", "profession"]
+    fields = ["person", "profession", "start_year", "end_year", "notes"]
     extra = 0
     verbose_name = "Profession"
 
