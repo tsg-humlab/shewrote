@@ -79,6 +79,13 @@ class PersonProfessionInline(admin.TabularInline):
     verbose_name = "Profession"
 
 
+class PersonEducationInline(admin.TabularInline):
+    model = PersonEducation
+    fields = ["person", "education"]
+    extra = 0
+    verbose_name = "Education"
+
+
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     list_display = ["short_name", "first_name", "maiden_name", "sex", "date_of_birth", "place_of_birth",
@@ -117,7 +124,8 @@ class PersonAdmin(admin.ModelAdmin):
             }
         )
     ]
-    inlines = [PersonProfessionInline, AlternativeNameInline, PeriodsOfResidenceInline,
+    inlines = [PersonEducationInline, PersonProfessionInline,
+               AlternativeNameInline, PeriodsOfResidenceInline,
                PersonWorkRoleInline, PersonReceptionRoleInlineFromPerson]
 
     def view_on_site_link(self, obj):
