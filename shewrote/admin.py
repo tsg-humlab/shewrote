@@ -86,6 +86,13 @@ class PersonEducationInline(admin.TabularInline):
     verbose_name = "Education"
 
 
+class PersonReligionInline(admin.TabularInline):
+    model = PersonReligion
+    fields = ["person", "religion", "start_year", "end_year", "notes"]
+    extra = 0
+    verbose_name = "Religion"
+
+
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     list_display = ["short_name", "first_name", "maiden_name", "sex", "date_of_birth", "place_of_birth",
@@ -124,7 +131,7 @@ class PersonAdmin(admin.ModelAdmin):
             }
         )
     ]
-    inlines = [PersonEducationInline, PersonProfessionInline,
+    inlines = [PersonEducationInline, PersonProfessionInline, PersonReligionInline,
                AlternativeNameInline, PeriodsOfResidenceInline,
                PersonWorkRoleInline, PersonReceptionRoleInlineFromPerson]
 
