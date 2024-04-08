@@ -185,6 +185,27 @@ class TypeOfDocumentAdmin(admin.ModelAdmin):
 admin.site.register(TypeOfReception)
 
 
+class ReceptionTypeInline(admin.TabularInline):
+    model = ReceptionType
+    fields = ["reception", "type"]
+    extra = 0
+    verbose_name = "Type"
+
+
+class ReceptionLanguageInline(admin.TabularInline):
+    model = ReceptionLanguage
+    fields = ["reception", "language"]
+    extra = 0
+    verbose_name = "Language"
+
+
+class ReceptionGenreInline(admin.TabularInline):
+    model = ReceptionGenre
+    fields = ["reception", "genre"]
+    extra = 0
+    verbose_name = "Genre"
+
+
 @admin.register(Reception)
 class ReceptionAdmin(admin.ModelAdmin):
     list_display = ['title', 'reference']
@@ -196,7 +217,22 @@ class ReceptionAdmin(admin.ModelAdmin):
         'place_of_reception',
         'document_type',
     ]
-    inlines = [PersonReceptionRoleInlineFromReception]
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": [
+                    ("title", "source", "part_of_work", "reference"),
+                    "document_type",
+                    ("place_of_reception", "date_of_reception"),
+                    ("quotation_reception", "url", "viaf_work"),
+                    "notes"
+                ],
+            },
+        ),
+    ]
+    inlines = [PersonReceptionRoleInlineFromReception, ReceptionTypeInline, ReceptionLanguageInline,
+               ReceptionGenreInline]
 
 
 @admin.register(PersonReceptionRole)
