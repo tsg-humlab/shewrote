@@ -72,6 +72,13 @@ class PersonReceptionRoleInlineFromReception(PersonReceptionRoleInline):
     verbose_name = "Person"
 
 
+class PersonProfessionInline(admin.TabularInline):
+    model = PersonProfession
+    fields = ["person", "profession"]
+    extra = 0
+    verbose_name = "Profession"
+
+
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     list_display = ["short_name", "first_name", "maiden_name", "sex", "date_of_birth", "place_of_birth",
@@ -110,8 +117,8 @@ class PersonAdmin(admin.ModelAdmin):
             }
         )
     ]
-    inlines = [AlternativeNameInline, PeriodsOfResidenceInline, PersonWorkRoleInline,
-               PersonReceptionRoleInlineFromPerson]
+    inlines = [PersonProfessionInline, AlternativeNameInline, PeriodsOfResidenceInline,
+               PersonWorkRoleInline, PersonReceptionRoleInlineFromPerson]
 
     def view_on_site_link(self, obj):
         icon = '<img src="/static/admin/img/icon-viewlink.svg" alt="View on site" title="View on site">'
