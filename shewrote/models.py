@@ -128,6 +128,9 @@ class PersonEducation(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     education = models.ForeignKey(Education, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.person.short_name}: {self.education.name.lower()}'
+
 
 class Role(models.Model):
     """Model describing the roles a Person can have."""
@@ -157,6 +160,9 @@ class PersonProfession(models.Model):
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
+    def __str__(self):
+        return f'{self.person.short_name} was {self.profession.name.lower()}'
+
 
 class Religion(models.Model):
     """Model describing the profession of a Person."""
@@ -175,6 +181,9 @@ class PersonReligion(models.Model):
     start_year = models.IntegerField(blank=True, null=True)
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return f'{self.person.short_name} was {self.religion.name.lower()}'
 
 
 class Marriage(models.Model):
@@ -264,6 +273,9 @@ class PersonCollective(models.Model):
     """Many-to-Many model connecting Person and Collective."""
     collective = models.ForeignKey(Collective, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.person.short_name} was member of {self.collective.name}'
 
 
 class CollectivePlace(models.Model):
@@ -463,6 +475,9 @@ class PersonReceptionRole(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.person.short_name} {self.role.name} {self.reception.title}'
 
 
 class ReceptionType(models.Model):
