@@ -57,8 +57,8 @@ class PersonReceptionRoleInline(admin.TabularInline):
     model = PersonReceptionRole
     fields = [
         "person",
-        "reception",
         "role",
+        "reception",
     ]
     autocomplete_fields = ['person', 'reception', 'role']
     extra = 0
