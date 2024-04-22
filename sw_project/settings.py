@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'django_select2',
     'dal',
     'dal_select2',
+    "admin_interface",
+    "colorfield",
 
     # Default django apps.
     'django.contrib.admin',
@@ -185,3 +187,6 @@ SELECT2_CSS = [
     'css/select2-bootstrap-5-theme.min.css',
 ]
 SELECT2_THEME = 'bootstrap-5'
+
+X_FRAME_OPTIONS = "SAMEORIGIN"
+SILENCED_SYSTEM_CHECKS = ["security.W019"]
