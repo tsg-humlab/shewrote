@@ -30,7 +30,7 @@
 
     <ul class="list-group list-group-flush pb-2 mb-4">
         {% for person in persons %}
-            <li class="list-group-item border-1">
+            <li class="list-group-item">
                 <div class="float-end">
                     {{ person.place_of_birth|default:"" }}
                     {{ person.date_of_birth|default:"" }}
