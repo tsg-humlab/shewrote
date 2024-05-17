@@ -2,35 +2,43 @@
 {% load django_bootstrap5 %}
 
 {% block page_header %}
-    <div class="row pb-2 mb-2 border-bottom">
+    <div class="hstack gap-3 pb-2 mb-2 border-bottom">
         <h1>Persons</h1>
+            {% if user.is_authenticated %}
+                <a class="btn btn-primary btn-sm mt-1 mb-1 ms-auto text-nowrap" href="{% url 'shewrote:new_person' %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                    </svg>
+                    Add person
+                </a>
+            {% endif %}
     </div>
 {% endblock page_header %}
 
 {% block content %}
-    {% if user.is_authenticated %}
-        <a class="btn btn-primary btn-sm mt-1 mb-1" href="{% url 'shewrote:new_person' %}">Add person &raquo</a>
-    {% endif %}
-
     <form action="" method="get">
-        <input type="text" id="short_name" name="short_name" value="{{ short_name }}"
-               size=30 placeholder="Enter (part of) a short name"/>
-        <button type="submit" class="btn btn-secondary btn-sm mt-1 mb-1">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
-              <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
-            </svg>
-            Filter
-        </button>
-        {% if count %}{{ count }} persons found.{% endif %}
+        <div class="hstack gap-3">
+            <input type="text" id="short_name" name="short_name" value="{{ short_name }}"
+                   size=30 placeholder="Enter (part of) a short name" class="form-control form-control-sm"/>
+            <button type="submit" class="btn btn-secondary btn-sm mt-1 mb-1 text-nowrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                  <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+                Filter
+            </button>
+        </div>
     </form>
 
-    <div class="pagination border-bottom">
-        {% bootstrap_pagination persons url=request.get_full_path %}
+     <div class="pt-2 hstack gap-3 border-bottom">
+        <div class="pagination me-auto">
+            {% bootstrap_pagination persons url=request.get_full_path %}
+        </div>
+        <div class="text-secondary">{% if count %}{{ count }} persons found.{% endif %}</div>
     </div>
 
     <ul class="list-group list-group-flush pb-2 mb-4">
         {% for person in persons %}
-            <li class="list-group-item">
+            <li class="list-group-item px-0">
                 <div class="float-end">
                     {{ person.place_of_birth|default:"" }}
                     {{ person.date_of_birth|default:"" }}
