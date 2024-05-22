@@ -1,0 +1,83 @@
+{% extends 'shewrote/base.html' %}
+{% load django_bootstrap5 %}
+
+{% block page_header %}
+    <div class="row pb-2 mb-2 border-bottom">
+        <h1>Works</h1>
+    </div>
+{% endblock page_header %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <a class="btn btn-primary btn-sm mt-1 mb-1" href="{% url 'shewrote:new_person' %}">Add work &raquo</a>
+    {% endif %}
+
+    <form action="" method="get">
+        <input type="text" id="title" name="title" value="{{ title }}"
+               size=30 placeholder="Enter (part of) a title"/>
+        <button type="submit" class="btn btn-secondary btn-sm mt-1 mb-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+              <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+            </svg>
+            Filter
+        </button>
+        {% if count %}{{ count }} works found.{% endif %}
+    </form>
+
+    <div class="pagination border-bottom">
+        {% bootstrap_pagination works url=request.get_full_path %}
+    </div>
+
+    <ul class="list-group list-group-flush pb-2 mb-4">
+        {% for work in works %}
+            <li class="list-group-item border-1">
+                <div class="float-end">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'shewrote:edit_work' work.id %}" title="Edit" class="ms-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                              <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="mb-2">
+                    <a href="{% url 'shewrote:work' work.id %}" title="Work details">
+                    {{ work.title }}</a>
+                </div>
+                {% if work.viaf_work %}
+                    <a href="{{ work.viaf_work }}" title="VIAF" class="float-end">
+                        VIAF
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                          <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                        </svg>
+                    </a>
+                {% endif %}
+                <table>
+                    <tbody>
+                        <tr>
+                            <td class="text-secondary me-2">Full title:&nbsp;</td>
+                            <td>{{ work.title }} </td>
+                        </tr>
+                        {% with work.get_persons_for_work as persons_work %}
+                        {% with work.get_role_for_person as persons_role %}
+                            {% if persons_work %}
+                                <tr>
+                                    <td class="text-secondary">Person</td>
+                                    <td class="text-secondary">Role</td>
+                                </tr>
+                                {% for person in persons_work %}
+                                    testcounter{{ forloop.counter0 }}testroles{{ persons_role }}
+                                    <tr><td>{{ person }}</td><td>{{ persons_role.forloop.counter }}</td></tr>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}{% endwith %}
+                    </tbody>
+                </table>
+            </li>
+        {% empty %}
+            <li class="list-group-item border-0">No works found.</li>
+        {% endfor %}
+    </ul>
+
+{% endblock content %}

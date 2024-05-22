@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import Person
+from .models import Person, Work
 from .forms import PersonForm, ShortPersonForm
 
 from dal import autocomplete
@@ -108,6 +108,52 @@ def edit_person(request, person_id):
         'addanother_person_form': ShortPersonForm()
     }
     return render(request, 'shewrote/edit_person.html', context)
+
+
+def works(request):
+    """Show all works."""
+    works = Work.objects.order_by('title')
+    title_filter = request.GET.get("title", '')
+    if title_filter:
+        works = works.filter(title__icontains=title_filter)
+    paginator = Paginator(works, 25)
+    page_number = request.GET.get("page")
+    paginated_works = paginator.get_page(page_number)
+    context = {'works': paginated_works, 'count': works.count(), 'title': title_filter}
+    return render(request, 'shewrote/works.html', context)
+
+
+def work(request, work_id):
+    """Show a single work and all its details."""
+    work = Work.objects.get(id=work_id)
+    context = {
+        'work': work,
+        'person': work.get_persons_for_work(),
+        'role': work.get_role_for_person(),
+    }
+    return render(request, 'shewrote/work.html', context)
+
+
+@login_required
+def edit_work(request, work_id):
+    """Edit an existing work."""
+    entry = Work.objects.get(id=work_id)
+
+    if request.method != 'POST':
+        # Initial request, pre-fill form with the current person.
+        form = WorkForm(instance=entry)
+    else:
+        # POST data submitted; process data.
+        form = WorkForm(instance=entry, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('shewrote:work', work_id=entry.id)
+
+    context = {
+        'work': entry,
+        'form': form,
+    }
+    return render(request, 'shewrote/edit_work.html', context)
 
 
 class VIAFSuggest(autocomplete.Select2ListView):

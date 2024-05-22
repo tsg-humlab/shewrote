@@ -322,6 +322,12 @@ class Work(models.Model):
         """Returns the title of the Work"""
         return self.title
 
+    def get_persons_for_work(self):
+        return Person.objects.filter(personworkrole__work=self)
+
+    def get_role_for_person(self):
+        return Role.objects.filter(personworkrole__work=self)
+
 
 class PersonWorkRole(models.Model):
     """Many-to-Many model connecting Persons, Works, and their Roles."""

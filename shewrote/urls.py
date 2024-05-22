@@ -19,6 +19,12 @@ urlpatterns = [
     path('short_new_person/', views.short_new_person, name='short_new_person'),
     # Page for editing an existing person
     path('edit_person/<uuid:person_id>/', views.edit_person, name='edit_person'),
+    # Page that shows all works
+    path('works/', views.works, name='works'),
+    # Detail page for a single person
+    path('works/<uuid:work_id>/', views.work, name='work'),
+    # Page for editing an existing work
+    path('edit_work/<uuid:work_id>/', views.edit_work, name='edit_work'),
 
     # VIAF API
     path('person_viaf_suggest', PersonVIAFSuggest.as_view(), name='person_viaf_suggest'),

@@ -4,7 +4,7 @@ from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 from apiconnectors.widgets import ApiSelectWidget
 from django.utils.safestring import SafeString
 
-from .models import Person, Place, Education, PersonEducation, PeriodOfResidence
+from .models import Person, Place, Education, PersonEducation, PeriodOfResidence, Work
 
 
 class AddAnotherWidget(ModelSelect2Widget):
@@ -80,6 +80,7 @@ class PersonForm(forms.ModelForm):
         js = (
             'js/viaf_select.js',
         )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.add_personeducation_field()
@@ -179,3 +180,9 @@ class ShortPersonForm(forms.ModelForm):
         widgets = {
             'notes': forms.Textarea(attrs={'cols': 80, 'rows': 5}),
         }
+
+
+class WorkForm(forms.ModelForm):
+    class Meta:
+        model = Work
+        fields = ['title', 'notes']

@@ -1,0 +1,22 @@
+{% extends 'shewrote/base.html' %}
+
+{% block page_header %}
+    <h1>
+        {{ work.title }}
+    </h1>
+    {% with work.get_last_edit as crudevent %}
+        {% if crudevent %}
+            <h6>Last edited by <i>{{ crudevent.user.username }}</i> on {{ crudevent.datetime }}</h6>
+        {% endif %}
+    {% endwith %}
+{% endblock page_header %}
+
+{% block content %}
+    <ul>
+    {% for person in person %}
+        <li>
+            {{ person }}
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock content %}
