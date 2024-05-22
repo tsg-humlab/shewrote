@@ -96,6 +96,7 @@ class PersonReligionInline(admin.TabularInline):
 class PersonCollectiveInline(admin.TabularInline):
     model = PersonCollective
     fields = ["person", "collective"]
+    autocomplete_fields = ["collective"]
     extra = 0
     verbose_name = "Collective"
 
@@ -172,7 +173,13 @@ class PeriodOfResidenceAdmin(admin.ModelAdmin):
     autocomplete_fields = ['person']
 
 admin.site.register(TypeOfCollective)
-admin.site.register(Collective)
+
+
+@admin.register(Collective)
+class CollectiveAdmin(admin.ModelAdmin):
+    search_fields = ["name"]
+
+
 admin.site.register(PersonCollective)
 admin.site.register(CollectivePlace)
 admin.site.register(Genre)
