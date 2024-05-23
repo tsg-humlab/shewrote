@@ -182,7 +182,7 @@ class AlternativeNameAdmin(admin.ModelAdmin):
 @admin.register(PeriodOfResidence)
 class PeriodOfResidenceAdmin(admin.ModelAdmin):
     search_fields = ['person__short_name', 'place__name']
-    autocomplete_fields = ['person']
+    autocomplete_fields = ['person', 'place']
 
 admin.site.register(TypeOfCollective)
 
