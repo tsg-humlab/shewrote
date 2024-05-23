@@ -191,8 +191,20 @@ class CollectiveAdmin(admin.ModelAdmin):
 
 admin.site.register(PersonCollective)
 admin.site.register(CollectivePlace)
-admin.site.register(Genre)
+
+
+@admin.register(Genre)
+class GenreAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
 admin.site.register(Language)
+
+
+class EditionInline(admin.StackedInline):
+    model = Edition
+    extra = 0
+    autocomplete_fields = ['related_work', 'place_of_publication', 'genre']
 
 
 @admin.register(Work)
@@ -200,7 +212,7 @@ class WorkAdmin(admin.ModelAdmin):
     list_display = ['title', 'viaf_link']
     search_fields = ['title']
 
-    inlines = [PersonWorkRoleInlineFromWorks]
+    inlines = [PersonWorkRoleInlineFromWorks, EditionInline]
 
     def viaf_link(self, obj):
         return mark_safe(f'<a href="{obj.viaf_work}">{obj.viaf_work}</a>')
@@ -214,7 +226,11 @@ class PersonWorkRoleAdmin(admin.ModelAdmin):
     autocomplete_fields = ['work', 'person']
 
 
-admin.site.register(Edition)
+@admin.register(Edition)
+class EditionAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['related_work', 'place_of_publication', 'genre']
+
+
 admin.site.register(EditionLanguage)
 admin.site.register(PersonEditionRole)
 
