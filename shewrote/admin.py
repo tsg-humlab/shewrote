@@ -192,7 +192,11 @@ class CollectiveAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
-admin.site.register(PersonCollective)
+@admin.register(PersonCollective)
+class PersonCollectiveAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['person', 'collective']
+
+
 admin.site.register(CollectivePlace)
 
 
