@@ -174,7 +174,10 @@ admin.site.register(PersonReligion)
 class MarriageAdmin(admin.ModelAdmin):
     autocomplete_fields = ['person', 'spouse']
 
-admin.site.register(AlternativeName)
+@admin.register(AlternativeName)
+class AlternativeNameAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['person']
+
 
 @admin.register(PeriodOfResidence)
 class PeriodOfResidenceAdmin(admin.ModelAdmin):
