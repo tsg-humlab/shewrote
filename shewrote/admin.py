@@ -169,8 +169,16 @@ class RoleAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 
-admin.site.register(Profession)
-admin.site.register(PersonProfession)
+@admin.register(Profession)
+class ProfessionAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+@admin.register(PersonProfession)
+class PersonProfessionAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['person', 'profession']
+
+
 admin.site.register(Religion)
 admin.site.register(PersonReligion)
 
