@@ -180,7 +180,11 @@ class PersonProfessionAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Religion)
-admin.site.register(PersonReligion)
+
+
+@admin.register(PersonReligion)
+class PersonReligionAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['person']
 
 @admin.register(Marriage)
 class MarriageAdmin(admin.ModelAdmin):
