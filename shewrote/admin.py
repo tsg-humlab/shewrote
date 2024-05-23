@@ -157,7 +157,11 @@ class PersonAdmin(admin.ModelAdmin):
         return mark_safe(f'<a href="{obj.get_absolute_url()}">{icon}</i></a>')
 
 admin.site.register(Education)
-admin.site.register(PersonEducation)
+
+
+@admin.register(PersonEducation)
+class PersonEducationAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['person']
 
 
 @admin.register(Role)
