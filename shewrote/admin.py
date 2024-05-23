@@ -120,7 +120,8 @@ class PersonAdmin(admin.ModelAdmin):
             None,
             {
                 "fields": [("short_name", "viaf_or_cerl"), ("first_name", "maiden_name",),
-                           ("date_of_birth", "place_of_birth"), ("date_of_death", "place_of_death")],
+                           ("date_of_birth", "place_of_birth"), ("date_of_death", "place_of_death"),
+                           "notes"],
             },
         ),
         (
