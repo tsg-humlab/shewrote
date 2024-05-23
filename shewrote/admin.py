@@ -200,6 +200,7 @@ class PeriodOfResidenceAdmin(admin.ModelAdmin):
     search_fields = ['person__short_name', 'place__name']
     autocomplete_fields = ['person', 'place']
 
+
 admin.site.register(TypeOfCollective)
 
 
@@ -328,6 +329,7 @@ class ReceptionAdmin(admin.ModelAdmin):
 @admin.register(PersonReceptionRole)
 class PersonReceptionRole(admin.ModelAdmin):
     search_fields = []
+    autocomplete_fields = ['person', 'reception']
 
 
 admin.site.register(ReceptionType)
