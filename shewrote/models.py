@@ -232,7 +232,7 @@ class   PeriodOfResidence(models.Model):
         return f"{self.person} lived in {self.place}{from_string}{until_string}"
 
 
-class TypeOfCollective(models.Model):
+class CollectiveType(models.Model):
     """Model describing the different types of Collective that exist."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_collective = models.CharField(max_length=255)
@@ -246,7 +246,7 @@ class Collective(models.Model):
     """Represents a Collective with multiple Persons as members in multiple Places."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
-    type = models.ForeignKey(TypeOfCollective, models.SET_NULL, null=True, blank=True)
+    type = models.ForeignKey(CollectiveType, models.SET_NULL, null=True, blank=True)
     place = models.ManyToManyField(
         Place,
         through="CollectivePlace",
