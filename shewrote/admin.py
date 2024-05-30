@@ -3,7 +3,7 @@ from django.utils.safestring import mark_safe
 from .models import (Country, Place, Person, Education, PersonEducation, Role, Profession, PersonProfession, Religion,
                      PersonReligion, Marriage, AlternativeName, PeriodOfResidence, TypeOfCollective, Collective,
                      PersonCollective, CollectivePlace, Genre, Language, Work, PersonWork, Edition, EditionLanguage,
-                     PersonEditionRole, ReceptionSource, PersonReceptionSourceRole, TypeOfDocument, TypeOfReception,
+                     PersonEdition, ReceptionSource, PersonReceptionSourceRole, TypeOfDocument, TypeOfReception,
                      Reception, PersonReception, ReceptionType, ReceptionLanguage, ReceptionGenre)
 
 admin.site.register(Country)
@@ -256,7 +256,7 @@ class EditionAdmin(admin.ModelAdmin):
 
 
 admin.site.register(EditionLanguage)
-admin.site.register(PersonEditionRole)
+admin.site.register(PersonEdition)
 
 
 @admin.register(ReceptionSource)

@@ -351,7 +351,7 @@ class Edition(models.Model):
     cerl_publisher = models.CharField(max_length=255, blank=True)
     related_persons = models.ManyToManyField(
         Person,
-        through="PersonEditionRole",
+        through="PersonEdition",
         through_fields=("edition", "person"),
         blank=True,
     )
@@ -367,7 +367,7 @@ class EditionLanguage(models.Model):
     language = models.ForeignKey(Language, models.SET_NULL, null=True)
 
 
-class PersonEditionRole(models.Model):
+class PersonEdition(models.Model):
     """Many-to-Many model connecting an Edition to related Persons."""
     edition = models.ForeignKey(Edition, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
