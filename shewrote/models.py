@@ -430,7 +430,7 @@ class Reception(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     person = models.ManyToManyField(
         Person,
-        through="PersonReceptionRole",
+        through="PersonReception",
         through_fields=("reception", "person"),
     )
     source = models.ForeignKey(ReceptionSource, models.SET_NULL, null=True, blank=True)
@@ -470,7 +470,7 @@ class Reception(models.Model):
         return self.title
 
 
-class PersonReceptionRole(models.Model):
+class PersonReception(models.Model):
     """Defines the Role of a Person related to a Reception."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)

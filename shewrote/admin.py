@@ -4,7 +4,7 @@ from .models import (Country, Place, Person, Education, PersonEducation, Role, P
                      PersonReligion, Marriage, AlternativeName, PeriodOfResidence, TypeOfCollective, Collective,
                      PersonCollective, CollectivePlace, Genre, Language, Work, PersonWorkRole, Edition, EditionLanguage,
                      PersonEditionRole, ReceptionSource, PersonReceptionSourceRole, TypeOfDocument, TypeOfReception,
-                     Reception, PersonReceptionRole, ReceptionType, ReceptionLanguage, ReceptionGenre)
+                     Reception, PersonReception, ReceptionType, ReceptionLanguage, ReceptionGenre)
 
 admin.site.register(Country)
 
@@ -61,8 +61,8 @@ class PersonWorkRoleInlineFromWorks(PersonWorkRoleInline):
     verbose_name = "Person"
 
 
-class PersonReceptionRoleInline(admin.TabularInline):
-    model = PersonReceptionRole
+class PersonReceptionInline(admin.TabularInline):
+    model = PersonReception
     fields = [
         "person",
         "role",
@@ -72,11 +72,11 @@ class PersonReceptionRoleInline(admin.TabularInline):
     extra = 0
 
 
-class PersonReceptionRoleInlineFromPerson(PersonReceptionRoleInline):
+class PersonReceptionInlineFromPerson(PersonReceptionInline):
     verbose_name = "Reception"
 
 
-class PersonReceptionRoleInlineFromReception(PersonReceptionRoleInline):
+class PersonReceptionInlineFromReception(PersonReceptionInline):
     verbose_name = "Person"
 
 
@@ -150,7 +150,7 @@ class PersonAdmin(admin.ModelAdmin):
     ]
     inlines = [PersonEducationInline, PersonProfessionInline, PersonReligionInline,
                AlternativeNameInline, PeriodsOfResidenceInline,
-               PersonWorkRoleInlineFromPersons, PersonCollectiveInline, PersonReceptionRoleInlineFromPerson]
+               PersonWorkRoleInlineFromPersons, PersonCollectiveInline, PersonReceptionInlineFromPerson]
 
     def view_on_site_link(self, obj):
         icon = '<img src="/static/admin/img/icon-viewlink.svg" alt="View on site" title="View on site">'
@@ -322,12 +322,12 @@ class ReceptionAdmin(admin.ModelAdmin):
             },
         ),
     ]
-    inlines = [PersonReceptionRoleInlineFromReception, ReceptionTypeInline, ReceptionLanguageInline,
+    inlines = [PersonReceptionInlineFromReception, ReceptionTypeInline, ReceptionLanguageInline,
                ReceptionGenreInline]
 
 
-@admin.register(PersonReceptionRole)
-class PersonReceptionRole(admin.ModelAdmin):
+@admin.register(PersonReception)
+class PersonReception(admin.ModelAdmin):
     search_fields = []
     autocomplete_fields = ['person', 'reception']
 
