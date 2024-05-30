@@ -3,7 +3,7 @@ from django.utils.safestring import mark_safe
 from .models import (Country, Place, Person, Education, PersonEducation, Role, Profession, PersonProfession, Religion,
                      PersonReligion, Marriage, AlternativeName, PeriodOfResidence, CollectiveType, Collective,
                      PersonCollective, CollectivePlace, Genre, Language, Work, PersonWork, Edition, EditionLanguage,
-                     PersonEdition, ReceptionSource, PersonReceptionSource, DocumentType, TypeOfReception,
+                     PersonEdition, ReceptionSource, PersonReceptionSource, DocumentType, ReceptionType,
                      Reception, PersonReception, ReceptionReceptionType, ReceptionLanguage, ReceptionGenre)
 
 admin.site.register(Country)
@@ -273,7 +273,7 @@ class DocumentTypeAdmin(admin.ModelAdmin):
     search_fields = ['type_of_document']
 
 
-admin.site.register(TypeOfReception)
+admin.site.register(ReceptionType)
 
 
 class ReceptionReceptionTypeInline(admin.TabularInline):

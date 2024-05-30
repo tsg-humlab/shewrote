@@ -415,7 +415,7 @@ class DocumentType(models.Model):
         return self.type_of_document
 
 
-class TypeOfReception(models.Model):
+class ReceptionType(models.Model):
     """This model defines the different types of Reception that can occur."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_reception = models.CharField(max_length=255)
@@ -443,7 +443,7 @@ class Reception(models.Model):
     document_type = models.ForeignKey(DocumentType, models.SET_NULL, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
     reception_type = models.ManyToManyField(
-        TypeOfReception,
+        ReceptionType,
         through="ReceptionReceptionType",
         through_fields=("reception", "type"),
         blank=True,
@@ -483,7 +483,7 @@ class PersonReception(models.Model):
 class ReceptionReceptionType(models.Model):
     """Model linking a Reception to its Type."""
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
-    type = models.ForeignKey(TypeOfReception, models.SET_NULL, null=True)
+    type = models.ForeignKey(ReceptionType, models.SET_NULL, null=True)
 
 
 class ReceptionLanguage(models.Model):
