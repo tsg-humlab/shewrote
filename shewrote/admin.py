@@ -39,7 +39,7 @@ class PeriodsOfResidenceInline(admin.TabularInline):
     verbose_name_plural = "Lived in"
 
 
-class PersonWorkRoleInline(admin.TabularInline):
+class PersonWorkInline(admin.TabularInline):
     model = PersonWork
     fields = [
         "person",
@@ -53,11 +53,11 @@ class PersonWorkRoleInline(admin.TabularInline):
     autocomplete_fields = ['work', 'person']
 
 
-class PersonWorkRoleInlineFromPersons(PersonWorkRoleInline):
+class PersonWorkInlineFromPersons(PersonWorkInline):
     verbose_name = "Work"
 
 
-class PersonWorkRoleInlineFromWorks(PersonWorkRoleInline):
+class PersonWorkInlineFromWorks(PersonWorkInline):
     verbose_name = "Person"
 
 
@@ -150,7 +150,7 @@ class PersonAdmin(admin.ModelAdmin):
     ]
     inlines = [PersonEducationInline, PersonProfessionInline, PersonReligionInline,
                AlternativeNameInline, PeriodsOfResidenceInline,
-               PersonWorkRoleInlineFromPersons, PersonCollectiveInline, PersonReceptionInlineFromPerson]
+               PersonWorkInlineFromPersons, PersonCollectiveInline, PersonReceptionInlineFromPerson]
 
     def view_on_site_link(self, obj):
         icon = '<img src="/static/admin/img/icon-viewlink.svg" alt="View on site" title="View on site">'
@@ -236,7 +236,7 @@ class WorkAdmin(admin.ModelAdmin):
     list_display = ['title', 'viaf_link']
     search_fields = ['title']
 
-    inlines = [PersonWorkRoleInlineFromWorks, EditionInline]
+    inlines = [PersonWorkInlineFromWorks, EditionInline]
 
     def viaf_link(self, obj):
         return mark_safe(f'<a href="{obj.viaf_work}">{obj.viaf_work}</a>')
