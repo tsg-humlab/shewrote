@@ -3,7 +3,7 @@ from django.utils.safestring import mark_safe
 from .models import (Country, Place, Person, Education, PersonEducation, Role, Profession, PersonProfession, Religion,
                      PersonReligion, Marriage, AlternativeName, PeriodOfResidence, TypeOfCollective, Collective,
                      PersonCollective, CollectivePlace, Genre, Language, Work, PersonWork, Edition, EditionLanguage,
-                     PersonEdition, ReceptionSource, PersonReceptionSourceRole, TypeOfDocument, TypeOfReception,
+                     PersonEdition, ReceptionSource, PersonReceptionSource, TypeOfDocument, TypeOfReception,
                      Reception, PersonReception, ReceptionType, ReceptionLanguage, ReceptionGenre)
 
 admin.site.register(Country)
@@ -265,7 +265,7 @@ class ReceptionSourceAdmin(admin.ModelAdmin):
     autocomplete_fields = ['work', 'part_of']
 
 
-admin.site.register(PersonReceptionSourceRole)
+admin.site.register(PersonReceptionSource)
 
 
 @admin.register(TypeOfDocument)

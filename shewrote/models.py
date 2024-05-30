@@ -382,7 +382,7 @@ class ReceptionSource(models.Model):
     title_work = models.CharField(max_length=255, blank=True)
     related_persons = models.ManyToManyField(
         Person,
-        through="PersonReceptionSourceRole",
+        through="PersonReceptionSource",
         through_fields=("reception_source", "person"),
         blank=True,
     )
@@ -398,7 +398,7 @@ class ReceptionSource(models.Model):
         return self.title_work
 
 
-class PersonReceptionSourceRole(models.Model):
+class PersonReceptionSource(models.Model):
     """Many-to-Many model connecting an Edition to related Persons."""
     reception_source = models.ForeignKey(ReceptionSource, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
