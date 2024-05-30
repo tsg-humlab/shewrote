@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from .models import (Country, Place, Person, Education, PersonEducation, Role, Profession, PersonProfession, Religion,
                      PersonReligion, Marriage, AlternativeName, PeriodOfResidence, TypeOfCollective, Collective,
-                     PersonCollective, CollectivePlace, Genre, Language, Work, PersonWorkRole, Edition, EditionLanguage,
+                     PersonCollective, CollectivePlace, Genre, Language, Work, PersonWork, Edition, EditionLanguage,
                      PersonEditionRole, ReceptionSource, PersonReceptionSourceRole, TypeOfDocument, TypeOfReception,
                      Reception, PersonReception, ReceptionType, ReceptionLanguage, ReceptionGenre)
 
@@ -40,7 +40,7 @@ class PeriodsOfResidenceInline(admin.TabularInline):
 
 
 class PersonWorkRoleInline(admin.TabularInline):
-    model = PersonWorkRole
+    model = PersonWork
     fields = [
         "person",
         "role",
@@ -242,7 +242,7 @@ class WorkAdmin(admin.ModelAdmin):
         return mark_safe(f'<a href="{obj.viaf_work}">{obj.viaf_work}</a>')
 
 
-@admin.register(PersonWorkRole)
+@admin.register(PersonWork)
 class PersonWorkRoleAdmin(admin.ModelAdmin):
     list_display = ["person", "role", "work"]
     list_display_links = ["person", "role", "work"]

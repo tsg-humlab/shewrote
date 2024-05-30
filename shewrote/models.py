@@ -311,7 +311,7 @@ class Work(models.Model):
     viaf_work = models.URLField(max_length=255, blank=True)
     related_persons = models.ManyToManyField(
         Person,
-        through="PersonWorkRole",
+        through="PersonWork",
         through_fields=("work", "person"),
         blank=True,
     )
@@ -323,7 +323,7 @@ class Work(models.Model):
         return self.title
 
 
-class PersonWorkRole(models.Model):
+class PersonWork(models.Model):
     """Many-to-Many model connecting Persons, Works, and their Roles."""
     work = models.ForeignKey(Work, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
