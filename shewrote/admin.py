@@ -4,7 +4,7 @@ from .models import (Country, Place, Person, Education, PersonEducation, Role, P
                      PersonReligion, Marriage, AlternativeName, PeriodOfResidence, CollectiveType, Collective,
                      PersonCollective, CollectivePlace, Genre, Language, Work, PersonWork, Edition, EditionLanguage,
                      PersonEdition, ReceptionSource, PersonReceptionSource, DocumentType, TypeOfReception,
-                     Reception, PersonReception, ReceptionType, ReceptionLanguage, ReceptionGenre)
+                     Reception, PersonReception, ReceptionReceptionType, ReceptionLanguage, ReceptionGenre)
 
 admin.site.register(Country)
 
@@ -276,8 +276,8 @@ class DocumentTypeAdmin(admin.ModelAdmin):
 admin.site.register(TypeOfReception)
 
 
-class ReceptionTypeInline(admin.TabularInline):
-    model = ReceptionType
+class ReceptionReceptionTypeInline(admin.TabularInline):
+    model = ReceptionReceptionType
     fields = ["reception", "type"]
     extra = 0
     verbose_name = "Type"
@@ -322,7 +322,7 @@ class ReceptionAdmin(admin.ModelAdmin):
             },
         ),
     ]
-    inlines = [PersonReceptionInlineFromReception, ReceptionTypeInline, ReceptionLanguageInline,
+    inlines = [PersonReceptionInlineFromReception, ReceptionReceptionTypeInline, ReceptionLanguageInline,
                ReceptionGenreInline]
 
 
@@ -332,6 +332,6 @@ class PersonReception(admin.ModelAdmin):
     autocomplete_fields = ['person', 'reception']
 
 
-admin.site.register(ReceptionType)
+admin.site.register(ReceptionReceptionType)
 admin.site.register(ReceptionLanguage)
 admin.site.register(ReceptionGenre)

@@ -405,7 +405,7 @@ class PersonReceptionSource(models.Model):
     role = models.ForeignKey(Role, models.SET_NULL, null=True, blank=True)
 
 
-class TypeOfDocument(models.Model):
+class DocumentType(models.Model):
     """Defines the Type of document that can exist for a Reception."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_document = models.CharField(max_length=255)
@@ -440,11 +440,11 @@ class Reception(models.Model):
     place_of_reception = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
     date_of_reception = models.IntegerField(blank=True)
     quotation_reception = models.TextField(blank=True)
-    document_type = models.ForeignKey(TypeOfDocument, models.SET_NULL, null=True, blank=True)
+    document_type = models.ForeignKey(DocumentType, models.SET_NULL, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
     reception_type = models.ManyToManyField(
         TypeOfReception,
-        through="ReceptionType",
+        through="ReceptionReceptionType",
         through_fields=("reception", "type"),
         blank=True,
     )
@@ -480,7 +480,7 @@ class PersonReception(models.Model):
         return f'{self.person.short_name} {self.role.name} {self.reception.title}'
 
 
-class ReceptionType(models.Model):
+class ReceptionReceptionType(models.Model):
     """Model linking a Reception to its Type."""
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
     type = models.ForeignKey(TypeOfReception, models.SET_NULL, null=True)
