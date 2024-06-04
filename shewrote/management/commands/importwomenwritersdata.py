@@ -7,8 +7,8 @@ import pickle
 import pathlib
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
-from shewrote.models import Genre, Religion, Profession, Language, TypeOfCollective, Collective, Work, Place, Person, \
-    PeriodOfResidence, PersonCollective, PersonReligion, PersonWorkRole, Role, AlternativeName, Education, \
+from shewrote.models import Genre, Religion, Profession, Language, CollectiveType, Collective, Work, Place, Person, \
+    PeriodOfResidence, PersonCollective, PersonReligion, PersonWork, Role, AlternativeName, Education, \
     PersonEducation
 
 
@@ -164,7 +164,7 @@ class Command(BaseCommand):
             name = collective["name"]
             type = collective["type"]
 
-            type_of_collective, created = TypeOfCollective.objects.get_or_create(type_of_collective=type)
+            type_of_collective, created = CollectiveType.objects.get_or_create(type_of_collective=type)
 
             new_collectives[uuid] = Collective(id=uuid, name=name, type=type_of_collective,
                                                original_data=collective)
@@ -306,7 +306,7 @@ class Command(BaseCommand):
         PeriodOfResidence.objects.bulk_create(self.get_periodofresidences(persons))
         PersonCollective.objects.bulk_create(self.get_personcollectives(persons))
         PersonReligion.objects.bulk_create(self.get_personreligions(persons))
-        PersonWorkRole.objects.bulk_create(self.get_personworkroles(persons))
+        PersonWork.objects.bulk_create(self.get_personwork(persons))
         PersonEducation.objects.bulk_create(self.get_personeducations(persons))
         AlternativeName.objects.bulk_create(self.get_alternativenames(persons))
 
@@ -334,7 +334,7 @@ class Command(BaseCommand):
                                         for religion in religions])
         return new_personreligions
 
-    def get_personworkroles(self, persons):
+    def get_personwork(self, persons):
         new_personworks = []
         for person in persons:
             roles = [
@@ -353,7 +353,7 @@ class Command(BaseCommand):
             for old_role, new_role in roles:
                 role, created = Role.objects.get_or_create(name=new_role)
                 works = person["@relations"].get(old_role, [])
-                new_personworks.extend([PersonWorkRole(person_id=person["_id"], work_id=work["id"], role=role)
+                new_personworks.extend([PersonWork(person_id=person["_id"], work_id=work["id"], role=role)
                                         for work in works if work["id"] in self.works.keys()])
         return new_personworks
 
