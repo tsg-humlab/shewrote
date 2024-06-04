@@ -50,7 +50,7 @@
                 <button class="nav-link" id="v-pills-work-tab" data-bs-toggle="tab" data-bs-target="#v-pills-work"
                         type="button" role="tab" aria-controls="v-pills-work" aria-selected="false" onclick="nav('v-pills-work')">Works</button>
                 <button class="nav-link" id="v-pills-reception-tab" data-bs-toggle="tab" data-bs-target="#v-pills-reception"
-                        type="button" aria-controls="v-pills-reception" aria-selected="false" onclick="nav('v-pills-reception')">Receptions</button>
+                        type="button" aria-controls="v-pills-reception" aria-selected="false" onclick="nav('v-pills-work')">Receptions</button>
             </div>
 
 
@@ -343,7 +343,7 @@
                                                 <ul>
                                                     {% for work in is_creator_of %}
                                                         <li>
-                                                            {{ work }}
+                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
@@ -372,7 +372,7 @@
                                                 <ul>
                                                     {% for work in has_biography %}
                                                         <li>
-                                                            {{ work }}
+                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
@@ -384,7 +384,7 @@
                                                 <ul>
                                                     {% for work in is_commented_on_in %}
                                                         <li>
-                                                            {{ work }}
+                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
@@ -396,7 +396,7 @@
                                                 <ul>
                                                     {% for work in is_mentioned_in %}
                                                         <li>
-                                                            {{ work }}
+                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
@@ -408,7 +408,7 @@
                                                 <ul>
                                                     {% for work in is_referenced_in %}
                                                         <li>
-                                                            {{ work }}
+                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
@@ -423,38 +423,4 @@
             </div>
         </div>
     </div>
-    <!--
-    <div class="card mb-3">
-        <h4 class="card-header">
-            Basic info - <small><a href="{%  url 'shewrote:edit_person' person.id %}">Edit</a></small>
-        </h4>
-        <div class="card-body">
-            <p>Name variations / spellings {{ person.first_name }} {{ person.maiden_name }}</p>
-            <p>Pseudonyms</p>
-            <p>Person type</p>
-            <p>Gender {{ person.sex }}
-            <p>Birth date {{ person.date_of_birth }}</p>
-            <p>Birth place {{ person.place_of_birth }}</p>
-            <p>Lived in </p>
-            <p>Death date {{ person.date_of_death }}</p>
-            <p>Death place {{ person.place_of_death }}</p>
-            <p>Related to {{ person.related_to }}</p>
-            <p>Bibliography {{ person.bibliography }}</p>
-            <p>Provisional Notes {{ person.notes }}</p>
-            <p>Persistent ID </p>
-        </div>
-    </div>
-
-    <p><label>VIAF or CERL</label> {{ person.viaf_or_cerl }} </p>
-    <p><label>Alt. birth date</label> {{ person.alternative_birth_date }}</p>
-    <p><label>Alt. death date</label> {{ person.alternative_death_date }}</p>
-    <p><label>Flourishing start</label> {{ person.flourishing_start }}</p>
-    <p><label>Flourishing end</label> {{ person.flourishing_end }}</p>
-    <p><label>Alt. name gender</label> {{ person.alternative_name_gender }}</p>
-    <p><label>Prof. ecclesiastic title</label> {{ person.professional_ecclesiastic_title }}</p>
-    <p><label>Aristocratic title</label> {{ person.aristocratic_title }}</p>
-    <p><label>Education</label> {{ person.education }}</p>
-    <p><label>Mother</label> {{ person.mother }}</p>
-    <p><label>Father</label> {{ person.father }}</p>-->
-
 {% endblock content %}
