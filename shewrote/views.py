@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import Person, Work
-from .forms import PersonForm, ShortPersonForm
+from .forms import PersonForm, ShortPersonForm, WorkForm
 
 from dal import autocomplete
 from django.http import JsonResponse
@@ -112,7 +112,7 @@ def edit_person(request, person_id):
 
 def works(request):
     """Show all works."""
-    works = Work.objects.order_by('title')
+    works = Work.objects.prefetch_related("personworkrole_set__person", "personworkrole_set__role").order_by('title')
     title_filter = request.GET.get("title", '')
     if title_filter:
         works = works.filter(title__icontains=title_filter)
@@ -125,13 +125,29 @@ def works(request):
 
 def work(request, work_id):
     """Show a single work and all its details."""
-    work = Work.objects.get(id=work_id)
+    work = Work.objects.prefetch_related("personworkrole_set__person", "personworkrole_set__role").get(id=work_id)
     context = {
         'work': work,
-        'person': work.get_persons_for_work(),
-        'role': work.get_role_for_person(),
     }
     return render(request, 'shewrote/work.html', context)
+
+
+@login_required
+def new_work(request):
+    """Add a new work."""
+    if request.method != 'POST':
+        # No data submitted, create a blank form
+        form = WorkForm()
+    else:
+        # Process the POST data
+        form = WorkForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('shewrote:works')
+
+    # Display a blank or invalid form
+    context = {'form': form}
+    return render(request, 'shewrote/new_work.html', context)
 
 
 @login_required
@@ -185,5 +201,12 @@ class VIAFSuggest(autocomplete.Select2ListView):
 class PersonVIAFSuggest(autocomplete.Select2ListView):
     def get(self, request, *args, **kwargs):
         viaf_result = VIAFSuggest.find_viaf(self.q, json_output=False, cql_relation='local.personalNames')
+
+        return JsonResponse({'results': viaf_result})
+
+
+class WorkVIAFSuggest(autocomplete.Select2ListView):
+    def get(self, request, *args, **kwargs):
+        viaf_result = VIAFSuggest.find_viaf(self.q, json_output=False, cql_relation='local.uniformTitleWorks')
 
         return JsonResponse({'results': viaf_result})

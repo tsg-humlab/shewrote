@@ -185,4 +185,18 @@ class ShortPersonForm(forms.ModelForm):
 class WorkForm(forms.ModelForm):
     class Meta:
         model = Work
-        fields = ['title', 'notes']
+        fields = ['title', 'viaf_work', 'notes']
+        labels = {
+            'title': 'Title',
+            'viaf_work': 'VIAF',
+            'notes': 'Notes',
+        }
+
+        widgets = {
+            'viaf_work': ApiSelectWidget(
+                url=reverse_lazy('shewrote:work_viaf_suggest'),
+                attrs={'data-html': True,
+                       'data-placeholder': "Search for a work"}
+            ),
+            'notes': forms.Textarea(attrs={'cols': 80}),
+        }

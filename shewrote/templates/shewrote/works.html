@@ -9,7 +9,7 @@
 
 {% block content %}
     {% if user.is_authenticated %}
-        <a class="btn btn-primary btn-sm mt-1 mb-1" href="{% url 'shewrote:new_person' %}">Add work &raquo</a>
+        <a class="btn btn-primary btn-sm mt-1 mb-1" href="{% url 'shewrote:new_work' %}">Add work &raquo</a>
     {% endif %}
 
     <form action="" method="get">
@@ -53,25 +53,22 @@
                         </svg>
                     </a>
                 {% endif %}
-                <table>
+                <table style="table-layout: fixed; width: 50%">
                     <tbody>
                         <tr>
                             <td class="text-secondary me-2">Full title:&nbsp;</td>
-                            <td>{{ work.title }} </td>
+                            <td style="padding-left:8px">{{ work.title }} </td>
                         </tr>
-                        {% with work.get_persons_for_work as persons_work %}
-                        {% with work.get_role_for_person as persons_role %}
-                            {% if persons_work %}
-                                <tr>
-                                    <td class="text-secondary">Person</td>
-                                    <td class="text-secondary">Role</td>
-                                </tr>
-                                {% for person in persons_work %}
-                                    testcounter{{ forloop.counter0 }}testroles{{ persons_role }}
-                                    <tr><td>{{ person }}</td><td>{{ persons_role.forloop.counter }}</td></tr>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}{% endwith %}
+                        <tr>
+                            <td class="text-secondary">Name</td>
+                            <td class="text-secondary" style="padding-left:8px">Role</td>
+                        </tr>
+                        {% for personworkrole in work.personworkrole_set.all %}
+                            <tr>
+                                <td><a href="{% url 'shewrote:person' personworkrole.person_id %}">{{ personworkrole.person }}</td>
+                                <td style="padding-left:8px">{{ personworkrole.role }}</td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </li>
