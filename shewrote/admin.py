@@ -244,7 +244,7 @@ class WorkReceptionInlineFromWork(WorkReceptionInline):
 
 
 class WorkReceptionInlineFromReception(WorkReceptionInline):
-    verbose_name = 'Work'
+    verbose_name = 'Received work'
 
 
 @admin.register(Work)
