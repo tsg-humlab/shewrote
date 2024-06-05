@@ -1,0 +1,97 @@
+{% extends 'shewrote/base.html' %}
+{% load django_bootstrap5 %}
+
+{% block page_header %}
+    <div class="hstack gap-3 pb-2 mb-2 border-bottom">
+        <h1>Receptions</h1>
+            {% if user.is_authenticated %}
+                {% comment %}
+                <a class="btn btn-primary btn-sm mt-1 mb-1 ms-auto text-nowrap" href="{% url 'shewrote:new_person' %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                    </svg>
+                    Add person
+                </a>
+                {% endcomment %}
+            {% endif %}
+    </div>
+{% endblock page_header %}
+
+{% block content %}
+    <form action="" method="get">
+        <div class="hstack gap-3">
+            <input type="text" id="title" name="title" value="{{ title }}"
+                   size=30 placeholder="Enter (part of) a title" class="form-control form-control-sm"/>
+            <button type="submit" class="btn btn-secondary btn-sm mt-1 mb-1 text-nowrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                  <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+                Filter
+            </button>
+        </div>
+    </form>
+
+     <div class="pt-2 hstack gap-3 border-bottom">
+        <div class="pagination me-auto">
+            {% bootstrap_pagination receptions url=request.get_full_path %}
+        </div>
+        <div class="text-secondary">{% if count %}{{ count }} receptions found.{% endif %}</div>
+    </div>
+
+    <ul class="list-group list-group-flush pb-2 mb-4">
+        {% for reception in receptions %}
+            <li class="list-group-item px-0">
+                <div class="float-end">
+                    {{ reception.place_of_reception|default:"" }}
+                    {{ reception.date_of_reception|default:"" }}
+                    {% if user.is_authenticated %}
+                    {% comment %}
+                        <a href="{% url 'shewrote:edit_person' person.id %}" title="Edit" class="ms-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                              <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                        </a>
+                    {% endcomment %}
+                    {% endif %}
+                </div>
+                <div class="mb-2">
+                    {# <a href="{% url 'shewrote:reception' reception.id %}" title="Person details"> #}
+                    <b>
+                    {{ reception.title }}
+                    </b>
+                    {# </a> #}
+                </div>
+                {% if reception.viaf_work %}
+                    <a href="{{ reception.viaf_work }}" title="VIAF" class="float-end icon-link icon-link-hover">
+                        VIAF
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                          <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                        </svg>
+                    </a>
+                {% endif %}
+                <table>
+                    <tbody>
+                        {% with reception.workreception_set.all as workreceptions %}
+                            {% if workreceptions %}
+                                {% for workreception in workreceptions %}
+                                <tr>
+                                    <td class="text-secondary pe-1">
+                                        {{ workreception.type }}
+                                    </td>
+                                    <td>
+                                        <i>{{ workreception.work }}</i>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </tbody>
+                </table>
+            </li>
+        {% empty %}
+            <li class="list-group-item border-0">No receptions found.</li>
+        {% endfor %}
+    </ul>
+
+{% endblock content %}

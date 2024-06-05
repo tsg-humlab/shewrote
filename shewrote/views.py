@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import Person
+from .models import Person, Reception
 from .forms import PersonForm, ShortPersonForm
 
 from dal import autocomplete
@@ -108,6 +108,18 @@ def edit_person(request, person_id):
         'addanother_person_form': ShortPersonForm()
     }
     return render(request, 'shewrote/edit_person.html', context)
+
+
+def receptions(request):
+    receptions = Reception.objects.all()
+    title_filter = request.GET.get('title', '')
+    if title_filter:
+        receptions = receptions.filter(title__icontains=title_filter)
+    paginator = Paginator(receptions, 25)
+    page_number = request.GET.get('page')
+    paginated_receptions = paginator.get_page(page_number)
+    context = {'receptions': paginated_receptions, 'count': receptions.count(), 'title': title_filter}
+    return render(request, 'shewrote/receptions.html', context)
 
 
 class VIAFSuggest(autocomplete.Select2ListView):
