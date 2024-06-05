@@ -92,7 +92,7 @@ class Person(models.Model):
         return Collective.objects.filter(personcollective__person=self)
 
     def get_works_for_role(self, role_name):
-        return Work.objects.filter(personworkrole__person=self, personworkrole__role__name=role_name)
+        return Work.objects.filter(personwork__person=self, personwork__role__name=role_name)
 
     def get_education(self):
         return Education.objects.filter(personeducation__person=self)
