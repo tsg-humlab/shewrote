@@ -123,7 +123,7 @@ class Command(BaseCommand):
                 work_reception = WorkReception(
                     work = received_work,
                     reception = reception,
-                    type = reception_type
+                    type_id = reception_type_id
                 )
                 work_receptions.append(work_reception)
 
