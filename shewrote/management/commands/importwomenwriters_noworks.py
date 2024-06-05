@@ -1,6 +1,8 @@
 import os
+import sys
 import pickle
 import pathlib
+import requests
 from django.core.management.base import BaseCommand
 from shewrote.models import Work, Person, PersonWork, Role
 
@@ -72,13 +74,23 @@ class Command(BaseCommand):
         rows, start = 1000, 0
         objects = self.get_objects(collection, rows, start)
         all_objects = objects
-        if not self.limited:
-            while objects is not None and len(objects) == rows:
-                start += rows
-                objects = self.get_objects(collection, rows, start)
-                all_objects.extend(objects)
+
+        while objects is not None and len(objects) == rows:
+            start += rows
+            objects = self.get_objects(collection, rows, start)
+            all_objects.extend(objects)
 
         return all_objects
+
+    def get_objects(self, collection, rows=1000, start=0):
+        print(f"Request for {rows} rows...")
+        url = self.objects_url.format(collection, rows, start)
+        response = requests.get(url, timeout=60)
+        if response.status_code == requests.codes.ok:
+            return response.json()
+
+        print(f"Could not get objects from {url}: {response.status_code}.", file=sys.stderr)
+        return None
 
     def create_for_wwdocuments(self, documents):
         print(f"Processing {len(documents)} documents...")
