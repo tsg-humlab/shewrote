@@ -4,7 +4,8 @@ from .models import (Country, Place, Person, Education, PersonEducation, Role, P
                      PersonReligion, Marriage, AlternativeName, PeriodOfResidence, CollectiveType, Collective,
                      PersonCollective, CollectivePlace, Genre, Language, Work, PersonWork, Edition, EditionLanguage,
                      PersonEdition, ReceptionSource, PersonReceptionSource, DocumentType, ReceptionType,
-                     Reception, PersonReception, ReceptionReceptionType, ReceptionLanguage, ReceptionGenre)
+                     Reception, PersonReception, ReceptionReceptionType, ReceptionLanguage, ReceptionGenre,
+                     WorkReception, EditionReception)
 
 admin.site.register(Country)
 
@@ -231,12 +232,27 @@ class EditionInline(admin.StackedInline):
     autocomplete_fields = ['related_work', 'place_of_publication', 'genre']
 
 
+class WorkReceptionInline(admin.TabularInline):
+    model = WorkReception
+    extra = 0
+    fields = ['reception', 'type', 'work']
+    autocomplete_fields = ['work', 'reception']
+
+
+class WorkReceptionInlineFromWork(WorkReceptionInline):
+    verbose_name = 'Reception'
+
+
+class WorkReceptionInlineFromReception(WorkReceptionInline):
+    verbose_name = 'Work'
+
+
 @admin.register(Work)
 class WorkAdmin(admin.ModelAdmin):
     list_display = ['title', 'viaf_link']
     search_fields = ['title']
 
-    inlines = [PersonWorkInlineFromWorks, EditionInline]
+    inlines = [PersonWorkInlineFromWorks, EditionInline, WorkReceptionInlineFromWork]
 
     def viaf_link(self, obj):
         return mark_safe(f'<a href="{obj.viaf_work}">{obj.viaf_work}</a>')
@@ -322,7 +338,7 @@ class ReceptionAdmin(admin.ModelAdmin):
             },
         ),
     ]
-    inlines = [PersonReceptionInlineFromReception, ReceptionReceptionTypeInline, ReceptionLanguageInline,
+    inlines = [PersonReceptionInlineFromReception, WorkReceptionInlineFromReception, ReceptionReceptionTypeInline, ReceptionLanguageInline,
                ReceptionGenreInline]
 
 

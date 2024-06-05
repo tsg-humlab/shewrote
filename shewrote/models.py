@@ -428,14 +428,24 @@ class ReceptionType(models.Model):
 class Reception(models.Model):
     """Model defining a Reception of a Work by a Source in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    person = models.ManyToManyField(
+    received_persons = models.ManyToManyField(
         Person,
         through="PersonReception",
         through_fields=("reception", "person"),
     )
+    received_works = models.ManyToManyField(
+        Work,
+        through="WorkReception",
+        through_fields=("reception", "work"),
+    )
+    received_editions = models.ManyToManyField(
+        Edition,
+        through="EditionReception",
+        through_fields=("reception", "edition"),
+    )
     source = models.ForeignKey(ReceptionSource, models.SET_NULL, null=True, blank=True)
     title = models.TextField(blank=True)
-    part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True)
+    part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+")
     reference = models.TextField(blank=True)
     place_of_reception = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
     date_of_reception = models.IntegerField(blank=True)
@@ -478,6 +488,24 @@ class PersonReception(models.Model):
 
     def __str__(self):
         return f'{self.person.short_name} {self.role.name} {self.reception.title}'
+
+
+class WorkReception(models.Model):
+    work = models.ForeignKey(Work, on_delete=models.CASCADE)
+    reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
+    type = models.ForeignKey(ReceptionType, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f'{self.reception} {self.type} {self.work}'
+
+
+class EditionReception(models.Model):
+    edition = models.ForeignKey(Edition, on_delete=models.CASCADE)
+    reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
+    type = models.ForeignKey(ReceptionType, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f'{self.reception} is reception of edition {self.edition}'
 
 
 class ReceptionReceptionType(models.Model):
