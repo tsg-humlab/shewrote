@@ -31,6 +31,8 @@
                         aria-controls="collapseBasic" aria-selected="true">Basic info</button>
                 <button class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapseReceivedWorks" type="button"
                         aria-controls="collapseReceivedWorks" aria-selected="true">Received works</button>
+                <button class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapsePersonsReceived" type="button"
+                        aria-controls="collapsePersonsReceived" aria-selected="true">Persons received</button>
             </div>
 
             <div class="col">
@@ -103,6 +105,48 @@
                                             <tr>
                                                 <th scope="row" class="w-25">{{ workreception.type }}</th>
                                                 <td>{{ workreception.work }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsePersonsReceived" aria-expanded="true" aria-controls="collapsePersonsReceived">
+                                <h4>Persons received</h4>
+                            </button>
+                        </div>
+                        <div id="collapsePersonsReceived" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                                <h6>In this reception</h6>
+                                <table class="table">
+                                    <tbody>
+                                        {% for person in reception.personreception_set.all %}
+                                            <tr>
+                                                <td>
+                                                    {% for person in workreception.work.related_persons.all %}
+                                                        {{ person }}
+                                                    {% endfor %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <h6>Via received works</h6>
+                                <table class="table">
+                                    <tbody>
+                                        {% for workreception in reception.workreception_set.all %}
+                                            <tr>
+                                                <td>
+                                                    {{ workreception.work }}:
+                                                    {% for person in workreception.work.related_persons.all %}
+                                                        <a href="{% url 'shewrote:person' person.id %}">{{ person }}</a>
+                                                        {% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>
