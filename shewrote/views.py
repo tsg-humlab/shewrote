@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -110,6 +110,7 @@ def edit_person(request, person_id):
     return render(request, 'shewrote/edit_person.html', context)
 
 
+@login_required
 def receptions(request):
     receptions = Reception.objects.all()
     title_filter = request.GET.get('title', '')
@@ -121,6 +122,16 @@ def receptions(request):
     context = {'receptions': paginated_receptions, 'count': receptions.count(), 'title': title_filter}
     return render(request, 'shewrote/receptions.html', context)
 
+
+@login_required
+def reception(request, reception_id):
+    reception = get_object_or_404(Reception, id=reception_id)
+
+    context = {
+        'reception': reception,
+    }
+
+    return render(request, 'shewrote/reception.html', context)
 
 class VIAFSuggest(autocomplete.Select2ListView):
     def get(self, request, *args, **kwargs):

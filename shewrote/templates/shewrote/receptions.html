@@ -55,11 +55,9 @@
                     {% endif %}
                 </div>
                 <div class="mb-2">
-                    {# <a href="{% url 'shewrote:reception' reception.id %}" title="Person details"> #}
-                    <b>
+                    <a href="{% url 'shewrote:reception' reception.id %}" title="Person details">
                     {{ reception.title }}
-                    </b>
-                    {# </a> #}
+                    </a>
                 </div>
                 {% if reception.viaf_work %}
                     <a href="{{ reception.viaf_work }}" title="VIAF" class="float-end icon-link icon-link-hover">
