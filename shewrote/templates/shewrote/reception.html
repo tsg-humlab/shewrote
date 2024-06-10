@@ -1,11 +1,6 @@
 {% extends 'shewrote/base.html' %}
 
 {% block page_header %}
-    <h1>
-        {{ reception.title }}
-        <small class="text-muted">
-            {{ reception.place_of_reception|default:'' }} {{ place_of_reception }}
-            {{ reception.document_type }}
             {% if user.is_authenticated and user.is_staff %}
                 <a href="{% url 'admin:shewrote_reception_change' reception.id %}" title="Edit" class="btn btn-primary float-end">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
@@ -14,6 +9,13 @@
                     Edit
                 </a>
             {% endif %}
+    <h1>
+        {{ reception.title }}
+        <small class="text-muted fs-4 ms-3">
+            {{ reception.document_type }}
+        </small>
+        <small class="text-muted fs-4 ms-3">
+            {{ reception.place_of_reception|default:'' }}
         </small>
     </h1>
     {% with reception.get_last_edit as crudevent %}
@@ -26,7 +28,7 @@
 {% block content %}
     <div class="row">
         <div class="d-flex align-items-start">
-            <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="navigation" aria-orientation="vertical">
+            <div class="nav flex-column nav-pills me-3 d-none d-lg-flex" id="v-pills-tab" role="navigation" aria-orientation="vertical">
                 <button class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapseBasic" type="button"
                         aria-controls="collapseBasic" aria-selected="true">Basic info</button>
                 <button class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapseReceivedWorks" type="button"
@@ -99,16 +101,24 @@
                         </div>
                         <div id="collapseReceivedWorks" class="accordion-collapse collapse show">
                             <div class="accordion-body">
-                                <table class="table">
-                                    <tbody>
-                                        {% for workreception in reception.workreception_set.all %}
-                                            <tr>
-                                                <th scope="row" class="w-25">{{ workreception.type }}</th>
-                                                <td>{{ workreception.work }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                                {% with reception.workreception_set.all as workreceptions %}
+                                    {% if workreceptions %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for workreception in workreceptions %}
+                                                    <tr>
+                                                        <th scope="row" class="w-25">{{ workreception.type }}</th>
+                                                        <td>{{ workreception.work }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No works found</i>
+                                        </p>
+                                    {% endif %}
+                                {% endwith %}
                             </div>
                         </div>
                     </div>
@@ -122,35 +132,54 @@
                         <div id="collapsePersonsReceived" class="accordion-collapse collapse show">
                             <div class="accordion-body">
                                 <h6>In this reception</h6>
-                                <table class="table">
-                                    <tbody>
-                                        {% for person in reception.personreception_set.all %}
-                                            <tr>
-                                                <td>
-                                                    {% for person in workreception.work.related_persons.all %}
-                                                        {{ person }}
-                                                    {% endfor %}
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                                {% with reception.personreception_set.all as personreceptions %}
+                                    {% if personreceptions %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for personreception in reception.personreception_set.all %}
+                                                    <tr>
+                                                        <td scope="row" class="w-25">
+                                                            {{ personreception.type }}
+                                                        </td>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:person' personreception.person_id %}">{{ personreception.person }}</a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No persons found</i>
+                                        </p>
+                                    {% endif %}
+                                {% endwith %}
                                 <h6>Via received works</h6>
-                                <table class="table">
-                                    <tbody>
-                                        {% for workreception in reception.workreception_set.all %}
-                                            <tr>
-                                                <td>
-                                                    {{ workreception.work }}:
-                                                    {% for person in workreception.work.related_persons.all %}
-                                                        <a href="{% url 'shewrote:person' person.id %}">{{ person }}</a>
-                                                        {% if not forloop.last %}, {% endif %}
-                                                    {% endfor %}
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                                {% with reception.workreception_set.all as workreceptions %}
+                                    {% if workreceptions %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for workreception in reception.workreception_set.all %}
+                                                    <tr>
+                                                        <td scope="row" class="w-25">
+                                                            {{ workreception.work }}
+                                                        </td>
+                                                        <td>
+                                                            {% for person in workreception.work.related_persons.all %}
+                                                                <a href="{% url 'shewrote:person' person.id %}">{{ person }}</a>
+                                                                {% if not forloop.last %}, {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No persons found</i>
+                                        </p>
+                                    {% endif %}
+                                {% endwith %}
                             </div>
                         </div>
                     </div>
