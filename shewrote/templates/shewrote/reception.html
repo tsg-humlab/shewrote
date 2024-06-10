@@ -60,6 +60,15 @@
                                             <td>{{ reception.part_of_work }}</td>
                                         </tr>
                                         <tr>
+                                            <th scope="row" class="w-25">Author</th>
+                                            <td>
+                                                {% for person in reception.part_of_work.get_creaters %}
+                                                    <a href="{% url 'shewrote:person' person.id %}">{{ person }}</a>
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <th scope="row" class="w-25">Reference</th>
                                             <td>{{ reception.reference }}</td>
                                         </tr>

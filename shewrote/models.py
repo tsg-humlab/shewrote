@@ -322,6 +322,9 @@ class Work(models.Model):
         """Returns the title of the Work"""
         return self.title
 
+    def get_creaters(self):
+        return Person.objects.filter(personwork__work=self, personwork__role__name="is creator of")
+
 
 class PersonWork(models.Model):
     """Many-to-Many model connecting Persons, Works, and their Roles."""
