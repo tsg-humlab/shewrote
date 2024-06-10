@@ -66,10 +66,10 @@ class PersonReceptionInline(admin.TabularInline):
     model = PersonReception
     fields = [
         "person",
-        "role",
+        "type",
         "reception",
     ]
-    autocomplete_fields = ['person', 'reception', 'role']
+    autocomplete_fields = ['person', 'reception', 'type']
     extra = 0
 
 
@@ -289,7 +289,9 @@ class DocumentTypeAdmin(admin.ModelAdmin):
     search_fields = ['type_of_document']
 
 
-admin.site.register(ReceptionType)
+@admin.register(ReceptionType)
+class ReceptionTypeAdmin(admin.ModelAdmin):
+    search_fields = ['type_of_reception']
 
 
 class ReceptionReceptionTypeInline(admin.TabularInline):

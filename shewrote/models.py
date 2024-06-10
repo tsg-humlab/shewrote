@@ -484,10 +484,10 @@ class PersonReception(models.Model):
     """Defines the Role of a Person related to a Reception."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, models.SET_NULL, null=True, blank=True)
+    type = models.ForeignKey(ReceptionType, models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f'{self.person.short_name} {self.role.name} {self.reception.title}'
+        return f'{self.reception.title} {self.type.type_of_reception} {self.person.short_name}'
 
 
 class WorkReception(models.Model):
