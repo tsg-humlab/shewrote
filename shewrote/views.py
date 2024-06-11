@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import Person, Reception
-from .forms import PersonForm, ShortPersonForm
+from .models import Person, Work, Reception
+from .forms import PersonForm, ShortPersonForm, WorkForm
 
 from dal import autocomplete
 from django.http import JsonResponse
@@ -133,6 +133,69 @@ def reception(request, reception_id):
 
     return render(request, 'shewrote/reception.html', context)
 
+
+def works(request):
+    """Show all works."""
+    works = Work.objects.prefetch_related("personwork_set__person", "personwork_set__role").order_by('title')
+    title_filter = request.GET.get("title", '')
+    if title_filter:
+        works = works.filter(title__icontains=title_filter)
+    paginator = Paginator(works, 25)
+    page_number = request.GET.get("page")
+    paginated_works = paginator.get_page(page_number)
+    context = {'works': paginated_works, 'count': works.count(), 'title': title_filter}
+    return render(request, 'shewrote/works.html', context)
+
+
+def work(request, work_id):
+    """Show a single work and all its details."""
+    work = Work.objects.prefetch_related("personwork_set__person", "personwork_set__role").get(id=work_id)
+    context = {
+        'work': work,
+    }
+    return render(request, 'shewrote/work.html', context)
+
+
+@login_required
+def new_work(request):
+    """Add a new work."""
+    if request.method != 'POST':
+        # No data submitted, create a blank form
+        form = WorkForm()
+    else:
+        # Process the POST data
+        form = WorkForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('shewrote:works')
+
+    # Display a blank or invalid form
+    context = {'form': form}
+    return render(request, 'shewrote/new_work.html', context)
+
+
+@login_required
+def edit_work(request, work_id):
+    """Edit an existing work."""
+    entry = Work.objects.get(id=work_id)
+
+    if request.method != 'POST':
+        # Initial request, pre-fill form with the current person.
+        form = WorkForm(instance=entry)
+    else:
+        # POST data submitted; process data.
+        form = WorkForm(instance=entry, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('shewrote:work', work_id=entry.id)
+
+    context = {
+        'work': entry,
+        'form': form,
+    }
+    return render(request, 'shewrote/edit_work.html', context)
+
+
 class VIAFSuggest(autocomplete.Select2ListView):
     def get(self, request, *args, **kwargs):
         return self.find_viaf(self.q)
@@ -162,5 +225,12 @@ class VIAFSuggest(autocomplete.Select2ListView):
 class PersonVIAFSuggest(autocomplete.Select2ListView):
     def get(self, request, *args, **kwargs):
         viaf_result = VIAFSuggest.find_viaf(self.q, json_output=False, cql_relation='local.personalNames')
+
+        return JsonResponse({'results': viaf_result})
+
+
+class WorkVIAFSuggest(autocomplete.Select2ListView):
+    def get(self, request, *args, **kwargs):
+        viaf_result = VIAFSuggest.find_viaf(self.q, json_output=False, cql_relation='local.uniformTitleWorks')
 
         return JsonResponse({'results': viaf_result})

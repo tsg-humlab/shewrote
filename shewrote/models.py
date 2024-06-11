@@ -322,8 +322,15 @@ class Work(models.Model):
         """Returns the title of the Work"""
         return self.title
 
-    def get_creaters(self):
+    def get_creators(self):
         return Person.objects.filter(personwork__work=self, personwork__role__name="is creator of")
+
+    def get_persons_for_work(self):
+        return Person.objects.filter(personwork__work=self)
+
+    def get_role_for_person(self):
+        return Role.objects.filter(personwork__work=self)
+
 
 
 class PersonWork(models.Model):

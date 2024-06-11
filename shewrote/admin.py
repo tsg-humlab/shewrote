@@ -259,7 +259,7 @@ class WorkAdmin(admin.ModelAdmin):
 
 
 @admin.register(PersonWork)
-class PersonWorkRoleAdmin(admin.ModelAdmin):
+class PersonWorkAdmin(admin.ModelAdmin):
     list_display = ["person", "role", "work"]
     list_display_links = ["person", "role", "work"]
     search_fields = ["person__short_name", "role__name", "work__title"]
