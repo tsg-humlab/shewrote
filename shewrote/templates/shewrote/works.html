@@ -38,7 +38,7 @@
 
     <ul class="list-group list-group-flush pb-2 mb-4">
         {% for work in works %}
-            <li class="list-group-item border-1">
+            <li class="list-group-item  px-0">
                 <div class="float-end">
                     {% if user.is_authenticated %}
                         <a href="{% url 'shewrote:edit_work' work.id %}" title="Edit" class="ms-2">
