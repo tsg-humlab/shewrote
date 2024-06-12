@@ -36,6 +36,14 @@
         function nav(location){
             console.log("going to: " + location);
             window.location = '#' + location;
+
+            // Show accordion if not shown
+            const accordion_item = document.getElementById(location)
+            const collapse_element = accordion_item.getElementsByClassName('accordion-collapse')[0];
+            if(!collapse_element.classList.contains('show')) {
+                const collapse_button = accordion_item.getElementsByClassName('accordion-button')[0];
+                collapse_button.click();
+            }
         }
     </script>
     <div class="row">
@@ -59,11 +67,11 @@
                     <div id="v-pills-basic" class="accordion-item">
                         <div class="accordion-header">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#v-pills-basic" aria-controls="v-pills-basic">
+                                    data-bs-target="#v-pills-basic-collapse" aria-controls="v-pills-basic-collapse">
                                 <h4>Basic info</h4>
                             </button>
                         </div>
-                        <div id="collapseBasic" class="accordion-collapse collapse show">
+                        <div id="v-pills-basic-collapse" class="accordion-collapse collapse show">
                             <div class="accordion-body">
                                 <table class="table">
                                     <tbody>
@@ -188,11 +196,11 @@
                     <div id="v-pills-personal" class="accordion-item">
                         <div class="accordion-header">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#v-pills-personal" aria-controls="v-pills-personal">
+                                    data-bs-target="#v-pills-personal-collapse" aria-controls="v-pills-personal-collapse">
                                 <h4>Personal situation</h4>
                             </button>
                         </div>
-                        <div id="collapsePersonal" class="accordion-collapse collapse show">
+                        <div id="v-pills-personal-collapse" class="accordion-collapse collapse show">
                             <div class="accordion-body">
                                 <table class="table">
                                     <tbody>
@@ -282,11 +290,11 @@
                     <div id="v-pills-profession" class="accordion-item">
                         <div class="accordion-header">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseProfession" aria-controls="collapseProfession">
+                                    data-bs-target="#v-pills-profession-collapse" aria-controls="v-pills-profession-collapse">
                                 <h4>Professional situation</h4>
                             </button>
                         </div>
-                        <div id="collapseProfession" class="accordion-collapse collapse show">
+                        <div id="v-pills-profession-collapse" class="accordion-collapse collapse show">
                             <div class="accordion-body">
                                 <table class="table">
                                     <tbody>
@@ -329,11 +337,11 @@
                     <div id="v-pills-work" class="accordion-item">
                         <div class="accordion-header">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseWork" aria-controls="collapseWork">
+                                    data-bs-target="#v-pills-work-collapse" aria-controls="v-pills-work-collapse">
                                 <h4>Works</h4>
                             </button>
                         </div>
-                        <div id="collapseWork" class="accordion-collapse collapse show">
+                        <div id="v-pills-work-collapse" class="accordion-collapse collapse show">
                             <div class="accordion-body">
                                 <table class="table">
                                     <tbody>
@@ -358,11 +366,11 @@
                     <div id="v-pills-reception" class="accordion-item">
                         <div class="accordion-header">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseReception" aria-controls="collapseReception">
+                                    data-bs-target="#v-pills-reception-collapse" aria-controls="v-pills-reception-collapse">
                                 <h4>Receptions</h4>
                             </button>
                         </div>
-                        <div id="collapseReception" class="accordion-collapse collapse show">
+                        <div id="v-pills-reception-collapse" class="accordion-collapse collapse show">
                             <div class="accordion-body">
                                 <table class="table">
                                     <tbody>

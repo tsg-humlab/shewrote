@@ -26,28 +26,42 @@
 {% endblock page_header %}
 
 {% block content %}
+    <script>
+        function nav(location){
+            console.log("going to: " + location);
+            window.location = '#' + location;
+
+            // Show accordion if not shown
+            const accordion_item = document.getElementById(location)
+            const collapse_element = accordion_item.getElementsByClassName('accordion-collapse')[0];
+            if(!collapse_element.classList.contains('show')) {
+                const collapse_button = accordion_item.getElementsByClassName('accordion-button')[0];
+                collapse_button.click();
+            }
+        }
+    </script>
     <div class="row">
         <div class="d-flex align-items-start">
-            <div class="nav flex-column nav-pills me-3 d-none d-lg-flex" id="v-pills-tab" role="navigation" aria-orientation="vertical">
-                <button class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapseBasic" type="button"
-                        aria-controls="collapseBasic" aria-selected="true">Basic info</button>
-                <button class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapseReceivedWorks" type="button"
-                        aria-controls="collapseReceivedWorks" aria-selected="true">Received works</button>
-                <button class="nav-link" data-bs-toggle="collapse" data-bs-target="#collapsePersonsReceived" type="button"
-                        aria-controls="collapsePersonsReceived" aria-selected="true">Persons received</button>
+            <div class="nav flex-column nav-pills me-3 sticky-top" style="padding-top:10px" id="v-pills-tab" aria-orientation="vertical">
+                <button class="nav-link active" id="v-pills-basic-tab" data-bs-toggle="tab" data-bs-target="#v-pills-basic"
+                        type="button" role="tab" aria-controls="v-pills-basic" onclick="nav('v-pills-basic')">Basic info</button>
+                <button class="nav-link" id="v-pills-receivedworks-tab" data-bs-toggle="tab" data-bs-target="#v-pills-receivedworks"
+                        type="button" role="tab" aria-controls="v-pills-receivedworks" onclick="nav('v-pills-receivedworks')">Received works</button>
+                <button class="nav-link" id="v-pills-receivedpersons-tab" data-bs-toggle="tab" data-bs-target="#v-pills-receivedpersons"
+                        type="button" role="tab" aria-controls="v-pills-receivedpersons" onclick="nav('v-pills-receivedpersons')">Persons received</button>
             </div>
 
             <div class="col">
                 <div class="accordion" id="receptionDetails">
 
-                    <div class="accordion-item">
+                    <div id="v-pills-basic" class="accordion-item">
                         <div class="accordion-header">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseBasic" aria-expanded="true" aria-controls="collapseBasic">
+                                    data-bs-target="#v-pills-basic-collapse" aria-expanded="true" aria-controls="v-pills-basic-collapse">
                                 <h4>Basic info</h4>
                             </button>
                         </div>
-                        <div id="collapseBasic" class="accordion-collapse collapse show">
+                        <div id="v-pills-basic-collapse" class="accordion-collapse collapse show">
                             <div class="accordion-body">
                                 <table class="table">
                                     <tbody>
@@ -101,14 +115,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="accordion-item">
+                    <div id="v-pills-receivedworks" class="accordion-item">
                         <div class="accordion-header">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseReceivedWorks" aria-expanded="true" aria-controls="collapseReceivedWorks">
+                                    data-bs-target="#v-pills-receivedworks-collapse" aria-expanded="true" aria-controls="v-pills-receivedworks-collapse">
                                 <h4>Received works</h4>
                             </button>
                         </div>
-                        <div id="collapseReceivedWorks" class="accordion-collapse collapse show">
+                        <div id="v-pills-receivedworks-collapse" class="accordion-collapse collapse show">
                             <div class="accordion-body">
                                 {% with reception.workreception_set.all as workreceptions %}
                                     {% if workreceptions %}
@@ -131,14 +145,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="accordion-item">
+                    <div id="v-pills-receivedpersons" class="accordion-item">
                         <div class="accordion-header">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapsePersonsReceived" aria-expanded="true" aria-controls="collapsePersonsReceived">
+                                    data-bs-target="#v-pills-receivedpersons-collapse" aria-expanded="true" aria-controls="v-pills-receivedpersons-collapse">
                                 <h4>Persons received</h4>
                             </button>
                         </div>
-                        <div id="collapsePersonsReceived" class="accordion-collapse collapse show">
+                        <div id="v-pills-receivedpersons-collapse" class="accordion-collapse collapse show">
                             <div class="accordion-body">
                                 <h6>In this reception</h6>
                                 {% with reception.personreception_set.all as personreceptions %}
