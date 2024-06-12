@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import Person, Work, Reception
+from .models import Person, Work, Reception, WorkReception
 from .forms import PersonForm, ShortPersonForm, WorkForm
 
 from dal import autocomplete
@@ -131,10 +131,19 @@ def receptions(request):
 
 @login_required
 def reception(request, reception_id):
-    reception = get_object_or_404(Reception, id=reception_id)
+    reception = get_object_or_404(Reception.objects.select_related('part_of_work', 'document_type'), id=reception_id)
+
+    work_receptions = WorkReception.objects.filter(reception=reception).prefetch_related(
+        'work',
+        'work__related_persons',
+        'type'
+    )
+    person_receptions = reception.personreception_set.all()
 
     context = {
         'reception': reception,
+        'personreceptions': person_receptions,
+        'workreceptions': work_receptions,
     }
 
     return render(request, 'shewrote/reception.html', context)

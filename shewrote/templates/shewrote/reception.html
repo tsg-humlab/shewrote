@@ -128,7 +128,6 @@
                         </div>
                         <div id="v-pills-receivedworks-collapse" class="accordion-collapse collapse show">
                             <div class="accordion-body">
-                                {% with reception.workreception_set.all as workreceptions %}
                                     {% if workreceptions %}
                                         <table class="table">
                                             <tbody>
@@ -149,7 +148,6 @@
                                             <i class="text-muted">No works found</i>
                                         </p>
                                     {% endif %}
-                                {% endwith %}
                             </div>
                         </div>
                     </div>
@@ -163,7 +161,6 @@
                         <div id="v-pills-receivedpersons-collapse" class="accordion-collapse collapse show">
                             <div class="accordion-body">
                                 <h6>In this reception</h6>
-                                {% with reception.personreception_set.all as personreceptions %}
                                     {% if personreceptions %}
                                         <table class="table">
                                             <tbody>
@@ -184,13 +181,11 @@
                                             <i class="text-muted">No persons found</i>
                                         </p>
                                     {% endif %}
-                                {% endwith %}
                                 <h6>Via received works</h6>
-                                {% with reception.workreception_set.all as workreceptions %}
                                     {% if workreceptions %}
                                         <table class="table">
                                             <tbody>
-                                                {% for workreception in reception.workreception_set.all %}
+                                                {% for workreception in workreceptions %}
                                                     <tr>
                                                         <td scope="row" class="w-25">
                                                             {{ workreception.work }}
@@ -210,7 +205,6 @@
                                             <i class="text-muted">No persons found</i>
                                         </p>
                                     {% endif %}
-                                {% endwith %}
                             </div>
                         </div>
                     </div>
