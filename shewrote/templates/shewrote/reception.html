@@ -71,7 +71,11 @@
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Part of work</th>
-                                            <td>{{ reception.part_of_work }}</td>
+                                            <td>
+                                                <a href="{% url 'shewrote:work' reception.part_of_work_id %}">
+                                                    {{ reception.part_of_work }}
+                                                </a>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Author</th>
@@ -131,7 +135,11 @@
                                                 {% for workreception in workreceptions %}
                                                     <tr>
                                                         <th scope="row" class="w-25">{{ workreception.type }}</th>
-                                                        <td>{{ workreception.work }}</td>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:work' workreception.work_id %}">
+                                                                {{ workreception.work }}
+                                                            </a>
+                                                        </td>
                                                     </tr>
                                                 {% endfor %}
                                             </tbody>
