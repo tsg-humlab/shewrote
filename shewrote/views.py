@@ -112,14 +112,20 @@ def edit_person(request, person_id):
 
 @login_required
 def receptions(request):
-    receptions = Reception.objects.all()
+    receptions = Reception.objects.prefetch_related(
+        'place_of_reception',
+        'workreception_set',
+        'workreception_set__work',
+        'workreception_set__type',
+        'receptionreceptiontype_set'
+    )
     title_filter = request.GET.get('title', '')
     if title_filter:
         receptions = receptions.filter(title__icontains=title_filter)
     paginator = Paginator(receptions, 25)
     page_number = request.GET.get('page')
     paginated_receptions = paginator.get_page(page_number)
-    context = {'receptions': paginated_receptions, 'count': receptions.count(), 'title': title_filter}
+    context = {'receptions': paginated_receptions, 'count': paginator.count, 'title': title_filter}
     return render(request, 'shewrote/receptions.html', context)
 
 
