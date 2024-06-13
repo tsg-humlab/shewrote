@@ -42,7 +42,7 @@
     </script>
     <div class="row">
         <div class="d-flex align-items-start">
-            <div class="nav flex-column nav-pills me-3 sticky-top" style="padding-top:10px" id="v-pills-tab" aria-orientation="vertical">
+            <div class="nav flex-column nav-pills me-3 sticky-top d-none d-lg-block" style="padding-top:10px" id="v-pills-tab" aria-orientation="vertical">
                 <button class="nav-link active" id="v-pills-basic-tab" data-bs-toggle="tab" data-bs-target="#v-pills-basic"
                         type="button" role="tab" aria-controls="v-pills-basic" onclick="nav('v-pills-basic')">Basic info</button>
                 <button class="nav-link" id="v-pills-receivedworks-tab" data-bs-toggle="tab" data-bs-target="#v-pills-receivedworks"
@@ -62,8 +62,9 @@
                             </button>
                         </div>
                         <div id="v-pills-basic-collapse" class="accordion-collapse collapse show">
-                            <div class="accordion-body">
-                                <table class="table">
+                            <div class="accordion-body d-flex flex-row">
+                                <div class="flex-fill">
+                                    <table class="table">
                                     <tbody>
                                         <tr>
                                             <th scope="row" class="w-25">Title</th>
@@ -116,6 +117,14 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                                </div>
+                                {% if reception.image %}
+                                    <div class="w-25">
+                                        <a href="{{ reception.image.url }}">
+                                            <img src="{{ reception.image.url }}" class="img-fluid"/>
+                                        </a>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

@@ -335,6 +335,7 @@ class ReceptionAdmin(admin.ModelAdmin):
                     "document_type",
                     ("place_of_reception", "date_of_reception"),
                     ("quotation_reception", "url", "viaf_work"),
+                    "image",
                     "notes"
                 ],
             },

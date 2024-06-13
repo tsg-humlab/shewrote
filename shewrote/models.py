@@ -483,6 +483,7 @@ class Reception(models.Model):
     viaf_work = models.URLField(max_length=255, blank=True)
     image = models.ImageField
     notes = models.TextField(blank=True)
+    image = models.ImageField(upload_to="reception", null=True, blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
     def __str__(self):
