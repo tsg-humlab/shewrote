@@ -110,7 +110,6 @@ def edit_person(request, person_id):
     return render(request, 'shewrote/edit_person.html', context)
 
 
-@login_required
 def receptions(request):
     receptions = Reception.objects.prefetch_related(
         'place_of_reception',
@@ -129,7 +128,6 @@ def receptions(request):
     return render(request, 'shewrote/receptions.html', context)
 
 
-@login_required
 def reception(request, reception_id):
     reception = get_object_or_404(Reception.objects.select_related('part_of_work', 'document_type'), id=reception_id)
 
