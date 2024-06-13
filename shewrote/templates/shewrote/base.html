@@ -10,11 +10,22 @@
     {% bootstrap_javascript %}
 
     {% block extra_head %}{% endblock extra_head %}
+
+    <style>
+        .nav-item > .nav-link, .navbar-brand {
+            color: var(--bs-white);
+        }
+        .nav-item > .nav-link.active {
+            padding-bottom: 2px;
+            border-bottom: 0.15rem solid var(--bs-white);
+            color: var(--bs-white);
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-md mb-4 border" style="background-color: #009688">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'shewrote:index' %}" style="color: white">
+            <a class="navbar-brand" href="{% url 'shewrote:index' %}">
                 SHEWROTE</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,19 +35,19 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" href="{% url 'shewrote:index' %}" style="color:white">
+                        <a class="nav-link {% if 'index' == request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:index' %}">
                             Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'shewrote:persons' %}" style="color:white">
+                        <a class="nav-link {% if 'person' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:persons' %}">
                             Persons</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'shewrote:works' %}" style="color:white">
+                        <a class="nav-link {% if 'work' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:works' %}">
                             Works</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'shewrote:receptions' %}" style="color: white">
+                        <a class="nav-link {% if 'reception' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:receptions' %}">
                             Receptions</a>
                     </li>
                 </ul>
