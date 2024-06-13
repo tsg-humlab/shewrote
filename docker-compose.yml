@@ -7,6 +7,7 @@ services:
     volumes:
       - static_volume:/home/app/web/staticfiles
       - tmp_volume:/home/app/web/tmp
+      - writable_volume:/home/app/web/writable/media
     expose:
       - 8000
     env_file:
@@ -34,6 +35,7 @@ services:
     build: ./nginx
     volumes:
       - static_volume:/home/app/web/staticfiles
+      - writable_volume:/home/app/web/writable/media
     ports:
       - 80:80
     depends_on:
@@ -45,3 +47,4 @@ volumes:
   postgres_dumps:
   static_volume:
   tmp_volume:
+  writable_volume:
