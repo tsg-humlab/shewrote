@@ -42,12 +42,16 @@
         .icon-link {
             text-decoration: underline var(--primary);
         }
+        .navbar-toggler {
+            color: var(--light);
+            border-radius: 0;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-md mb-4 border">
         <div class="container">
-            <a href="https://www.ru.nl">
+            <a href="https://www.ru.nl" class="d-none d-sm-block">
                 <img src="{% static 'img/ru-logo.svg' %}" class="navbar-brand" style="height: 3rem"/>
             </a>
             <a class="navbar-brand" href="{% url 'shewrote:index' %}">
