@@ -1,4 +1,7 @@
 <!doctype html>
+
+{% load static %}
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,25 +10,51 @@
 
     {% load django_bootstrap5 %}
     {% bootstrap_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap_ru.css' %}">
+    <link href='https://fonts.googleapis.com/css?family=Open Sans' rel='stylesheet'>
     {% bootstrap_javascript %}
 
     {% block extra_head %}{% endblock extra_head %}
 
     <style>
-        .nav-item > .nav-link, .navbar-brand {
-            color: var(--bs-white);
+        body {
+            font-family: 'Open Sans';
+        }
+        .nav-link, .navbar-brand {
+            color: #730E04;
+        }
+        .nav-link:hover, .navbar-brand:hover {
+            text-decoration: underline 0.15rem;
+            color: var(--primary);
+        }
+        .nav-item > .nav-link.active, .navbar-brand.active {
+            color: var(--primary);
         }
         .nav-item > .nav-link.active {
-            padding-bottom: 2px;
-            border-bottom: 0.15rem solid var(--bs-white);
-            color: var(--bs-white);
+            text-decoration: underline 0.15rem;
+        }
+        .nav-item > .nav-link.active:hover {
+            //padding-bottom: 2px;
+            //border-bottom: 0.15rem solid;
+            text-decoration: none;
+            color: var(--primary);
+        }
+        .icon-link {
+            text-decoration: underline var(--primary);
+        }
+        .navbar-toggler {
+            color: var(--light);
+            border-radius: 0;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-md mb-4 border" style="background-color: #009688">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'shewrote:index' %}">
+    <nav class="navbar navbar-expand-md mb-4 border">
+        <div class="container">
+            <a href="https://www.ru.nl" class="d-none d-sm-block">
+                <img src="{% static 'img/ru-logo.svg' %}" class="navbar-brand" style="height: 3rem"/>
+            </a>
+            <a class="navbar-brand {% if 'index' == request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:index' %}">
                 SHEWROTE</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,10 +63,6 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'index' == request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:index' %}">
-                            Home</a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link {% if 'person' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:persons' %}">
                             Persons</a>
@@ -52,9 +77,9 @@
                     </li>
                 </ul>
             </div>
-            <div class="collapse navbar-collapse justify-content-end" style="color: white">
+            <div class="collapse navbar-collapse justify-content-end">
                 {% if user.is_authenticated %}
-                    {{ user }} |&nbsp;<a class="nav-link" href="{% url 'logout' %}" >Log out</a>
+                    {{ user }} |&nbsp;<a class="nav-link px-0" href="{% url 'logout' %}" >Log out</a>
                 {% else %}
                     <a class="nav-link" href="{% url 'login' %}">Log in</a>
                 {% endif %}
