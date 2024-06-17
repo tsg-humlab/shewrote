@@ -11,11 +11,15 @@
     {% load django_bootstrap5 %}
     {% bootstrap_css %}
     <link rel="stylesheet" href="{% static 'css/bootstrap_ru.css' %}">
+    <link href='https://fonts.googleapis.com/css?family=Open Sans' rel='stylesheet'>
     {% bootstrap_javascript %}
 
     {% block extra_head %}{% endblock extra_head %}
 
     <style>
+        body {
+            font-family: 'Open Sans';
+        }
         .nav-link, .navbar-brand {
             color: #730E04;
         }
