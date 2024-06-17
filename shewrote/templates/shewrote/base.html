@@ -27,11 +27,11 @@
             text-decoration: underline 0.15rem;
             color: var(--primary);
         }
-        .nav-item > .nav-link.active {
-            //padding-bottom: 2px;
-            //border-bottom: 0.15rem solid;
-            text-decoration: underline 0.15rem;
+        .nav-item > .nav-link.active, .navbar-brand.active {
             color: var(--primary);
+        }
+        .nav-item > .nav-link.active {
+            text-decoration: underline 0.15rem;
         }
         .nav-item > .nav-link.active:hover {
             //padding-bottom: 2px;
@@ -54,7 +54,7 @@
             <a href="https://www.ru.nl" class="d-none d-sm-block">
                 <img src="{% static 'img/ru-logo.svg' %}" class="navbar-brand" style="height: 3rem"/>
             </a>
-            <a class="navbar-brand" href="{% url 'shewrote:index' %}">
+            <a class="navbar-brand {% if 'index' == request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:index' %}">
                 SHEWROTE</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,10 +63,6 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'index' == request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:index' %}">
-                            Home</a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link {% if 'person' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:persons' %}">
                             Persons</a>
