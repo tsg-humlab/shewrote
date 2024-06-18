@@ -370,6 +370,11 @@ class Edition(models.Model):
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
+    def __str__(self):
+        place_of_publication = f' in {self.place_of_publication}' if self.publication_year else ''
+        publication_year = f' in {self.publication_year}' if self.publication_year else ''
+        return f'{self.related_work} is published {place_of_publication}{publication_year}'
+
 
 class EditionLanguage(models.Model):
     """Model linking an Edition to its Language(s)."""
