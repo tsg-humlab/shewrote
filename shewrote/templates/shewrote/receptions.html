@@ -44,6 +44,13 @@
                         <div class="float-end">
                             {{ reception.place_of_reception|default:"" }}
                             {{ reception.date_of_reception|default:"" }}
+                        </div>
+                        <div class="mb-2">
+                            <a href="{% url 'shewrote:reception' reception.id %}" title="Person details">
+                            {{ reception.title }}
+                            </a>
+                        </div>
+                        <div class="float-end">
                             {% if reception.viaf_work %}
                                 <a href="{{ reception.viaf_work }}" title="VIAF" class="float-end icon-link icon-link-hover">
                                     VIAF
@@ -53,11 +60,6 @@
                                     </svg>
                                 </a>
                             {% endif %}
-                        </div>
-                        <div class="mb-2">
-                            <a href="{% url 'shewrote:reception' reception.id %}" title="Person details">
-                            {{ reception.title }}
-                            </a>
                         </div>
                         <table>
                             <tbody>
