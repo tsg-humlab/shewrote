@@ -1,10 +1,32 @@
 {% extends 'shewrote/base.html' %}
 
+{% block extrahead %}
+    <style>
+        .intro p {
+            column-count: 2;
+            column-rule: 1px solid lightgrey;
+            column-gap: 40px;
+            text-align: justify;
+        }
+        @media only screen and (max-width: 768px) {
+          .intro p {
+            column-count: 1;
+            text-align: left;
+            font-size: smaller;
+          }
+          .intro h1 {
+            font-size: 150%;
+          }
+        }
+    </style>
+
+{% endblock extrahead %}
+
 {% block page_header %}
     <div class="p-3 mb-4 bg-light border rounded-0">
-        <div class="container-fluid py-4">
+        <div class="container-fluid py-4 intro">
             <h1 class="display-3 mb-5">Studying Historical Early Women’s Reception: Oeuvres, Texts, Engagements (SHEWROTE)</h1>
-            <p class="lead" style="column-count: 2; column-rule: 1px solid lightgrey; column-gap: 40px; text-align: justify;">
+            <p class="lead" style="">
                 The SHEWROTE database allows users to stock, share and analyze historical data documenting
                 the international reception of works by women writers before c. 1940. The data includes evidence of book
                 ownership, readership, re-editions, translations, intertextual references and commentary on (works by)
