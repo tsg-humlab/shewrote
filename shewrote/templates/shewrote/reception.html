@@ -73,9 +73,11 @@
                                         <tr>
                                             <th scope="row" class="w-25">Part of work</th>
                                             <td>
-                                                <a href="{% url 'shewrote:work' reception.part_of_work_id %}">
-                                                    {{ reception.part_of_work }}
-                                                </a>
+                                                {% if reception.part_of_work %}
+                                                    <a href="{% url 'shewrote:work' reception.part_of_work_id %}">
+                                                        {{ reception.part_of_work }}
+                                                    </a>
+                                                {% endif %}
                                             </td>
                                         </tr>
                                         <tr>
