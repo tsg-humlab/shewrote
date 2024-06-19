@@ -106,8 +106,11 @@
                                                 <td>
                                                     {% for alternative_name in person.get_alternative_names %}
                                                         {{ alternative_name.alternative_name }}
-                                                        ({{ alternative_name.start_year }}-{{ alternative_name.end_year }}){% if not forloop.last %},
-                                                    {% endif %}{% endfor %}
+                                                        {% if alternative_name.start_year or alternative_name.end_year %}
+                                                            ({{ alternative_name.start_year|default:"?" }} - {{ alternative_name.end_year|default:"?" }})
+                                                        {% endif %}
+                                                        {% if not forloop.last %},{% endif %}
+                                                    {% endfor %}
                                                 </td>
                                             </tr>
                                         {% endif %}
