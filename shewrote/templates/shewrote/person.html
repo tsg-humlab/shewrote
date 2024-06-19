@@ -72,7 +72,8 @@
                             </button>
                         </div>
                         <div id="v-pills-basic-collapse" class="accordion-collapse collapse show">
-                            <div class="accordion-body">
+                            <div class="accordion-body d-flex flex-row">
+                              <div class="flex-fill">
                                 <table class="table">
                                     <tbody>
                                         <tr>
@@ -189,6 +190,14 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                              </div>
+                                {% if image %}
+                                    <div class="w-25 ms-3">
+                                        <a href="{{ image.url }}">
+                                            <img src="{{ image.url }}" class="img-fluid"/>
+                                        </a>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

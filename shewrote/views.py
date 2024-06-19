@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import Person, Work, Reception, WorkReception
+from .models import Person, Work, Reception, WorkReception, PersonReception
 from .forms import PersonForm, ShortPersonForm, WorkForm
 
 from dal import autocomplete
@@ -33,13 +33,19 @@ def persons(request):
 def person(request, person_id):
     """Show a single person and all their details."""
     person = Person.objects.get(id=person_id)
+
+    person_receptions = PersonReception.objects.filter(reception__image__isnull=False, person=person)\
+        .exclude(reception__image="")
+    image = person_receptions.first().reception.image if person_receptions else None
+
     context = {
         'person': person,
         'is_creator_of': person.get_works_for_role("is creator of"),
         'has_biography': person.get_works_for_role("has biography"),
         'is_commented_on_in': person.get_works_for_role("is commented on in"),
         'is_mentioned_in': person.get_works_for_role("is mentioned in"),
-        'is_referenced_in': person.get_works_for_role("is referenced in")
+        'is_referenced_in': person.get_works_for_role("is referenced in"),
+        'image': image
     }
     return render(request, 'shewrote/person.html', context)
 
