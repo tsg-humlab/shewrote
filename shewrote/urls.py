@@ -32,6 +32,9 @@ urlpatterns = [
     path('receptions/', views.receptions, name='receptions'),
     path('reception/<uuid:reception_id>/', views.reception, name='reception'),
 
+    # Editions
+    path('editions/', views.editions, name='editions'),
+
     # VIAF API Persons
     path('person_viaf_suggest', PersonVIAFSuggest.as_view(), name='person_viaf_suggest'),
     # VIAF API Works

@@ -92,6 +92,10 @@
                             Works</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {% if 'edition' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:editions' %}">
+                            Editions</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if 'reception' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:receptions' %}">
                             Receptions</a>
                     </li>

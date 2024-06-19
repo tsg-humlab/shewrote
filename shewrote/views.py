@@ -218,6 +218,10 @@ def edit_work(request, work_id):
     return render(request, 'shewrote/edit_work.html', context)
 
 
+def editions(request):
+    return render(request, 'shewrote/editions.html', {})
+
+
 class VIAFSuggest(autocomplete.Select2ListView):
     def get(self, request, *args, **kwargs):
         return self.find_viaf(self.q)
