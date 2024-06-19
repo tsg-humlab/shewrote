@@ -22,18 +22,110 @@
 {% endblock page_header %}
 
 {% block content %}
-    <table style="table-layout: fixed; width: 50%">
-        <tbody>
-            <tr>
-                <td class="text-secondary">Name</td>
-                <td class="text-secondary" style="padding-left:8px">Role</td>
-            </tr>
-            {% for personwork in work.personwork_set.all %}
-                <tr>
-                    <td><a href="{% url 'shewrote:person' personwork.person_id %}">{{ personwork.person }}</td>
-                    <td style="padding-left:8px">{{ personwork.role }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <script>
+        function nav(location){
+            console.log("going to: " + location);
+            window.location = '#' + location;
+
+            // Show accordion if not shown
+            const accordion_item = document.getElementById(location)
+            const collapse_element = accordion_item.getElementsByClassName('accordion-collapse')[0];
+            if(!collapse_element.classList.contains('show')) {
+                const collapse_button = accordion_item.getElementsByClassName('accordion-button')[0];
+                collapse_button.click();
+            }
+        }
+    </script>
+    <div class="row">
+        <div class="d-flex align-items-start">
+            <div class="nav flex-column nav-pills me-3 sticky-top d-none d-lg-flex" style="padding-top:10px" id="v-pills-tab" aria-orientation="vertical">
+                <button class="nav-link active" id="v-pills-basic-tab" data-bs-toggle="tab" data-bs-target="#v-pills-basic"
+                        type="button" role="tab" aria-controls="v-pills-basic" onclick="nav('v-pills-basic')">Persons</button>
+                <button class="nav-link" id="v-pills-receivedworks-tab" data-bs-toggle="tab" data-bs-target="#v-pills-receivedworks"
+                        type="button" role="tab" aria-controls="v-pills-receivedworks" onclick="nav('v-pills-receivedworks')">Receptions</button>
+            </div>
+
+            <div class="col">
+                <div class="accordion" id="workDetails">
+
+                    <div id="v-pills-basic" class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#v-pills-basic-collapse" aria-expanded="true" aria-controls="v-pills-basic-collapse">
+                                <h4>Persons</h4>
+                            </button>
+                        </div>
+                        <div id="v-pills-basic-collapse" class="accordion-collapse collapse show">
+                            <div class="accordion-body d-flex flex-row">
+                                <div class="flex-fill">
+                                    <table style="table-layout: fixed; width: 50%">
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-secondary">Name</td>
+                                                <td class="text-secondary" style="padding-left:8px">Role</td>
+                                            </tr>
+                                            {% for personwork in work.personwork_set.all %}
+                                                <tr>
+                                                    <td><a href="{% url 'shewrote:person' personwork.person_id %}">{{ personwork.person }}</td>
+                                                    <td style="padding-left:8px">{{ personwork.role }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% if reception.image %}
+                                    <div class="w-25">
+                                        <a href="{{ reception.image.url }}">
+                                            <img src="{{ reception.image.url }}" class="img-fluid"/>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="v-pills-receivedworks" class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#v-pills-receivedworks-collapse" aria-expanded="true" aria-controls="v-pills-receivedworks-collapse">
+                                <h4>Receptions</h4>
+                            </button>
+                        </div>
+                        <div id="v-pills-receivedworks-collapse" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                                    {% if workreceptions %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for workreception in workreceptions %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:reception' workreception.reception_id %}">
+                                                                {{ workreception.reception }}
+                                                            </a>
+                                                        </td>
+                                                        <td>
+                                                            {{ workreception.reception.place_of_reception|default:"" }}
+                                                        </td>
+                                                        <td>
+                                                            {{ workreception.reception.date_of_reception }}
+                                                        </td>
+                                                        <td>
+                                                            {{ workreception.type }}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No works found</i>
+                                        </p>
+                                    {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
