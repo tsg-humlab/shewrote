@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+from django.db.models import F
 from django.http import JsonResponse
 from .models import Person, Work, Reception, WorkReception, PersonReception
 from .forms import PersonForm, ShortPersonForm, WorkForm
@@ -10,6 +11,7 @@ from django.http import JsonResponse
 from django.utils.html import escape
 from apiconnectors.viafapi import ViafAPI
 
+from collections import OrderedDict
 
 # Create your views here.
 def index(request):
@@ -155,14 +157,33 @@ def reception(request, reception_id):
 
 def works(request):
     """Show all works."""
-    works = Work.objects.prefetch_related("personwork_set__person", "personwork_set__role").order_by('title')
+    works = Work.objects.prefetch_related("personwork_set__person", "personwork_set__role")
+
+    get_params = request.GET.dict()
+    order_by = get_params.pop('order_by', 'date_of_publication_start')
+    works = works.order_by(F(order_by).asc(nulls_last=True))
+
+    order_by_options = OrderedDict([
+        ('title', 'Title'),
+        ('date_of_publication_start', 'Publication date'),
+    ])
+    current_order_by_label = order_by_options[order_by]
+    get_params_str = '&'.join(
+        f'{key}={value}' for key, value in get_params.items()
+    )
+
     title_filter = request.GET.get("title", '')
     if title_filter:
         works = works.filter(title__icontains=title_filter)
+
     paginator = Paginator(works, 25)
     page_number = request.GET.get("page")
     paginated_works = paginator.get_page(page_number)
-    context = {'works': paginated_works, 'count': works.count(), 'title': title_filter}
+
+    context = {'works': paginated_works, 'count': works.count(), 'title': title_filter, 'order_by': order_by,
+               'order_by_options': order_by_options, 'current_order_by_label': current_order_by_label,
+               'get_params': get_params_str}
+
     return render(request, 'shewrote/works.html', context)
 
 

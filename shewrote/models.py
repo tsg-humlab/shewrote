@@ -321,6 +321,13 @@ class Work(models.Model):
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["title"]),
+            models.Index(fields=["date_of_publication_start"]),
+            models.Index(fields=["date_of_publication_end"]),
+        ]
+
     def __str__(self):
         """Returns the title of the Work"""
         return self.title
