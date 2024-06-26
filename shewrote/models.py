@@ -483,7 +483,7 @@ class Reception(models.Model):
     part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+", verbose_name="is same as work")
     reference = models.TextField(blank=True)
     place_of_reception = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
-    date_of_reception = models.IntegerField(blank=True)
+    date_of_reception = models.IntegerField(blank=True, null=True)
     quotation_reception = models.TextField(blank=True)
     document_type = models.ForeignKey(DocumentType, models.SET_NULL, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
