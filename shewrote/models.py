@@ -341,6 +341,16 @@ class Work(models.Model):
     def get_role_for_person(self):
         return Role.objects.filter(personwork__work=self)
 
+    def get_date_of_publication_string(self):
+        if self.date_of_publication_start and self.date_of_publication_end\
+            and self.date_of_publication_start != self.date_of_publication_end:
+            return f'{self.date_of_publication_start} - {self.date_of_publication_end}'
+
+        if self.date_of_publication_start:
+            return str(self.date_of_publication_start)
+
+        return self.date_of_publication_text
+
 
 
 class PersonWork(models.Model):
