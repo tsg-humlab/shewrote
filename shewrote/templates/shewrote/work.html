@@ -60,7 +60,7 @@
                         <div id="v-pills-basic-collapse" class="accordion-collapse collapse show">
                             <div class="accordion-body d-flex flex-row">
                                 <div class="flex-fill">
-                                    <table>
+                                    <table class="table">
                                         <tbody>
                                             <tr>
                                                 <th scope="row" class="w-25">
@@ -72,7 +72,7 @@
                                             </tr>
                                             <tr>
                                                 <th scope="row" class="w-25">
-                                                    Date of publication
+                                                    Date
                                                 </th>
                                                 <td>
                                                     {{ work.get_date_of_publication_string }}
@@ -102,22 +102,6 @@
                                                 </th>
                                                 <td>
                                                     {{ work.notes|default:"-" }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" class="w-25">
-
-                                                </th>
-                                                <td>
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" class="w-25">
-
-                                                </th>
-                                                <td>
-
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -202,7 +186,7 @@
                                         </table>
                                     {% else %}
                                         <p>
-                                            <i class="text-muted">No works found</i>
+                                            <i class="text-muted">No receptions found</i>
                                         </p>
                                     {% endif %}
                             </div>
