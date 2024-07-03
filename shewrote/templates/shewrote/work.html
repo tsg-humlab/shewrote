@@ -14,11 +14,13 @@
             {% endif %}
         </small>
     </h1>
-    {% with work.get_last_edit as crudevent %}
-        {% if crudevent %}
-            <h6>Last edited by <i>{{ crudevent.user.username }}</i> on {{ crudevent.datetime }}</h6>
-        {% endif %}
-    {% endwith %}
+    {% if user.is_authenticated %}
+        {% with work.get_last_edit as crudevent %}
+            {% if crudevent %}
+                <h6>Last edited by <i>{{ crudevent.user.username }}</i> on {{ crudevent.datetime }}</h6>
+            {% endif %}
+        {% endwith %}
+    {% endif %}
 {% endblock page_header %}
 
 {% block content %}

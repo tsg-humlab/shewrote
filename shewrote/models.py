@@ -9,6 +9,13 @@ from django.urls import reverse
 from easyaudit.models import CRUDEvent
 
 
+class EasyAuditMixin:
+    """Mixin to add EasyAudit methods"""
+    def get_last_edit(self):
+        """Returns a CRUDEvent of the last change of an object"""
+        return CRUDEvent.objects.filter(object_id=self.id).latest('datetime')
+
+
 class Country(models.Model):
     """Model representing a list of country names."""
     modern_country = models.CharField(max_length=255)
@@ -38,7 +45,7 @@ class Place(models.Model):
         return self.name
 
 
-class Person(models.Model):
+class Person(EasyAuditMixin, models.Model):
     """Represents a person."""
 
     class GenderChoices(models.TextChoices):
@@ -108,9 +115,6 @@ class Person(models.Model):
 
     def get_places_of_residence(self):
         return PeriodOfResidence.objects.filter(person=self)
-
-    def get_last_edit(self):
-        return CRUDEvent.objects.filter(object_id=self.id).latest('datetime')
 
 
 class Education(models.Model):
@@ -304,7 +308,7 @@ class Language(models.Model):
         return self.name
 
 
-class Work(models.Model):
+class Work(EasyAuditMixin, models.Model):
     """Represent a Work by a Person that may have multiple Editions."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=1024)
@@ -356,7 +360,7 @@ class PersonWork(models.Model):
         return f'{self.person} {self.role} {self.work}'
 
 
-class Edition(models.Model):
+class Edition(EasyAuditMixin, models.Model):
     """Represents an Edition of a Work published in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     related_work = models.ForeignKey(Work, on_delete=models.CASCADE)
@@ -450,7 +454,7 @@ class ReceptionType(models.Model):
         return self.type_of_reception
 
 
-class Reception(models.Model):
+class Reception(EasyAuditMixin, models.Model):
     """Model defining a Reception of a Work by a Source in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     received_persons = models.ManyToManyField(
