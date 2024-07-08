@@ -42,7 +42,9 @@
         <div class="d-flex align-items-start">
             <div class="nav flex-column nav-pills me-3 sticky-top d-none d-lg-flex" style="padding-top:10px" id="v-pills-tab" aria-orientation="vertical">
                 <button class="nav-link active" id="v-pills-basic-tab" data-bs-toggle="tab" data-bs-target="#v-pills-basic"
-                        type="button" role="tab" aria-controls="v-pills-basic" onclick="nav('v-pills-basic')">Persons</button>
+                        type="button" role="tab" aria-controls="v-pills-basic" onclick="nav('v-pills-basic')">Basic info</button>
+                <button class="nav-link" id="v-pills-persons-tab" data-bs-toggle="tab" data-bs-target="#v-pills-persons"
+                        type="button" role="tab" aria-controls="v-pills-persons" onclick="nav('v-pills-persons')">Persons</button>
                 <button class="nav-link" id="v-pills-receivedworks-tab" data-bs-toggle="tab" data-bs-target="#v-pills-receivedworks"
                         type="button" role="tab" aria-controls="v-pills-receivedworks" onclick="nav('v-pills-receivedworks')">Receptions</button>
             </div>
@@ -54,10 +56,77 @@
                         <div class="accordion-header">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                     data-bs-target="#v-pills-basic-collapse" aria-expanded="true" aria-controls="v-pills-basic-collapse">
-                                <h4>Persons</h4>
+                                <h4>Basic info</h4>
                             </button>
                         </div>
                         <div id="v-pills-basic-collapse" class="accordion-collapse collapse show">
+                            <div class="accordion-body d-flex flex-row">
+                                <div class="flex-fill">
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row" class="w-25">
+                                                    Title
+                                                </th>
+                                                <td>
+                                                    {{ work.title }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">
+                                                    Date
+                                                </th>
+                                                <td>
+                                                    {{ work.get_date_of_publication_string }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">
+                                                    VIAF
+                                                </th>
+                                                <td>
+                                                    {% if work.viaf_work %}
+                                                        <a href="{{ work.viaf_work }}" title="VIAF" class="icon-link icon-link-hover">
+                                                            VIAF
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                                                              <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                                                              <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                                                            </svg>
+                                                        </a>
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">
+                                                    Notes
+                                                </th>
+                                                <td>
+                                                    {{ work.notes|default:"-" }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% if reception.image %}
+                                    <div class="w-25">
+                                        <a href="{{ reception.image.url }}">
+                                            <img src="{{ reception.image.url }}" class="img-fluid"/>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="v-pills-persons" class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#v-pills-persons-collapse" aria-expanded="true" aria-controls="v-pills-persons-collapse">
+                                <h4>Persons</h4>
+                            </button>
+                        </div>
+                        <div id="v-pills-persons-collapse" class="accordion-collapse collapse show">
                             <div class="accordion-body d-flex flex-row">
                                 <div class="flex-fill">
                                     <table style="table-layout: fixed; width: 50%">
@@ -119,7 +188,7 @@
                                         </table>
                                     {% else %}
                                         <p>
-                                            <i class="text-muted">No works found</i>
+                                            <i class="text-muted">No receptions found</i>
                                         </p>
                                     {% endif %}
                             </div>
