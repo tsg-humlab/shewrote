@@ -26,6 +26,14 @@ class AlternativeNameInline(admin.TabularInline):
     extra = 0
 
 
+class MarriageInline(admin.TabularInline):
+    model = Marriage
+    fk_name = "person"
+    fields = ["person", "spouse", "married_name", "start_year", "end_year", "notes"]
+    extra = 0
+    autocomplete_fields = ["person", "spouse"]
+
+
 class PeriodsOfResidenceInline(admin.TabularInline):
     model = PeriodOfResidence
     fields = [
@@ -149,7 +157,8 @@ class PersonAdmin(admin.ModelAdmin):
             }
         )
     ]
-    inlines = [PersonEducationInline, PersonProfessionInline, PersonReligionInline,
+    inlines = [MarriageInline,
+               PersonEducationInline, PersonProfessionInline, PersonReligionInline,
                AlternativeNameInline, PeriodsOfResidenceInline,
                PersonWorkInlineFromPersons, PersonCollectiveInline, PersonReceptionInlineFromPerson]
 
