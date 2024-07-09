@@ -2,6 +2,8 @@ import uuid
 from collections import defaultdict
 
 from django.db import models
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
@@ -204,6 +206,38 @@ class Marriage(models.Model):
     start_year = models.IntegerField(blank=True, null=True)
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return f'{self.person.short_name} was married to {self.spouse.short_name}'
+
+
+@receiver(post_save, sender=Marriage)
+def post_save_marriage(sender, instance, created, **kwargs):
+    """Create/update a/the symmetrical relation"""
+    field_values = {
+        'married_name': instance.married_name,
+        'marital_status': instance.marital_status,
+        'start_year': instance.start_year,
+        'end_year': instance.end_year,
+        'notes': instance.notes
+    }
+    
+    marriages = sender.objects.filter(person=instance.spouse, spouse=instance.person)
+    if not marriages:
+        sender.objects.create(person=instance.spouse, spouse=instance.person, **field_values)
+        return
+
+    # Delete superfluous marriage objects
+    if len(marriages) > 1:
+        Marriage.objects.filter(id__in=[marriage.id for marriage in marriages[1:]]).delete()
+
+    sender.objects.filter(id=marriages[0].id).update(**field_values)
+
+
+@receiver(post_delete, sender=Marriage)
+def post_delete_marriage(sender, instance, **kwargs):
+    """Delete the symmetrical relation"""
+    sender.objects.filter(person=instance.spouse, spouse=instance.person).delete()
 
 
 class AlternativeName(models.Model):
