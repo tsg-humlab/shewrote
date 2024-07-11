@@ -2,7 +2,7 @@ import json
 import re
 from django.core.management.base import BaseCommand
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from shewrote.models import ReceptionType, Reception, ReceptionReceptionType, Work, Place, Person, \
+from shewrote.models import ReceptionType, Reception, Work, Place, Person, \
     PersonReception, DocumentType
 
 
@@ -31,8 +31,6 @@ class Command(BaseCommand):
             person_receptions = []
             reception_type_names = dict(ReceptionType.objects.values_list('type_of_reception', 'id'))
             reception_types = []
-            reception_reception_types = {}
-
 
             for doc in data['response']['docs']:
 
@@ -82,11 +80,6 @@ class Command(BaseCommand):
                     reception_type_id = reception_type.id
                     reception_type_names[type_of_reception] = reception_type_id
 
-                reception_reception_type_key = (reception.id, reception_type_id)
-                if reception_reception_type_key not in reception_reception_types.keys():
-                    reception_reception_types[reception_reception_type_key] = \
-                        ReceptionReceptionType(reception=reception, type_id=reception_type_id)
-
                 person_reception = PersonReception(
                     person = received_person,
                     reception = reception,
@@ -100,15 +93,12 @@ class Command(BaseCommand):
                     ReceptionType.objects.bulk_create(reception_types)
                     Reception.objects.bulk_create(receptions.values())
                     PersonReception.objects.bulk_create(person_receptions)
-                    ReceptionReceptionType.objects.bulk_create(reception_reception_types.values())
                     receptions = {}
                     person_receptions = []
                     reception_type_names = dict(ReceptionType.objects.values_list('type_of_reception', 'id'))
                     reception_types = []
-                    reception_reception_types = {}
                     print("")
 
             ReceptionType.objects.bulk_create(reception_types)
             Reception.objects.bulk_create(receptions.values())
             PersonReception.objects.bulk_create(person_receptions)
-            ReceptionReceptionType.objects.bulk_create(reception_reception_types.values())

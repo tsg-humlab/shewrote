@@ -2,7 +2,7 @@ import json
 import re
 from django.core.management.base import BaseCommand
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from shewrote.models import ReceptionType, Reception, ReceptionSource, ReceptionReceptionType, Work, Place, Person, \
+from shewrote.models import ReceptionType, Reception, ReceptionSource, Work, Place, Person, \
     PersonReception, PersonReceptionSource, WorkReception, DocumentType
 
 
@@ -34,7 +34,6 @@ class Command(BaseCommand):
             person_reception_roles = []
             reception_type_names = dict(ReceptionType.objects.values_list('type_of_reception', 'id'))
             reception_types = []
-            reception_reception_types = {}
 
 
             for doc in data['response']['docs']:
@@ -119,11 +118,6 @@ class Command(BaseCommand):
                     reception_type_id = reception_type.id
                     reception_type_names[type_of_reception] = reception_type_id
 
-                reception_reception_type_key = (reception.id, reception_type_id)
-                if reception_reception_type_key not in reception_reception_types.keys():
-                    reception_reception_types[reception_reception_type_key] = \
-                        ReceptionReceptionType(reception=reception, type_id=reception_type_id)
-
                 work_reception = WorkReception(
                     work = received_work,
                     reception = reception,
@@ -137,4 +131,3 @@ class Command(BaseCommand):
             Reception.objects.bulk_create(receptions.values())
             WorkReception.objects.bulk_create(work_receptions)
             # PersonReception.objects.bulk_create(person_reception_roles)
-            ReceptionReceptionType.objects.bulk_create(reception_reception_types.values())

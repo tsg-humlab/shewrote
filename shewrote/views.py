@@ -124,7 +124,6 @@ def receptions(request):
         'workreception_set',
         'workreception_set__work',
         'workreception_set__type',
-        'receptionreceptiontype_set'
     )
     title_filter = request.GET.get('title', '')
     if title_filter:

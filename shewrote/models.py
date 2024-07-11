@@ -525,12 +525,6 @@ class Reception(EasyAuditMixin, models.Model):
     quotation_reception = models.TextField(blank=True)
     document_type = models.ForeignKey(DocumentType, models.SET_NULL, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
-    reception_type = models.ManyToManyField(
-        ReceptionType,
-        through="ReceptionReceptionType",
-        through_fields=("reception", "type"),
-        blank=True,
-    )
     language_of_reception = models.ManyToManyField(
         Language,
         through="ReceptionLanguage",
@@ -580,12 +574,6 @@ class EditionReception(models.Model):
 
     def __str__(self):
         return f'{self.reception} is reception of edition {self.edition}'
-
-
-class ReceptionReceptionType(models.Model):
-    """Model linking a Reception to its Type."""
-    reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
-    type = models.ForeignKey(ReceptionType, models.SET_NULL, null=True)
 
 
 class ReceptionLanguage(models.Model):
