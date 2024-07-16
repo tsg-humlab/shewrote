@@ -196,7 +196,7 @@ def work(request, work_id):
         'work': work,
         'workreceptions': work_receptions,
     }
-    return render(request, 'shewrote/work.html', context)
+    return render(request, 'shewrote/work_details.html', context)
 
 
 @login_required

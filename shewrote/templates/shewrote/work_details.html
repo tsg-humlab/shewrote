@@ -1,0 +1,142 @@
+{% extends 'shewrote/generic_details.html' %}
+
+{% load embed %}
+
+{% block heading %}
+    {{ work.title }}
+{% endblock %}
+
+{% block edit_button %}
+    {% include 'shewrote/components/details_edit_button.html' with object=work url_name='shewrote:edit_work' %}
+{% endblock %}
+
+{% block last_edit_info %}
+    {% include 'shewrote/components/last_edit_info.html' with object=work %}
+{% endblock %}
+
+{% block section_buttons %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='basic' section_title='Basic Info' active='active' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='persons' section_title='Persons' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='receivedworks' section_title='Receptions' %}
+{% endblock %}
+
+{% block sections %}
+    {% embed 'shewrote/components/details_section.html' with section_name='basic' section_title='Basic Info' %}
+        {% slot contents %}
+                                <div class="flex-fill">
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row" class="w-25">
+                                                    Title
+                                                </th>
+                                                <td>
+                                                    {{ work.title }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">
+                                                    Date
+                                                </th>
+                                                <td>
+                                                    {{ work.get_date_of_publication_string }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">
+                                                    VIAF
+                                                </th>
+                                                <td>
+                                                    {% if work.viaf_work %}
+                                                        <a href="{{ work.viaf_work }}" title="VIAF" class="icon-link icon-link-hover">
+                                                            VIAF
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                                                              <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                                                              <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                                                            </svg>
+                                                        </a>
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">
+                                                    Notes
+                                                </th>
+                                                <td>
+                                                    {{ work.notes|default:"-" }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% if reception.image %}
+                                    <div class="w-25">
+                                        <a href="{{ reception.image.url }}">
+                                            <img src="{{ reception.image.url }}" class="img-fluid"/>
+                                        </a>
+                                    </div>
+                                {% endif %}
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='persons' section_title='Persons' %}
+        {% slot contents %}
+                                <div class="flex-fill">
+                                    <table style="table-layout: fixed; width: 50%">
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-secondary">Name</td>
+                                                <td class="text-secondary" style="padding-left:8px">Role</td>
+                                            </tr>
+                                            {% for personwork in work.personwork_set.all %}
+                                                <tr>
+                                                    <td><a href="{% url 'shewrote:person' personwork.person_id %}">{{ personwork.person }}</td>
+                                                    <td style="padding-left:8px">{{ personwork.role }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% if reception.image %}
+                                    <div class="w-25">
+                                        <a href="{{ reception.image.url }}">
+                                            <img src="{{ reception.image.url }}" class="img-fluid"/>
+                                        </a>
+                                    </div>
+                                {% endif %}
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='receivedworks' section_title='Receptions' %}
+        {% slot contents %}
+                                    {% if workreceptions %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for workreception in workreceptions %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:reception' workreception.reception_id %}">
+                                                                {{ workreception.reception }}
+                                                            </a>
+                                                        </td>
+                                                        <td>
+                                                            {{ workreception.reception.place_of_reception|default:"" }}
+                                                        </td>
+                                                        <td>
+                                                            {{ workreception.reception.date_of_reception }}
+                                                        </td>
+                                                        <td>
+                                                            {{ workreception.type }}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No receptions found</i>
+                                        </p>
+                                    {% endif %}
+        {% endslot %}
+    {% endembed %}
+{% endblock %}
