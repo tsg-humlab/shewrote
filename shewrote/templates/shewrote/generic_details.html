@@ -1,0 +1,46 @@
+{% extends 'shewrote/base.html' %}
+
+{% block page_header %}
+    <h1>
+        {% block heading %}
+        {% endblock %}
+
+        {% block edit_button %}
+        {% endblock %}
+    </h1>
+    {% block last_edit_info %}
+    {% endblock %}
+{% endblock page_header %}
+
+{% block content %}
+    <script>
+        function nav(location){
+            console.log("going to: " + location);
+            window.location = '#' + location;
+
+            // Show accordion if not shown
+            const accordion_item = document.getElementById(location)
+            const collapse_element = accordion_item.getElementsByClassName('accordion-collapse')[0];
+            if(!collapse_element.classList.contains('show')) {
+                const collapse_button = accordion_item.getElementsByClassName('accordion-button')[0];
+                collapse_button.click();
+            }
+        }
+    </script>
+    <div class="row">
+        <div class="d-flex align-items-start">
+            <div class="nav flex-column nav-pills me-3 sticky-top pt-0" style="padding-top:10px" id="v-pills-tab" aria-orientation="vertical">
+                {% block section_buttons %}
+                {% endblock %}
+            </div>
+
+
+            <div class="col pe-0">
+                <div class="accordion" id="personDetails">
+                    {% block sections %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

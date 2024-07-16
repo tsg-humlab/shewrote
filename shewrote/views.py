@@ -49,7 +49,7 @@ def person(request, person_id):
         'is_referenced_in': person.get_works_for_role("is referenced in"),
         'image': image
     }
-    return render(request, 'shewrote/person.html', context)
+    return render(request, 'shewrote/person_details.html', context)
 
 
 @login_required
