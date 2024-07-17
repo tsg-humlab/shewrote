@@ -152,7 +152,7 @@ def reception(request, reception_id):
         'workreceptions': work_receptions,
     }
 
-    return render(request, 'shewrote/reception.html', context)
+    return render(request, 'shewrote/reception_details.html', context)
 
 
 def works(request):
