@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from django.db.models import F
+from django.db.models import F, Q
 from django.http import JsonResponse
 from .models import Person, Work, Reception, WorkReception, PersonReception
 from .forms import PersonForm, ShortPersonForm, WorkForm
@@ -24,7 +24,10 @@ def persons(request):
     persons = Person.objects.order_by('short_name')
     short_name_filter = request.GET.get("short_name", '')
     if short_name_filter:
-        persons = persons.filter(short_name__icontains=short_name_filter)
+        persons = persons.filter(
+            Q(short_name__icontains=short_name_filter)
+            | Q(alternativename__alternative_name__icontains=short_name_filter)
+        )
     paginator = Paginator(persons, 25)
     page_number = request.GET.get("page")
     paginated_persons = paginator.get_page(page_number)
