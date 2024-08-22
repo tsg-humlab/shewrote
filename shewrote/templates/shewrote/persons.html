@@ -79,7 +79,7 @@
                     <tbody>
                         <tr>
                             <td class="text-secondary me-2">Full name:&nbsp;</td>
-                            <td>{{ person.first_name }} {{ person.maiden_name }}</td>
+                            <td>{{ person.first_name }} {{ person.birth_name }}</td>
                         </tr>
                         {% with person.get_alternative_names as alternative_names %}
                             {% if alternative_names %}

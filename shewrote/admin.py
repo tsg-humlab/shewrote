@@ -120,7 +120,7 @@ class PersonCollectiveInline(admin.TabularInline):
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ["short_name", "first_name", "maiden_name", "sex", "date_of_birth", "place_of_birth",
+    list_display = ["short_name", "first_name", "birth_name", "sex", "date_of_birth", "place_of_birth",
                     "date_of_death", "place_of_death", "notes", 'view_on_site_link']
     search_fields = ['short_name']
     ordering = ['short_name']
@@ -136,7 +136,7 @@ class PersonAdmin(admin.ModelAdmin):
         (
             None,
             {
-                "fields": [("short_name", "viaf_or_cerl"), ("first_name", "maiden_name",),
+                "fields": [("short_name", "viaf_or_cerl"), ("first_name", "birth_name",),
                            ("date_of_birth", "place_of_birth"), ("date_of_death", "place_of_death"),
                            "notes"],
             },

@@ -60,7 +60,7 @@ class Person(EasyAuditMixin, models.Model):
     short_name = models.CharField(max_length=255)
     viaf_or_cerl = models.CharField(max_length=255, blank=True)
     first_name = models.CharField(max_length=255, blank=True)
-    maiden_name = models.CharField(max_length=255, blank=True)
+    birth_name = models.CharField(max_length=255, blank=True)
     date_of_birth = models.CharField(max_length=50, blank=True)
     date_of_death = models.CharField(max_length=50, blank=True)
     alternative_birth_date = models.CharField(max_length=50, blank=True)
