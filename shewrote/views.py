@@ -27,7 +27,7 @@ def persons(request):
         persons = persons.filter(
             Q(short_name__icontains=short_name_filter)
             | Q(alternativename__alternative_name__icontains=short_name_filter)
-        )
+        ).distinct()
     paginator = Paginator(persons, 25)
     page_number = request.GET.get("page")
     paginated_persons = paginator.get_page(page_number)
