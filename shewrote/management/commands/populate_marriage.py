@@ -12,11 +12,13 @@ class Command(BaseCommand):
         pass
 
     def handle(self, *args, **options):
-        self.number_of_persons_done = 0
-        persons = Person.objects.filter(original_data__isnull=False).exclude(original_data='')
+        persons = Person.objects.filter(original_data__isnull=False)\
+                    .exclude(original_data='')\
+                    .exclude(original_data__tempSpouse__isnull=True)\
+                    .exclude(original_data__tempSpouse='') \
+                    .values('id', 'original_data__tempSpouse')
         notes = f'Created by {os.path.basename(__file__)} on {datetime.now()}.'
 
         for person in persons:
-            spouse_name = person.original_data.get('tempSpouse', '')
-            spouse = Person.objects.create(short_name=spouse_name)
-            Marriage.objects.create(person=person, spouse=spouse, notes=notes)
+            spouse = Person.objects.create(short_name=person['original_data__tempSpouse'])
+            Marriage.objects.create(person_id=person['id'], spouse=spouse, notes=notes)
