@@ -52,7 +52,7 @@ def person(request, person_id):
         'is_referenced_in': person.get_works_for_role("is referenced in"),
         'image': image
     }
-    return render(request, 'shewrote/person.html', context)
+    return render(request, 'shewrote/person_details.html', context)
 
 
 @login_required
@@ -154,7 +154,7 @@ def reception(request, reception_id):
         'workreceptions': work_receptions,
     }
 
-    return render(request, 'shewrote/reception.html', context)
+    return render(request, 'shewrote/reception_details.html', context)
 
 
 def works(request):
@@ -198,7 +198,7 @@ def work(request, work_id):
         'work': work,
         'workreceptions': work_receptions,
     }
-    return render(request, 'shewrote/work.html', context)
+    return render(request, 'shewrote/work_details.html', context)
 
 
 @login_required

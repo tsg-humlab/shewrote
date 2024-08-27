@@ -1,0 +1,370 @@
+{% extends 'shewrote/generic_details.html' %}
+
+{% load embed %}
+
+{% block heading %}
+    {{ person.short_name }}
+    <small class="text-muted">
+        ({{ person.date_of_birth }} - {{ person.date_of_death }})
+        {% if person.sex == "M" %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-gender-male" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2H9.5zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+            </svg>
+        {% elif person.sex == "F" %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-gender-female" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5z"/>
+            </svg>
+        {% endif %}
+    </small>
+{% endblock %}
+
+{% block edit_button %}
+    {% include 'shewrote/components/details_edit_button.html' with object=person url_name='shewrote:edit_person' %}
+{% endblock %}
+
+{% block last_edit_info %}
+    {% include 'shewrote/components/last_edit_info.html' with object=person %}
+{% endblock %}
+
+{% block section_buttons %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='basic' section_title='Basic Info' active='active' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='personal' section_title='Personal situation' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='profession' section_title='Professional situation' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='work' section_title='Works' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='reception' section_title='Receptions' %}
+{% endblock %}
+
+{% block sections %}
+    {% embed 'shewrote/components/details_section.html' with section_name='basic' section_title='Basic Info' %}
+        {% slot contents %}
+                              <div class="flex-fill">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Short name</th>
+                                            <td>{{ person.short_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">VIAF</th>
+                                            <td><a href="{{ person.viaf_or_cerl }}">{{ person.viaf_or_cerl }}</a></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">First name</th>
+                                            <td>{{ person.first_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Maiden name</th>
+                                            <td>{{ person.maiden_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Married name</th>
+                                            <td>
+                                                {% for marriage in person.get_marriages %}
+                                                    {{ marriage.married_name }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        {% if person.get_alternative_names %}
+                                            <tr>
+                                                <th scope="row" class="w-25">Alternative name</th>
+                                                <td>
+                                                    {% for alternative_name in person.get_alternative_names %}
+                                                        {{ alternative_name.alternative_name }}
+                                                        {% if alternative_name.start_year or alternative_name.end_year %}
+                                                            ({{ alternative_name.start_year|default:"?" }} - {{ alternative_name.end_year|default:"?" }})
+                                                        {% endif %}
+                                                        {% if not forloop.last %},{% endif %}
+                                                    {% endfor %}
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                        <tr>
+                                            <th scope="row">Date of birth</th>
+                                            <td>{{ person.date_of_birth|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Date of death</th>
+                                            <td>{{ person.date_of_death|default:"-" }}</td>
+                                        </tr>
+                                        {% if person.alternative_birth_date %}
+                                            <tr>
+                                                <th scope="row">Birth date Notes</th>
+                                                <td>{{ person.alternative_birth_date|default:"-" }}</td>
+                                            </tr>
+                                        {% endif %}
+                                        {% if person.alternative_death_date %}
+                                            <tr>
+                                                <th scope="row">Death date Notes</th>
+                                                <td>{{ person.alternative_death_date|default:"-" }}</td>
+                                            </tr>
+                                        {% endif %}
+                                        <tr>
+                                            <th scope="row">Flourishing</th>
+                                            <td>{{ person.flourishing_start|default:"" }} - {{ person.flourishing_end|default:"" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Sex</th>
+                                            <td>{{ person.get_sex_display|default:"-" }}</td>
+                                        </tr>
+                                        {% if person.alternative_name_gender %}
+                                            <tr>
+                                                <th scope="row" class="w-25">Alternative gender</th>
+                                                <td>{{ person.get_alternative_name_gender_display|default:"-" }}</td>
+                                            </tr>
+                                        {% endif %}
+                                        <tr>
+                                            <th scope="row" class="w-25">Place of birth</th>
+                                            <td>{{ person.place_of_birth|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Place of death</th>
+                                            <td>{{ person.place_of_death|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Lived in</th>
+                                            <td>
+                                                {% for period_of_residence in person.get_places_of_residence %}
+                                                    {{ period_of_residence.place }}
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Place of residence notes</th>
+                                            <td>{{ person.place_of_residence_notes }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Related to</th>
+                                            <td>
+                                                {% if person.related_to.all %}
+                                                    {% for related_person in person.related_to.all %}
+                                                        <a href="{% url 'shewrote:person' related_person.id %}">
+                                                            {{ related_person }}
+                                                        </a>{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Bibliography</th>
+                                            <td>{{ person.bibliography|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Provisional Notes</th>
+                                            <td>{{ person.notes|default:"-" }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                              </div>
+                                {% if image %}
+                                    <div class="w-25 ms-3">
+                                        <a href="{{ image.url }}">
+                                            <img src="{{ image.url }}" class="img-fluid"/>
+                                        </a>
+                                    </div>
+                                {% endif %}
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='personal' section_title='Personal situation' %}
+        {% slot contents %}
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Marital status</th>
+                                            <td>
+                                                {% for marriage in person.get_marriages %}
+                                                    {{ marriage.get_marital_status_display }}
+                                                    {% if marriage.start_year %}
+                                                        ({{ marriage.start_year }}-{{ marriage.end_year }}){% endif %}
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Spouse</th>
+                                            <td>
+                                                {% for marriage in person.get_marriages %}
+                                                    <a href="{% url 'shewrote:person' marriage.spouse.id %}">
+                                                        {{ marriage.spouse }}
+                                                    </a>
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th  scope="row" class="w-25">
+                                                Parents
+                                            </th>
+                                            <td>
+                                                {% if person.mother %}
+                                                <a href="{% url 'shewrote:person' person.mother.id %}">
+                                                    {{ person.mother|default:"" }}
+                                                </a>
+                                                {% endif %}
+                                                {% if person.father %}
+                                                <a href="{% url 'shewrote:person' person.father.id %}">
+                                                    {{ person.father|default:"" }}
+                                                </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Children</th>
+                                            <td>
+                                                {% for child in person.get_children %}
+                                                    <a href="{% url 'shewrote:person' child.id %}">
+                                                        {{ child }}
+                                                    </a>{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Religion / ideology</th>
+                                            <td>
+                                                {% for religion in person.get_religions %}
+                                                    {{ religion }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Education</th>
+                                            <td>
+                                                {% for education in person.get_education %}
+                                                    {{ education }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Aristocratic title</th>
+                                            <td>
+                                                {{ person.aristocratic_title|default:"-" }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Professional or ecclesiastical title</th>
+                                            <td>
+                                                {{ person.professional_ecclesiastic_title|default:"-" }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='profession' section_title='Professional situation' %}
+        {% slot contents %}
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Profession(s)</th>
+                                            <td>
+                                                {% for profession in person.get_professions %}
+                                                    {{ profession.profession }}
+                                                    {% if profession.start_year %}
+                                                        ({{ profession.start_year }}-{{ profession.end_year }}){% endif %}
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Memberships</th>
+                                            <td>
+                                                {% for collective in person.get_collectives %}
+                                                    {{ collective }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Place(s) of Residence</th>
+                                            <td>
+                                                {% for residence in person.get_places_of_residence %}
+                                                    {{ residence.place }}
+                                                    {% if residence.start_year %}
+                                                        ({{ residence.start_year }}-{{ residence.end_year }}){% endif %}
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='work' section_title='Works' %}
+        {% slot contents %}
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Author of</th>
+                                            <td>
+                                                <ul>
+                                                    {% for work in is_creator_of %}
+                                                        <li>
+                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='reception' section_title='Receptions' %}
+        {% slot contents %}
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Biography</th>
+                                            <td>
+                                                <ul>
+                                                    {% for work in has_biography %}
+                                                        <li>
+                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Commented on in</th>
+                                            <td>
+                                                <ul>
+                                                    {% for work in is_commented_on_in %}
+                                                        <li>
+                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Mentioned in</th>
+                                            <td>
+                                                <ul>
+                                                    {% for work in is_mentioned_in %}
+                                                        <li>
+                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Referenced in</th>
+                                            <td>
+                                                <ul>
+                                                    {% for work in is_referenced_in %}
+                                                        <li>
+                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+        {% endslot %}
+    {% endembed %}
+
+{% endblock %}

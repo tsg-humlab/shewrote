@@ -1,0 +1,180 @@
+{% extends 'shewrote/generic_details.html' %}
+
+{% load embed %}
+
+{% block heading %}
+    {{ reception.title }}
+    <small class="text-muted fs-4 ms-3">
+        {{ reception.document_type }}
+    </small>
+    <small class="text-muted fs-4 ms-3">
+        {{ reception.place_of_reception|default:'' }}
+    </small>
+{% endblock %}
+
+{% block edit_button %}
+    {% include 'shewrote/components/details_edit_button.html' with object=reception url_name='admin:shewrote_reception_change' %}
+{% endblock %}
+
+{% block last_edit_info %}
+    {% include 'shewrote/components/last_edit_info.html' with object=reception %}
+{% endblock %}
+
+{% block section_buttons %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='basic' section_title='Basic Info' active='active' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='receivedworks' section_title='Received works' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='receivedpersons' section_title='Persons received' %}
+{% endblock %}
+
+{% block sections %}
+    {% embed 'shewrote/components/details_section.html' with section_name='basic' section_title='Basic Info' %}
+        {% slot contents %}
+                                <div class="flex-fill">
+                                    <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Title</th>
+                                            <td>{{ reception.title }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Is same as work</th>
+                                            <td>
+                                                {% if reception.part_of_work %}
+                                                    <a href="{% url 'shewrote:work' reception.part_of_work_id %}">
+                                                        {{ reception.part_of_work }}
+                                                    </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Author</th>
+                                            <td>
+                                                {% for person in reception.part_of_work.get_creators %}
+                                                    <a href="{% url 'shewrote:person' person.id %}">{{ person }}</a>
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Reference</th>
+                                            <td>{{ reception.reference }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Place</th>
+                                            <td>{{ reception.place_of_reception|default:'' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Date</th>
+                                            <td>{{ reception.date_of_reception }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Quotation</th>
+                                            <td>{{ reception.quotation_reception }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Type</th>
+                                            <td>{{ reception.document_type }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">VIAF</th>
+                                            <td>
+                                                <a href="{{ reception.viaf_work }}">
+                                                    {{ reception.viaf_work }}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Notes</th>
+                                            <td>
+                                                {{ reception.notes }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                </div>
+                                {% if reception.image %}
+                                    <div class="w-25 ms-3">
+                                        <a href="{{ reception.image.url }}">
+                                            <img src="{{ reception.image.url }}" class="img-fluid"/>
+                                        </a>
+                                    </div>
+                                {% endif %}
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='receivedworks' section_title='Received works' %}
+        {% slot contents %}
+                                    {% if workreceptions %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for workreception in workreceptions %}
+                                                    <tr>
+                                                        <th scope="row" class="w-25">{{ workreception.type }}</th>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:work' workreception.work_id %}">
+                                                                {{ workreception.work }}
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No works found</i>
+                                        </p>
+                                    {% endif %}
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='receivedpersons' section_title='Persons received' %}
+        {% slot contents %}
+                            <div class="w-100">
+                                <h6>In this reception</h6>
+                                    {% if personreceptions %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for personreception in reception.personreception_set.all %}
+                                                    <tr>
+                                                        <td scope="row" class="w-25">
+                                                            {{ personreception.type }}
+                                                        </td>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:person' personreception.person_id %}">{{ personreception.person }}</a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No persons found</i>
+                                        </p>
+                                    {% endif %}
+                                <h6>Via received works</h6>
+                                    {% if workreceptions %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for workreception in workreceptions %}
+                                                    <tr>
+                                                        <td scope="row" class="w-25">
+                                                            {{ workreception.work }}
+                                                        </td>
+                                                        <td>
+                                                            {% for person in workreception.work.related_persons.all %}
+                                                                <a href="{% url 'shewrote:person' person.id %}">{{ person }}</a>
+                                                                {% if not forloop.last %}, {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No persons found</i>
+                                        </p>
+                                    {% endif %}
+                            </div>
+        {% endslot %}
+    {% endembed %}
+
+{% endblock %}
