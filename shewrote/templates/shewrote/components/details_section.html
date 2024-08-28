@@ -1,0 +1,16 @@
+{% load embed %}
+
+
+                    <div id="v-pills-{{ section_name }}" class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#v-pills-{{ section_name }}-collapse" aria-controls="v-pills-{{ section_name }}-collapse">
+                                <h4>{{ section_title}}</h4>
+                            </button>
+                        </div>
+                        <div id="v-pills-{{ section_name }}-collapse" class="accordion-collapse collapse show">
+                            <div class="accordion-body d-flex flex-row">
+                                {% slot contents %}{% endslot %}
+                            </div>
+                        </div>
+                    </div>

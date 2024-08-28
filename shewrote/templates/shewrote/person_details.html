@@ -1,80 +1,42 @@
-{% extends 'shewrote/base.html' %}
+{% extends 'shewrote/generic_details.html' %}
 
-{% block page_header %}
-    <h1>
-        {{ person.short_name }}
-        <small class="text-muted">
-            ({{ person.date_of_birth }} - {{ person.date_of_death }})
-            {% if person.sex == "M" %}
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-gender-male" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2H9.5zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
-                </svg>
-            {% elif person.sex == "F" %}
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-gender-female" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd" d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5z"/>
-                </svg>
-            {% endif %}
-            {% if user.is_authenticated %}
-                <a href="{% url 'shewrote:edit_person' person.id %}" title="Edit" class="btn btn-primary float-end">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
-                      <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-                    </svg>
-                    Edit
-                </a>
-            {% endif %}
-        </small>
-    </h1>
-    {% if user.is_authenticated %}
-        {% with person.get_last_edit as crudevent %}
-            {% if crudevent %}
-                <h6>Last edited by <i>{{ crudevent.user.username }}</i> on {{ crudevent.datetime }}</h6>
-            {% endif %}
-        {% endwith %}
-    {% endif %}
-{% endblock page_header %}
+{% load embed %}
 
-{% block content %}
-    <script>
-        function nav(location){
-            console.log("going to: " + location);
-            window.location = '#' + location;
+{% block heading %}
+    {{ person.short_name }}
+    <small class="text-muted">
+        ({{ person.date_of_birth }} - {{ person.date_of_death }})
+        {% if person.sex == "M" %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-gender-male" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2H9.5zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+            </svg>
+        {% elif person.sex == "F" %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-gender-female" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5z"/>
+            </svg>
+        {% endif %}
+    </small>
+{% endblock %}
 
-            // Show accordion if not shown
-            const accordion_item = document.getElementById(location)
-            const collapse_element = accordion_item.getElementsByClassName('accordion-collapse')[0];
-            if(!collapse_element.classList.contains('show')) {
-                const collapse_button = accordion_item.getElementsByClassName('accordion-button')[0];
-                collapse_button.click();
-            }
-        }
-    </script>
-    <div class="row">
-        <div class="d-flex align-items-start">
-            <div class="nav flex-column nav-pills me-3 sticky-top" style="padding-top:10px" id="v-pills-tab" aria-orientation="vertical">
-                <button class="nav-link active" id="v-pills-basic-tab" data-bs-toggle="tab" data-bs-target="#v-pills-basic"
-                        type="button" role="tab" aria-controls="v-pills-basic" onclick="nav('v-pills-basic')">Basic info</button>
-                <button class="nav-link" id="v-pills-personal-tab" data-bs-toggle="tab" data-bs-target="#v-pills-personal"
-                        type="button" aria-controls="v-pills-personal" aria-selected="false" onclick="nav('v-pills-personal')">Personal situation</button>
-                <button class="nav-link" id="v-pills-profession-tab" data-bs-toggle="tab" data-bs-target="#v-pills-profession"
-                        type="button" aria-controls="v-pills-profession" aria-selected="false" onclick="nav('v-pills-profession')">Professional situation</button>
-                <button class="nav-link" id="v-pills-work-tab" data-bs-toggle="tab" data-bs-target="#v-pills-work"
-                        type="button" role="tab" aria-controls="v-pills-work" aria-selected="false" onclick="nav('v-pills-work')">Works</button>
-                <button class="nav-link" id="v-pills-reception-tab" data-bs-toggle="tab" data-bs-target="#v-pills-reception"
-                        type="button" aria-controls="v-pills-reception" aria-selected="false" onclick="nav('v-pills-reception')">Receptions</button>
-            </div>
+{% block edit_button %}
+    {% include 'shewrote/components/details_edit_button.html' with object=person url_name='shewrote:edit_person' %}
+{% endblock %}
 
+{% block last_edit_info %}
+    {% include 'shewrote/components/last_edit_info.html' with object=person %}
+{% endblock %}
 
-            <div class="col">
-                <div class="accordion" id="personDetails">
-                    <div id="v-pills-basic" class="accordion-item">
-                        <div class="accordion-header">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#v-pills-basic-collapse" aria-controls="v-pills-basic-collapse">
-                                <h4>Basic info</h4>
-                            </button>
-                        </div>
-                        <div id="v-pills-basic-collapse" class="accordion-collapse collapse show">
-                            <div class="accordion-body d-flex flex-row">
+{% block section_buttons %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='basic' section_title='Basic Info' active='active' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='personal' section_title='Personal situation' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='profession' section_title='Professional situation' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='work' section_title='Works' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='reception' section_title='Receptions' %}
+{% endblock %}
+
+{% block sections %}
+    {% embed 'shewrote/components/details_section.html' with section_name='basic' section_title='Basic Info' %}
+        {% slot contents %}
                               <div class="flex-fill">
                                 <table class="table">
                                     <tbody>
@@ -91,8 +53,8 @@
                                             <td>{{ person.first_name }}</td>
                                         </tr>
                                         <tr>
-                                            <th scope="row" class="w-25">Birth name</th>
-                                            <td>{{ person.birth_name }}</td>
+                                            <th scope="row" class="w-25">Maiden name</th>
+                                            <td>{{ person.maiden_name }}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row" class="w-25">Married name</th>
@@ -203,19 +165,10 @@
                                         </a>
                                     </div>
                                 {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="v-pills-personal" class="accordion-item">
-                        <div class="accordion-header">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#v-pills-personal-collapse" aria-controls="v-pills-personal-collapse">
-                                <h4>Personal situation</h4>
-                            </button>
-                        </div>
-                        <div id="v-pills-personal-collapse" class="accordion-collapse collapse show">
-                            <div class="accordion-body">
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='personal' section_title='Personal situation' %}
+        {% slot contents %}
                                 <table class="table">
                                     <tbody>
                                         <tr>
@@ -297,19 +250,10 @@
                                         </tr>
                                     </tbody>
                                 </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="v-pills-profession" class="accordion-item">
-                        <div class="accordion-header">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#v-pills-profession-collapse" aria-controls="v-pills-profession-collapse">
-                                <h4>Professional situation</h4>
-                            </button>
-                        </div>
-                        <div id="v-pills-profession-collapse" class="accordion-collapse collapse show">
-                            <div class="accordion-body">
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='profession' section_title='Professional situation' %}
+        {% slot contents %}
                                 <table class="table">
                                     <tbody>
                                         <tr>
@@ -344,19 +288,10 @@
                                         </tr>
                                     </tbody>
                                 </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="v-pills-work" class="accordion-item">
-                        <div class="accordion-header">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#v-pills-work-collapse" aria-controls="v-pills-work-collapse">
-                                <h4>Works</h4>
-                            </button>
-                        </div>
-                        <div id="v-pills-work-collapse" class="accordion-collapse collapse show">
-                            <div class="accordion-body">
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='work' section_title='Works' %}
+        {% slot contents %}
                                 <table class="table">
                                     <tbody>
                                         <tr>
@@ -373,19 +308,10 @@
                                         </tr>
                                     </tbody>
                                 </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="v-pills-reception" class="accordion-item">
-                        <div class="accordion-header">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#v-pills-reception-collapse" aria-controls="v-pills-reception-collapse">
-                                <h4>Receptions</h4>
-                            </button>
-                        </div>
-                        <div id="v-pills-reception-collapse" class="accordion-collapse collapse show">
-                            <div class="accordion-body">
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='reception' section_title='Receptions' %}
+        {% slot contents %}
                                 <table class="table">
                                     <tbody>
                                         <tr>
@@ -438,11 +364,7 @@
                                         </tr>
                                     </tbody>
                                 </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endblock content %}
+        {% endslot %}
+    {% endembed %}
+
+{% endblock %}

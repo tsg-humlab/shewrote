@@ -1,0 +1,17 @@
+{% extends 'shewrote/base.html' %}
+
+{% block page_header %}
+            {% if user.is_authenticated and user.is_staff %}
+                <a href="{% url 'admin:shewrote_edition_changelist' %}" title="Edit" class="btn btn-primary float-end">
+                    Editions in admin
+                </a>
+            {% endif %}
+    <h1 class="text-muted">
+        No editions to view yet
+    </h1>
+{% endblock page_header %}
+
+{% block content %}
+    <div class="row">
+    </div>
+{% endblock %}

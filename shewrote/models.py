@@ -2,9 +2,20 @@ import uuid
 from collections import defaultdict
 
 from django.db import models
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
+
 
 from easyaudit.models import CRUDEvent
+
+
+class EasyAuditMixin:
+    """Mixin to add EasyAudit methods"""
+    def get_last_edit(self):
+        """Returns a CRUDEvent of the last change of an object"""
+        return CRUDEvent.objects.filter(object_id=self.id).latest('datetime')
 
 
 class Country(models.Model):
@@ -36,7 +47,7 @@ class Place(models.Model):
         return self.name
 
 
-class Person(models.Model):
+class Person(EasyAuditMixin, models.Model):
     """Represents a person."""
 
     class GenderChoices(models.TextChoices):
@@ -49,7 +60,7 @@ class Person(models.Model):
     short_name = models.CharField(max_length=255)
     viaf_or_cerl = models.CharField(max_length=255, blank=True)
     first_name = models.CharField(max_length=255, blank=True)
-    maiden_name = models.CharField(max_length=255, blank=True)
+    birth_name = models.CharField(max_length=255, blank=True)
     date_of_birth = models.CharField(max_length=50, blank=True)
     date_of_death = models.CharField(max_length=50, blank=True)
     alternative_birth_date = models.CharField(max_length=50, blank=True)
@@ -74,6 +85,9 @@ class Person(models.Model):
         """Return the name of the Person."""
         return self.short_name
 
+    def get_absolute_url(self):
+        return reverse("shewrote:person", kwargs={"person_id": self.pk})
+
     def get_children(self):
         if self.sex == Person.GenderChoices.FEMALE:
             return Person.objects.filter(mother=self).order_by('date_of_birth')
@@ -87,7 +101,7 @@ class Person(models.Model):
         return Collective.objects.filter(personcollective__person=self)
 
     def get_works_for_role(self, role_name):
-        return Work.objects.filter(personworkrole__person=self, personworkrole__role__name=role_name)
+        return Work.objects.filter(personwork__person=self, personwork__role__name=role_name)
 
     def get_education(self):
         return Education.objects.filter(personeducation__person=self)
@@ -103,9 +117,6 @@ class Person(models.Model):
 
     def get_places_of_residence(self):
         return PeriodOfResidence.objects.filter(person=self)
-
-    def get_last_edit(self):
-        return CRUDEvent.objects.filter(object_id=self.id).latest('datetime')
 
 
 class PersonPersonRelation(models.Model):
@@ -130,6 +141,9 @@ class PersonEducation(models.Model):
     """Model linking Person to Education."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     education = models.ForeignKey(Education, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.person.short_name}: {self.education.name.lower()}'
 
 
 class Role(models.Model):
@@ -160,6 +174,9 @@ class PersonProfession(models.Model):
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
+    def __str__(self):
+        return f'{self.person.short_name} was {self.profession.name.lower()}'
+
 
 class Religion(models.Model):
     """Model describing the profession of a Person."""
@@ -179,6 +196,9 @@ class PersonReligion(models.Model):
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
+    def __str__(self):
+        return f'{self.person.short_name} was {self.religion.name.lower()}'
+
 
 class Marriage(models.Model):
     """Model defining the marital status of Person to a Spouse."""
@@ -194,6 +214,38 @@ class Marriage(models.Model):
     start_year = models.IntegerField(blank=True, null=True)
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return f'{self.person.short_name} was married to {self.spouse.short_name}'
+
+
+@receiver(post_save, sender=Marriage)
+def post_save_marriage(sender, instance, created, **kwargs):
+    """Create/update a/the symmetrical relation"""
+    field_values = {
+        'married_name': instance.married_name,
+        'marital_status': instance.marital_status,
+        'start_year': instance.start_year,
+        'end_year': instance.end_year,
+        'notes': instance.notes
+    }
+    
+    marriages = sender.objects.filter(person=instance.spouse, spouse=instance.person)
+    if not marriages:
+        sender.objects.create(person=instance.spouse, spouse=instance.person, **field_values)
+        return
+
+    # Delete superfluous marriage objects
+    if len(marriages) > 1:
+        Marriage.objects.filter(id__in=[marriage.id for marriage in marriages[1:]]).delete()
+
+    sender.objects.filter(id=marriages[0].id).update(**field_values)
+
+
+@receiver(post_delete, sender=Marriage)
+def post_delete_marriage(sender, instance, **kwargs):
+    """Delete the symmetrical relation"""
+    sender.objects.filter(person=instance.spouse, spouse=instance.person).delete()
 
 
 class AlternativeName(models.Model):
@@ -226,7 +278,7 @@ class   PeriodOfResidence(models.Model):
         return f"{self.person} lived in {self.place}{from_string}{until_string}"
 
 
-class TypeOfCollective(models.Model):
+class CollectiveType(models.Model):
     """Model describing the different types of Collective that exist."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_collective = models.CharField(max_length=255)
@@ -240,7 +292,7 @@ class Collective(models.Model):
     """Represents a Collective with multiple Persons as members in multiple Places."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
-    type = models.ForeignKey(TypeOfCollective, models.SET_NULL, null=True, blank=True)
+    type = models.ForeignKey(CollectiveType, models.SET_NULL, null=True, blank=True)
     place = models.ManyToManyField(
         Place,
         through="CollectivePlace",
@@ -267,6 +319,9 @@ class PersonCollective(models.Model):
     """Many-to-Many model connecting Person and Collective."""
     collective = models.ForeignKey(Collective, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.person.short_name} was member of {self.collective.name}'
 
 
 class CollectivePlace(models.Model):
@@ -295,26 +350,56 @@ class Language(models.Model):
         return self.name
 
 
-class Work(models.Model):
+class Work(EasyAuditMixin, models.Model):
     """Represent a Work by a Person that may have multiple Editions."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=1024)
+    date_of_publication_start = models.IntegerField(blank=True, null=True)
+    date_of_publication_end = models.IntegerField(blank=True, null=True)
+    date_of_publication_text = models.CharField(max_length=128, blank=True)
     viaf_work = models.URLField(max_length=255, blank=True)
     related_persons = models.ManyToManyField(
         Person,
-        through="PersonWorkRole",
+        through="PersonWork",
         through_fields=("work", "person"),
         blank=True,
     )
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["title"]),
+            models.Index(fields=["date_of_publication_start"]),
+            models.Index(fields=["date_of_publication_end"]),
+        ]
+
     def __str__(self):
         """Returns the title of the Work"""
         return self.title
 
+    def get_creators(self):
+        return Person.objects.filter(personwork__work=self, personwork__role__name="is creator of")
 
-class PersonWorkRole(models.Model):
+    def get_persons_for_work(self):
+        return Person.objects.filter(personwork__work=self)
+
+    def get_role_for_person(self):
+        return Role.objects.filter(personwork__work=self)
+
+    def get_date_of_publication_string(self):
+        if self.date_of_publication_start and self.date_of_publication_end\
+            and self.date_of_publication_start != self.date_of_publication_end:
+            return f'{self.date_of_publication_start} - {self.date_of_publication_end}'
+
+        if self.date_of_publication_start:
+            return str(self.date_of_publication_start)
+
+        return self.date_of_publication_text
+
+
+
+class PersonWork(models.Model):
     """Many-to-Many model connecting Persons, Works, and their Roles."""
     work = models.ForeignKey(Work, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
@@ -323,8 +408,11 @@ class PersonWorkRole(models.Model):
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
 
+    def __str__(self):
+        return f'{self.person} {self.role} {self.work}'
 
-class Edition(models.Model):
+
+class Edition(EasyAuditMixin, models.Model):
     """Represents an Edition of a Work published in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     related_work = models.ForeignKey(Work, on_delete=models.CASCADE)
@@ -339,7 +427,7 @@ class Edition(models.Model):
     cerl_publisher = models.CharField(max_length=255, blank=True)
     related_persons = models.ManyToManyField(
         Person,
-        through="PersonEditionRole",
+        through="PersonEdition",
         through_fields=("edition", "person"),
         blank=True,
     )
@@ -348,6 +436,11 @@ class Edition(models.Model):
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
+    def __str__(self):
+        place_of_publication = f' in {self.place_of_publication}' if self.publication_year else ''
+        publication_year = f' in {self.publication_year}' if self.publication_year else ''
+        return f'{self.related_work} is published {place_of_publication}{publication_year}'
+
 
 class EditionLanguage(models.Model):
     """Model linking an Edition to its Language(s)."""
@@ -355,7 +448,7 @@ class EditionLanguage(models.Model):
     language = models.ForeignKey(Language, models.SET_NULL, null=True)
 
 
-class PersonEditionRole(models.Model):
+class PersonEdition(models.Model):
     """Many-to-Many model connecting an Edition to related Persons."""
     edition = models.ForeignKey(Edition, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
@@ -370,7 +463,7 @@ class ReceptionSource(models.Model):
     title_work = models.CharField(max_length=255, blank=True)
     related_persons = models.ManyToManyField(
         Person,
-        through="PersonReceptionSourceRole",
+        through="PersonReceptionSource",
         through_fields=("reception_source", "person"),
         blank=True,
     )
@@ -386,14 +479,14 @@ class ReceptionSource(models.Model):
         return self.title_work
 
 
-class PersonReceptionSourceRole(models.Model):
+class PersonReceptionSource(models.Model):
     """Many-to-Many model connecting an Edition to related Persons."""
     reception_source = models.ForeignKey(ReceptionSource, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, models.SET_NULL, null=True, blank=True)
 
 
-class TypeOfDocument(models.Model):
+class DocumentType(models.Model):
     """Defines the Type of document that can exist for a Reception."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_document = models.CharField(max_length=255)
@@ -403,7 +496,7 @@ class TypeOfDocument(models.Model):
         return self.type_of_document
 
 
-class TypeOfReception(models.Model):
+class ReceptionType(models.Model):
     """This model defines the different types of Reception that can occur."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_reception = models.CharField(max_length=255)
@@ -413,29 +506,33 @@ class TypeOfReception(models.Model):
         return self.type_of_reception
 
 
-class Reception(models.Model):
+class Reception(EasyAuditMixin, models.Model):
     """Model defining a Reception of a Work by a Source in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    person = models.ManyToManyField(
+    received_persons = models.ManyToManyField(
         Person,
-        through="PersonReceptionRole",
+        through="PersonReception",
         through_fields=("reception", "person"),
+    )
+    received_works = models.ManyToManyField(
+        Work,
+        through="WorkReception",
+        through_fields=("reception", "work"),
+    )
+    received_editions = models.ManyToManyField(
+        Edition,
+        through="EditionReception",
+        through_fields=("reception", "edition"),
     )
     source = models.ForeignKey(ReceptionSource, models.SET_NULL, null=True, blank=True)
     title = models.TextField(blank=True)
-    part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True)
+    part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+", verbose_name="is same as work")
     reference = models.TextField(blank=True)
     place_of_reception = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
-    date_of_reception = models.IntegerField(blank=True)
+    date_of_reception = models.IntegerField(blank=True, null=True)
     quotation_reception = models.TextField(blank=True)
-    document_type = models.ForeignKey(TypeOfDocument, models.SET_NULL, null=True, blank=True)
+    document_type = models.ForeignKey(DocumentType, models.SET_NULL, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
-    reception_type = models.ManyToManyField(
-        TypeOfReception,
-        through="ReceptionType",
-        through_fields=("reception", "type"),
-        blank=True,
-    )
     language_of_reception = models.ManyToManyField(
         Language,
         through="ReceptionLanguage",
@@ -451,6 +548,7 @@ class Reception(models.Model):
     viaf_work = models.URLField(max_length=255, blank=True)
     image = models.ImageField
     notes = models.TextField(blank=True)
+    image = models.ImageField(upload_to="reception", null=True, blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
     def __str__(self):
@@ -458,17 +556,32 @@ class Reception(models.Model):
         return self.title
 
 
-class PersonReceptionRole(models.Model):
+class PersonReception(models.Model):
     """Defines the Role of a Person related to a Reception."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, models.SET_NULL, null=True, blank=True)
+    type = models.ForeignKey(ReceptionType, models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.reception.title} {self.type.type_of_reception} {self.person.short_name}'
 
 
-class ReceptionType(models.Model):
-    """Model linking a Reception to its Type."""
+class WorkReception(models.Model):
+    work = models.ForeignKey(Work, on_delete=models.CASCADE)
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
-    type = models.ForeignKey(TypeOfReception, models.SET_NULL, null=True)
+    type = models.ForeignKey(ReceptionType, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f'{self.reception} {self.type} {self.work}'
+
+
+class EditionReception(models.Model):
+    edition = models.ForeignKey(Edition, on_delete=models.CASCADE)
+    reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
+    type = models.ForeignKey(ReceptionType, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f'{self.reception} is reception of edition {self.edition}'
 
 
 class ReceptionLanguage(models.Model):

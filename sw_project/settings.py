@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'django_select2',
     'dal',
     'dal_select2',
+    "admin_interface",
+    "colorfield",
 
     # Default django apps.
     'django.contrib.admin',
@@ -175,6 +177,9 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+MEDIA_URL = config('MEDIA_URL', "")
+MEDIA_ROOT = config('MEDIA_ROOT', "")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -185,3 +190,6 @@ SELECT2_CSS = [
     'css/select2-bootstrap-5-theme.min.css',
 ]
 SELECT2_THEME = 'bootstrap-5'
+
+X_FRAME_OPTIONS = "SAMEORIGIN"
+SILENCED_SYSTEM_CHECKS = ["security.W019"]

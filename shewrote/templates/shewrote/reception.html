@@ -1,0 +1,235 @@
+{% extends 'shewrote/base.html' %}
+
+{% block page_header %}
+            {% if user.is_authenticated and user.is_staff %}
+                <a href="{% url 'admin:shewrote_reception_change' reception.id %}" title="Edit" class="btn btn-primary float-end">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                      <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                    </svg>
+                    Edit
+                </a>
+            {% endif %}
+    <h1>
+        {{ reception.title }}
+        <small class="text-muted fs-4 ms-3">
+            {{ reception.document_type }}
+        </small>
+        <small class="text-muted fs-4 ms-3">
+            {{ reception.place_of_reception|default:'' }}
+        </small>
+    </h1>
+    {% if user.is_authenticated %}
+        {% with reception.get_last_edit as crudevent %}
+            {% if crudevent %}
+                <h6>Last edited by <i>{{ crudevent.user.username }}</i> on {{ crudevent.datetime }}</h6>
+            {% endif %}
+        {% endwith %}
+    {% endif %}
+{% endblock page_header %}
+
+{% block content %}
+    <script>
+        function nav(location){
+            console.log("going to: " + location);
+            window.location = '#' + location;
+
+            // Show accordion if not shown
+            const accordion_item = document.getElementById(location)
+            const collapse_element = accordion_item.getElementsByClassName('accordion-collapse')[0];
+            if(!collapse_element.classList.contains('show')) {
+                const collapse_button = accordion_item.getElementsByClassName('accordion-button')[0];
+                collapse_button.click();
+            }
+        }
+    </script>
+    <div class="row">
+        <div class="d-flex align-items-start">
+            <div class="nav flex-column nav-pills me-3 sticky-top d-none d-lg-flex" style="padding-top:10px" id="v-pills-tab" aria-orientation="vertical">
+                <button class="nav-link active" id="v-pills-basic-tab" data-bs-toggle="tab" data-bs-target="#v-pills-basic"
+                        type="button" role="tab" aria-controls="v-pills-basic" onclick="nav('v-pills-basic')">Basic info</button>
+                <button class="nav-link" id="v-pills-receivedworks-tab" data-bs-toggle="tab" data-bs-target="#v-pills-receivedworks"
+                        type="button" role="tab" aria-controls="v-pills-receivedworks" onclick="nav('v-pills-receivedworks')">Received works</button>
+                <button class="nav-link" id="v-pills-receivedpersons-tab" data-bs-toggle="tab" data-bs-target="#v-pills-receivedpersons"
+                        type="button" role="tab" aria-controls="v-pills-receivedpersons" onclick="nav('v-pills-receivedpersons')">Persons received</button>
+            </div>
+
+            <div class="col">
+                <div class="accordion" id="receptionDetails">
+
+                    <div id="v-pills-basic" class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#v-pills-basic-collapse" aria-expanded="true" aria-controls="v-pills-basic-collapse">
+                                <h4>Basic info</h4>
+                            </button>
+                        </div>
+                        <div id="v-pills-basic-collapse" class="accordion-collapse collapse show">
+                            <div class="accordion-body d-flex flex-row">
+                                <div class="flex-fill">
+                                    <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Title</th>
+                                            <td>{{ reception.title }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Is same as work</th>
+                                            <td>
+                                                {% if reception.part_of_work %}
+                                                    <a href="{% url 'shewrote:work' reception.part_of_work_id %}">
+                                                        {{ reception.part_of_work }}
+                                                    </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Author</th>
+                                            <td>
+                                                {% for person in reception.part_of_work.get_creators %}
+                                                    <a href="{% url 'shewrote:person' person.id %}">{{ person }}</a>
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Reference</th>
+                                            <td>{{ reception.reference }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Place</th>
+                                            <td>{{ reception.place_of_reception|default:'' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Date</th>
+                                            <td>{{ reception.date_of_reception }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Quotation</th>
+                                            <td>{{ reception.quotation_reception }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Type</th>
+                                            <td>{{ reception.document_type }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">VIAF</th>
+                                            <td>
+                                                <a href="{{ reception.viaf_work }}">
+                                                    {{ reception.viaf_work }}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Notes</th>
+                                            <td>
+                                                {{ reception.notes }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                </div>
+                                {% if reception.image %}
+                                    <div class="w-25">
+                                        <a href="{{ reception.image.url }}">
+                                            <img src="{{ reception.image.url }}" class="img-fluid"/>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="v-pills-receivedworks" class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#v-pills-receivedworks-collapse" aria-expanded="true" aria-controls="v-pills-receivedworks-collapse">
+                                <h4>Received works</h4>
+                            </button>
+                        </div>
+                        <div id="v-pills-receivedworks-collapse" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                                    {% if workreceptions %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for workreception in workreceptions %}
+                                                    <tr>
+                                                        <th scope="row" class="w-25">{{ workreception.type }}</th>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:work' workreception.work_id %}">
+                                                                {{ workreception.work }}
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No works found</i>
+                                        </p>
+                                    {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="v-pills-receivedpersons" class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#v-pills-receivedpersons-collapse" aria-expanded="true" aria-controls="v-pills-receivedpersons-collapse">
+                                <h4>Persons received</h4>
+                            </button>
+                        </div>
+                        <div id="v-pills-receivedpersons-collapse" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                                <h6>In this reception</h6>
+                                    {% if personreceptions %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for personreception in reception.personreception_set.all %}
+                                                    <tr>
+                                                        <td scope="row" class="w-25">
+                                                            {{ personreception.type }}
+                                                        </td>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:person' personreception.person_id %}">{{ personreception.person }}</a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No persons found</i>
+                                        </p>
+                                    {% endif %}
+                                <h6>Via received works</h6>
+                                    {% if workreceptions %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for workreception in workreceptions %}
+                                                    <tr>
+                                                        <td scope="row" class="w-25">
+                                                            {{ workreception.work }}
+                                                        </td>
+                                                        <td>
+                                                            {% for person in workreception.work.related_persons.all %}
+                                                                <a href="{% url 'shewrote:person' person.id %}">{{ person }}</a>
+                                                                {% if not forloop.last %}, {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No persons found</i>
+                                        </p>
+                                    {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

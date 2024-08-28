@@ -1,4 +1,7 @@
 <!doctype html>
+
+{% load static %}
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,31 +10,100 @@
 
     {% load django_bootstrap5 %}
     {% bootstrap_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap_ru.css' %}">
+    <link href='https://fonts.googleapis.com/css?family=Open Sans' rel='stylesheet'>
     {% bootstrap_javascript %}
 
     {% block extra_head %}{% endblock extra_head %}
+
+    <style>
+        body {
+            font-family: 'Open Sans';
+        }
+        .nav-link, .navbar-brand {
+            color: #730E04;
+        }
+        .nav-link:hover, .navbar-brand:hover {
+            text-decoration: underline 0.15rem;
+            color: var(--primary);
+        }
+        .nav-item > .nav-link.active, .navbar-brand.active {
+            color: var(--primary);
+        }
+        .nav-item > .nav-link.active {
+            text-decoration: underline 0.15rem;
+        }
+        .nav-item > .nav-link.active:hover {
+            //padding-bottom: 2px;
+            //border-bottom: 0.15rem solid;
+            text-decoration: none;
+            color: var(--primary);
+        }
+        .icon-link {
+            text-decoration: underline var(--primary);
+        }
+        .navbar-toggler {
+            color: var(--light);
+            border-radius: 0;
+        }
+        .nav-pills .nav-link {
+            border-radius: 0;
+        }
+        .accordion-button:not(.collapsed) {
+            background-color: #F8F7F7;
+        }
+        .accordion-item:first-of-type, .accordion-item:last-of-type {
+            border-radius: 0;
+        }
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: rgba(0,0,0,.125);
+        }
+        h4 {
+            color: black;
+        }
+        .page-item:first-child .page-link, .page-item:last-child .page-link {
+            border-radius: 0;
+        }
+    </style>
+    {% block extrahead %}{% endblock extrahead %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-md mb-4 border" style="background-color: #009688">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'shewrote:index' %}" style="color: white">
+    <nav class="navbar navbar-expand-md mb-4 border">
+        <div class="container">
+            <a href="https://www.ru.nl" class="d-none d-sm-block">
+                <img src="https://cls.ru.nl/RU_logo.svg" class="navbar-brand" style="height: 3rem"/>
+            </a>
+            <a class="navbar-brand {% if 'index' == request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:index' %}">
                 SHEWROTE</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
-                    aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <ul class="navbar-nav me-auto mb-2 mb-md-0">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'shewrote:persons' %}" style="color: white">
+                        <a class="nav-link {% if 'person' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:persons' %}">
                             Persons</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'work' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:works' %}">
+                            Works</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'edition' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:editions' %}">
+                            Editions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'reception' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:receptions' %}">
+                            Receptions</a>
                     </li>
                 </ul>
             </div>
-            <div class="collapse navbar-collapse justify-content-end" style="color: white">
+            <div class="collapse navbar-collapse justify-content-end">
                 {% if user.is_authenticated %}
-                    {{ user }} |&nbsp;<a class="nav-link" href="{% url 'logout' %}" >Log out</a>
+                    {{ user }} |&nbsp;<a class="nav-link px-0" href="{% url 'logout' %}" >Log out</a>
                 {% else %}
                     <a class="nav-link" href="{% url 'login' %}">Log in</a>
                 {% endif %}

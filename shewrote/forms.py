@@ -4,7 +4,7 @@ from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 from apiconnectors.widgets import ApiSelectWidget
 from django.utils.safestring import SafeString
 
-from .models import Person, Place, Education, PersonEducation, PeriodOfResidence
+from .models import Person, Place, Education, PersonEducation, PeriodOfResidence, Work
 
 
 class AddAnotherWidget(ModelSelect2Widget):
@@ -27,7 +27,7 @@ class PersonForm(forms.ModelForm):
     class Meta:
         model = Person
         fields = [
-            'short_name', 'viaf_or_cerl', 'first_name', 'maiden_name', 'date_of_birth', 'date_of_death',
+            'short_name', 'viaf_or_cerl', 'first_name', 'birth_name', 'date_of_birth', 'date_of_death',
             'alternative_birth_date', 'alternative_death_date', 'flourishing_start', 'flourishing_end', 'sex',
             'alternative_name_gender', 'place_of_birth', 'place_of_death', 'professional_ecclesiastic_title',
             'aristocratic_title', 'mother', 'father', 'bibliography', 'related_to', 'notes', 'place_of_residence_notes'
@@ -36,7 +36,7 @@ class PersonForm(forms.ModelForm):
             'short_name': 'Short name',
             'viaf_or_cerl': 'VIAF',
             'first_name': 'First name',
-            'maiden_name': 'Maiden name',
+            'birth_name': 'Birth name',
             'date_of_birth': 'Date of birth',
             'date_of_death': 'Date of death',
             'alternative_birth_date': 'Birth date Notes',
@@ -80,6 +80,7 @@ class PersonForm(forms.ModelForm):
         js = (
             'js/viaf_select.js',
         )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.add_personeducation_field()
@@ -87,7 +88,7 @@ class PersonForm(forms.ModelForm):
 
         # Set the order to accomodate the fields added above
         self.order_fields(field_order=[
-            'short_name', 'viaf_or_cerl', 'first_name', 'maiden_name', 'date_of_birth', 'date_of_death',
+            'short_name', 'viaf_or_cerl', 'first_name', 'birth_name', 'date_of_birth', 'date_of_death',
             'alternative_birth_date', 'alternative_death_date', 'flourishing_start', 'flourishing_end', 'sex',
             'alternative_name_gender', 'place_of_birth', 'place_of_death', 'professional_ecclesiastic_title',
             'aristocratic_title', 'mother', 'father', 'bibliography', 'related_to', 'notes',
@@ -163,13 +164,13 @@ class ShortPersonForm(forms.ModelForm):
     class Meta:
         model = Person
         fields = [
-            'short_name', 'first_name', 'maiden_name', 'date_of_birth', 'date_of_death',
+            'short_name', 'first_name', 'birth_name', 'date_of_birth', 'date_of_death',
             'sex', 'notes',
         ]
         labels = {
             'short_name': 'Short name',
             'first_name': 'First name',
-            'maiden_name': 'Maiden name',
+            'birth_name': 'Birth name',
             'date_of_birth': 'Date of birth',
             'date_of_death': 'Date of death',
             'sex': 'Sex',
@@ -178,4 +179,24 @@ class ShortPersonForm(forms.ModelForm):
 
         widgets = {
             'notes': forms.Textarea(attrs={'cols': 80, 'rows': 5}),
+        }
+
+
+class WorkForm(forms.ModelForm):
+    class Meta:
+        model = Work
+        fields = ['title', 'viaf_work', 'notes']
+        labels = {
+            'title': 'Title',
+            'viaf_work': 'VIAF',
+            'notes': 'Notes',
+        }
+
+        widgets = {
+            'viaf_work': ApiSelectWidget(
+                url=reverse_lazy('shewrote:work_viaf_suggest'),
+                attrs={'data-html': True,
+                       'data-placeholder': "Search for a work"}
+            ),
+            'notes': forms.Textarea(attrs={'cols': 80}),
         }
