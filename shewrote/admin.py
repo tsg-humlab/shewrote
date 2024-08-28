@@ -5,7 +5,7 @@ from .models import (Country, Place, Person, Education, PersonEducation, Role, P
                      PersonCollective, CollectivePlace, Genre, Language, Work, PersonWork, Edition, EditionLanguage,
                      PersonEdition, ReceptionSource, PersonReceptionSource, DocumentType, ReceptionType,
                      Reception, PersonReception, ReceptionLanguage, ReceptionGenre,
-                     WorkReception, EditionReception)
+                     WorkReception, EditionReception, PersonPersonRelation)
 
 admin.site.register(Country)
 
@@ -32,6 +32,15 @@ class MarriageInline(admin.TabularInline):
     fields = ["person", "spouse", "married_name", "start_year", "end_year", "notes"]
     extra = 0
     autocomplete_fields = ["person", "spouse"]
+
+
+class PersonPersonRelationInline(admin.TabularInline):
+    model = PersonPersonRelation
+    fk_name = "from_person"
+    fields = ["from_person", "to_person"]
+    extra = 0
+    autocomplete_fields = ["from_person", "to_person"]
+    verbose_name = "Relation"
 
 
 class PeriodsOfResidenceInline(admin.TabularInline):
@@ -130,7 +139,6 @@ class PersonAdmin(admin.ModelAdmin):
         "place_of_death",
         "mother",
         "father",
-        "related_to",
     ]
     fieldsets = [
         (
@@ -142,10 +150,10 @@ class PersonAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Relations",
+            "Parents",
             {
                 # "classes": ("collapse",),
-                "fields": [("mother", "father"), "related_to"]
+                "fields": [("mother", "father")]
             }
         ),
         (
@@ -157,7 +165,7 @@ class PersonAdmin(admin.ModelAdmin):
             }
         )
     ]
-    inlines = [MarriageInline,
+    inlines = [PersonPersonRelationInline, MarriageInline,
                PersonEducationInline, PersonProfessionInline, PersonReligionInline,
                AlternativeNameInline, PeriodsOfResidenceInline,
                PersonWorkInlineFromPersons, PersonCollectiveInline, PersonReceptionInlineFromPerson]

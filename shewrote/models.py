@@ -76,7 +76,8 @@ class Person(EasyAuditMixin, models.Model):
     mother = models.ForeignKey("self", models.SET_NULL, null=True, blank=True, related_name="+")
     father = models.ForeignKey("self", models.SET_NULL, null=True, blank=True, related_name="+")
     bibliography = models.TextField(blank=True)
-    related_to = models.ManyToManyField("self", blank=True, through="PersonPersonRelation")
+    related_to = models.ManyToManyField("self", blank=True, through="PersonPersonRelation",
+                                        through_fields=('from_person', 'to_person'))
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
     place_of_residence_notes = models.TextField(blank=True)
@@ -125,6 +126,9 @@ class PersonPersonRelation(models.Model):
 
     class Meta:
         unique_together = ['from_person', 'to_person']
+
+    def __str__(self):
+        return f'{self.from_person} is related to {self.to_person}'
 
 
 class Education(models.Model):
