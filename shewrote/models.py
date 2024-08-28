@@ -11,11 +11,54 @@ from django.urls import reverse
 from easyaudit.models import CRUDEvent
 
 
+# # # START Helper classes and functions # # #
+
 class EasyAuditMixin:
     """Mixin to add EasyAudit methods"""
     def get_last_edit(self):
         """Returns a CRUDEvent of the last change of an object"""
         return CRUDEvent.objects.filter(object_id=self.id).latest('datetime')
+
+
+def post_save_relation_creator(sender, relation_fields, other_fields=()):
+    @receiver(post_save, sender=sender)
+    def post_save_relation(sender, instance, created, **kwargs):
+        """Create/update a/the symmetrical relation"""
+        relation_fields_swapped = {
+            relation_fields[0]: getattr(instance, relation_fields[1]),
+            relation_fields[1]: getattr(instance, relation_fields[0]),
+        }
+
+        other_field_values = {field: getattr(instance, field) for field in other_fields}
+
+        opposite_objects = sender.objects.filter(**relation_fields_swapped)
+        if not opposite_objects.exists():
+            sender.objects.create(**{**relation_fields_swapped, **other_field_values})
+            return
+
+        # Delete superfluous objects
+        if opposite_objects.count() > 1:
+            opposite_objects[1:].delete()
+
+        sender.objects.filter(id__in=opposite_objects[:1].values_list('id', flat=True)).update(**other_field_values)
+
+    return post_save_relation
+
+
+def post_delete_relation_creator(sender, relation_fields):
+    @receiver(post_delete, sender=sender)
+    def post_delete_relation(sender, instance, **kwargs):
+        """Delete the symmetrical relation"""
+        relation_fields_swapped = {
+            relation_fields[0]: getattr(instance, relation_fields[1]),
+            relation_fields[1]: getattr(instance, relation_fields[0]),
+        }
+        sender.objects.filter(**relation_fields_swapped).delete()
+
+    return post_delete_relation
+
+
+# # # END Helper classes and functions # # #
 
 
 class Country(models.Model):
@@ -129,6 +172,12 @@ class PersonPersonRelation(models.Model):
 
     def __str__(self):
         return f'{self.from_person} is related to {self.to_person}'
+
+
+post_save_personpersonrelation = post_save_relation_creator(PersonPersonRelation, ('from_person', 'to_person'))
+
+
+post_delete_personpersonrelation = post_delete_relation_creator(PersonPersonRelation, ('from_person', 'to_person'))
 
 
 class Education(models.Model):

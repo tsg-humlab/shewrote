@@ -165,7 +165,7 @@ class PersonAdmin(admin.ModelAdmin):
             }
         )
     ]
-    inlines = [PersonPersonRelationInline, MarriageInline,
+    inlines = [MarriageInline, PersonPersonRelationInline,
                PersonEducationInline, PersonProfessionInline, PersonReligionInline,
                AlternativeNameInline, PeriodsOfResidenceInline,
                PersonWorkInlineFromPersons, PersonCollectiveInline, PersonReceptionInlineFromPerson]
