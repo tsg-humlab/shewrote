@@ -186,9 +186,13 @@
                                             <th scope="row" class="w-25">Spouse</th>
                                             <td>
                                                 {% for marriage in person.get_marriages %}
-                                                    <a href="{% url 'shewrote:person' marriage.spouse.id %}">
-                                                        {{ marriage.spouse }}
-                                                    </a>
+                                                    {% if marriage.spouse %}
+                                                        <a href="{% url 'shewrote:person' marriage.spouse.id %}">
+                                                            {{ marriage.spouse }}
+                                                        </a>
+                                                    {% else %}
+                                                        UNKNOWN
+                                                    {% endif %}
                                                     {% if not forloop.last %}, {% endif %}
                                                 {% endfor %}
                                             </td>
