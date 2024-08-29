@@ -2,7 +2,7 @@
     {% if user.is_authenticated %}
         {% with object.get_last_edit as crudevent %}
             {% if crudevent %}
-                <h6 class="text-muted">Last edited by <i>{{ crudevent.user.username }}</i> on {{ crudevent.datetime }}</h6>
+                <h6 class="text-muted">Last edited by <i>{{ crudevent.user.username|default:"unknown" }}</i> on {{ crudevent.datetime }}</h6>
             {% endif %}
         {% endwith %}
     {% endif %}
