@@ -2,7 +2,7 @@ import uuid
 from collections import defaultdict
 
 from django.db import models
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
@@ -36,11 +36,10 @@ def post_save_relation_creator(sender, relation_fields, other_fields=()):
             sender.objects.create(**{**relation_fields_swapped, **other_field_values})
             return
 
-        # Delete superfluous objects
-        if opposite_objects.count() > 1:
-            opposite_objects[1:].delete()
+        sender.objects.filter(id=opposite_objects[0].id).update(**other_field_values)
 
-        sender.objects.filter(id__in=opposite_objects[:1].values_list('id', flat=True)).update(**other_field_values)
+        # Delete superfluous objects
+        sender.objects.filter(id__in=opposite_objects[1:].values_list('id', flat=True)).delete()
 
     return post_save_relation
 
@@ -163,15 +162,45 @@ class Person(EasyAuditMixin, models.Model):
         return PeriodOfResidence.objects.filter(person=self)
 
 
+class RelationType(models.Model):
+    text = models.CharField(max_length=255, unique=True)
+    reverse = models.ForeignKey('self', blank=True, null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.text
+
+
+@receiver(post_save, sender=RelationType)
+def post_save_relation(sender, instance, created, **kwargs):
+    reverse = instance.reverse
+    if reverse and reverse.reverse != instance:
+        reverse.reverse = instance
+        reverse.save()
+
+
 class PersonPersonRelation(models.Model):
     from_person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="from_relations")
     to_person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="to_relations")
+    types = models.ManyToManyField(RelationType)
 
     class Meta:
         unique_together = ['from_person', 'to_person']
 
     def __str__(self):
         return f'{self.from_person} is related to {self.to_person}'
+
+
+@receiver(m2m_changed, sender=PersonPersonRelation.types.through)
+def copy_types_to_reverse(sender, instance, **kwargs):
+    reverse = PersonPersonRelation.objects.get(from_person=instance.to_person, to_person=instance.from_person)
+    PersonPersonRelation.types.through.objects.filter(personpersonrelation=reverse).delete()
+    types_for_reverse = []
+    for type in instance.types.all():
+        if type.reverse:
+            types_for_reverse.append(PersonPersonRelation.types.through(personpersonrelation=reverse, relationtype=type.reverse))
+        else:
+            types_for_reverse.append(PersonPersonRelation.types.through(personpersonrelation=reverse, relationtype=type))
+    PersonPersonRelation.types.through.objects.bulk_create(types_for_reverse)
 
 
 post_save_personpersonrelation = post_save_relation_creator(PersonPersonRelation, ('from_person', 'to_person'))

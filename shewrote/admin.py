@@ -5,7 +5,7 @@ from .models import (Country, Place, Person, Education, PersonEducation, Role, P
                      PersonCollective, CollectivePlace, Genre, Language, Work, PersonWork, Edition, EditionLanguage,
                      PersonEdition, ReceptionSource, PersonReceptionSource, DocumentType, ReceptionType,
                      Reception, PersonReception, ReceptionLanguage, ReceptionGenre,
-                     WorkReception, EditionReception, PersonPersonRelation)
+                     WorkReception, EditionReception, PersonPersonRelation, RelationType)
 
 admin.site.register(Country)
 
@@ -37,9 +37,9 @@ class MarriageInline(admin.TabularInline):
 class PersonPersonRelationInline(admin.TabularInline):
     model = PersonPersonRelation
     fk_name = "from_person"
-    fields = ["from_person", "to_person"]
+    fields = ["from_person", "types", "to_person"]
     extra = 0
-    autocomplete_fields = ["from_person", "to_person"]
+    autocomplete_fields = ["from_person", "types", "to_person"]
     verbose_name = "Relation"
 
 
@@ -207,6 +207,19 @@ class PersonReligionAdmin(admin.ModelAdmin):
 @admin.register(Marriage)
 class MarriageAdmin(admin.ModelAdmin):
     autocomplete_fields = ['person', 'spouse']
+
+
+@admin.register(PersonPersonRelation)
+class PersonPersonRelation(admin.ModelAdmin):
+    fields = ['from_person', 'types', 'to_person']
+    autocomplete_fields = ['from_person', 'types', 'to_person']
+
+
+@admin.register(RelationType)
+class RelationType(admin.ModelAdmin):
+    autocomplete_fields = ['reverse']
+    search_fields = ['text']
+
 
 @admin.register(AlternativeName)
 class AlternativeNameAdmin(admin.ModelAdmin):
