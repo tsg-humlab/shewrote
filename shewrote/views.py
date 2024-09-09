@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Q
 from django.http import JsonResponse
-from .models import Person, Work, Reception, WorkReception, PersonReception
+from .models import Person, Work, Reception, WorkReception, PersonReception, Collective
 from .forms import PersonForm, ShortPersonForm, WorkForm
 
 from dal import autocomplete
@@ -120,6 +120,28 @@ def edit_person(request, person_id):
         'addanother_person_form': ShortPersonForm()
     }
     return render(request, 'shewrote/edit_person.html', context)
+
+
+def collectives(request):
+    """Show all persons."""
+    collectives = Collective.objects.order_by('name')
+    name_filter = request.GET.get("name", '')
+    if name_filter:
+        collectives = collectives.filter(name__icontains=name_filter).distinct()
+    paginator = Paginator(collectives, 25)
+    page_number = request.GET.get("page")
+    paginated_collectives = paginator.get_page(page_number)
+    context = {'collectives': paginated_collectives, 'count': collectives.count(), 'name': name_filter}
+    return render(request, 'shewrote/collectives.html', context)
+
+
+def collective(request, collective_id):
+    """Show a single collective and all its details."""
+    collective = Collective.objects.get(id=collective_id)
+    context = {
+        'collective': collective,
+    }
+    return render(request, 'shewrote/collective_details.html', context)
 
 
 def receptions(request):

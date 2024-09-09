@@ -1,0 +1,107 @@
+{% extends 'shewrote/generic_details.html' %}
+
+{% load embed %}
+
+{% block heading %}
+    {{ collective.name }}
+{% endblock %}
+
+{% block edit_button %}
+    {% include 'shewrote/components/details_edit_button.html' with object=collective url_name='admin:shewrote_collective_change' %}
+{% endblock %}
+
+{% block last_edit_info %}
+    {% include 'shewrote/components/last_edit_info.html' with object=collective %}
+{% endblock %}
+
+{% block section_buttons %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='basic' section_title='Basic Info' active='active' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='members' section_title='Members' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='places' section_title='Places' %}
+{% endblock %}
+
+{% block sections %}
+    {% embed 'shewrote/components/details_section.html' with section_name='basic' section_title='Basic Info' %}
+        {% slot contents %}
+                                <div class="flex-fill">
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row" class="w-25">
+                                                    Name
+                                                </th>
+                                                <td>
+                                                    {{ collective.name }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">
+                                                    Type
+                                                </th>
+                                                <td>
+                                                    {{ collective.type }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">
+                                                    Years
+                                                </th>
+                                                <td>
+                                                    {{ collective.start_year|default:"" }}
+                                                    &mdash;
+                                                    {{ collective.end_year|default:"" }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">
+                                                    Notes
+                                                </th>
+                                                <td>
+                                                    {{ work.notes|default:"-" }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='members' section_title='Members' %}
+        {% slot contents %}
+                                <div class="flex-fill">
+                                    <table style="table-layout: fixed; width: 50%">
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-secondary">Name</td>
+                                            </tr>
+                                            {% for person in collective.has_members.all %}
+                                                <tr>
+                                                    <td><a href="{% url 'shewrote:person' person.id %}">{{ person }}</a></td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='places' section_title='Places' %}
+        {% slot contents %}
+                                    {% if collective.place.all %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for place in collective.place.all %}
+                                                    <tr>
+                                                        <td>
+                                                            {{ place }}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No places found</i>
+                                        </p>
+                                    {% endif %}
+        {% endslot %}
+    {% endembed %}
+{% endblock %}

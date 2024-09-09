@@ -1,0 +1,73 @@
+{% extends 'shewrote/base.html' %}
+{% load django_bootstrap5 %}
+
+{% block page_header %}
+    <div class="hstack gap-3 pb-2 mb-2 border-bottom">
+        <h1>Persons</h1>
+            {% if user.is_authenticated %}
+                <a class="btn btn-primary btn-sm mt-1 mb-1 ms-auto text-nowrap" href="{% url 'admin:shewrote_collective_add' %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                    </svg>
+                    Add collective
+                </a>
+            {% endif %}
+    </div>
+{% endblock page_header %}
+
+{% block content %}
+    <form action="" method="get">
+        <div class="hstack gap-3">
+            <input type="text" id="name" name="name" value="{{ name }}"
+                   size=30 placeholder="Enter (part of) a name" class="form-control form-control-sm"/>
+            <button type="submit" class="btn btn-secondary btn-sm mt-1 mb-1 text-nowrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                  <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+                Filter
+            </button>
+        </div>
+    </form>
+
+     <div class="pt-2 hstack gap-3 border-bottom">
+        <div class="pagination me-auto">
+            {% bootstrap_pagination collectives url=request.get_full_path %}
+        </div>
+        <div class="text-secondary">{% if count %}{{ count }} collectives found.{% endif %}</div>
+    </div>
+
+    <ul class="list-group list-group-flush pb-2 mb-4">
+        {% for collective in collectives %}
+            <li class="list-group-item px-0">
+                <div class="float-end">
+                    {{ collective.place.all|join:", " }}
+                    {{ collective.start_year|default:"" }}
+                    &mdash;
+                    {{ collective.end_year|default:"" }}
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'admin:shewrote_collective_change' collective.id %}" title="Edit" class="ms-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                              <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="mb-2">
+                    <a href="{% url 'shewrote:collective' collective.id %}" title="Collective details">
+                    {{ collective.name }}</a>
+                </div>
+                <div class="mb-2">
+                    {{ collective.type }}
+                </div>
+                <div class="mb-2">
+                    {% with collective.has_members.all.count as member_count %}
+                        {{ member_count}} {% if member_count == 1 %} member {% else %} members {% endif %}
+                    {% endwith %}
+                </div>
+            </li>
+        {% empty %}
+            <li class="list-group-item border-0">No persons found.</li>
+        {% endfor %}
+    </ul>
+
+{% endblock content %}

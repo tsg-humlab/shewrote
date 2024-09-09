@@ -19,6 +19,10 @@ urlpatterns = [
     path('short_new_person/', views.short_new_person, name='short_new_person'),
     # Page for editing an existing person
     path('edit_person/<uuid:person_id>/', views.edit_person, name='edit_person'),
+    # Page that shows all collectives
+    path('collectives/', views.collectives, name='collectives'),
+    # Detail page for a single collective
+    path('collectives/<uuid:collective_id>/', views.collective, name='collective'),
     # Page that shows all works
     path('works/', views.works, name='works'),
     # Detail page for a single work

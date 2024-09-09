@@ -88,6 +88,10 @@
                             Persons</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {% if 'collective' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:collectives' %}">
+                            Collectives</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if 'work' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:works' %}">
                             Works</a>
                     </li>
