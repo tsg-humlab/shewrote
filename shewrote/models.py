@@ -181,7 +181,7 @@ def post_save_relation(sender, instance, created, **kwargs):
 class PersonPersonRelation(models.Model):
     from_person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="from_relations")
     to_person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="to_relations")
-    types = models.ManyToManyField(RelationType)
+    types = models.ManyToManyField(RelationType, blank=True)
 
     class Meta:
         unique_together = ['from_person', 'to_person']
