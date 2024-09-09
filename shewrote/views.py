@@ -41,6 +41,7 @@ def person(request, person_id):
 
     person_receptions = PersonReception.objects.filter(reception__image__isnull=False, person=person)\
         .exclude(reception__image="")
+    reception_with_image = person_receptions.first().reception if person_receptions else None
     image = person_receptions.first().reception.image if person_receptions else None
 
     context = {
@@ -50,7 +51,7 @@ def person(request, person_id):
         'is_commented_on_in': person.get_works_for_role("is commented on in"),
         'is_mentioned_in': person.get_works_for_role("is mentioned in"),
         'is_referenced_in': person.get_works_for_role("is referenced in"),
-        'image': image
+        'reception_with_image': reception_with_image
     }
     return render(request, 'shewrote/person_details.html', context)
 
