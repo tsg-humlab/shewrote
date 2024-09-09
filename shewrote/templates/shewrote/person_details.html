@@ -37,7 +37,7 @@
 {% block sections %}
     {% embed 'shewrote/components/details_section.html' with section_name='basic' section_title='Basic Info' %}
         {% slot contents %}
-                              <div class="flex-fill">
+                              <div class="{% if image %}w-75{% else %}flex-fill{% endif %}">
                                 <table class="table">
                                     <tbody>
                                         <tr>
