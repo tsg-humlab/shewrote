@@ -161,7 +161,10 @@
                                 {% if reception_with_image %}
                                     <div class="w-25 ms-3">
                                         <a href="{% url 'shewrote:reception' reception_with_image.id %}">
-                                            <img src="{{ reception_with_image.image.url }}" class="img-fluid"/>
+                                            <figure>
+                                                <img src="{{ reception_with_image.image.url }}" class="img-fluid"/>
+                                                <figcaption>{{ reception_with_image.title }}</figcaption>
+                                            </figure>
                                         </a>
                                     </div>
                                 {% endif %}
