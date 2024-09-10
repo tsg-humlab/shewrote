@@ -29,6 +29,7 @@
 {% block section_buttons %}
     {% include 'shewrote/components/details_section_button.html' with section_name='basic' section_title='Basic Info' active='active' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='personal' section_title='Personal situation' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='marriage' section_title='Marital status' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='profession' section_title='Professional situation' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='work' section_title='Works' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='reception' section_title='Receptions' %}
@@ -172,32 +173,6 @@
                                 <table class="table">
                                     <tbody>
                                         <tr>
-                                            <th scope="row" class="w-25">Marital status</th>
-                                            <td>
-                                                {% for marriage in person.get_marriages %}
-                                                    {{ marriage.get_marital_status_display }}
-                                                    {% if marriage.start_year %}
-                                                        ({{ marriage.start_year }}-{{ marriage.end_year }}){% endif %}
-                                                    {% if not forloop.last %}, {% endif %}
-                                                {% endfor %}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row" class="w-25">Spouse</th>
-                                            <td>
-                                                {% for marriage in person.get_marriages %}
-                                                    {% if marriage.spouse %}
-                                                        <a href="{% url 'shewrote:person' marriage.spouse.id %}">
-                                                            {{ marriage.spouse }}
-                                                        </a>
-                                                    {% else %}
-                                                        UNKNOWN
-                                                    {% endif %}
-                                                    {% if not forloop.last %}, {% endif %}
-                                                {% endfor %}
-                                            </td>
-                                        </tr>
-                                        <tr>
                                             <th  scope="row" class="w-25">
                                                 Parents
                                             </th>
@@ -250,6 +225,40 @@
                                             <th scope="row" class="w-25">Professional or ecclesiastical title</th>
                                             <td>
                                                 {{ person.professional_ecclesiastic_title|default:"-" }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='marriage' section_title='Marital status' %}
+        {% slot contents %}
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Marital status</th>
+                                            <td>
+                                                {% for marriage in person.get_marriages %}
+                                                    {{ marriage.get_marital_status_display }}
+                                                    {% if marriage.start_year %}
+                                                        ({{ marriage.start_year }}-{{ marriage.end_year }}){% endif %}
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Spouse</th>
+                                            <td>
+                                                {% for marriage in person.get_marriages %}
+                                                    {% if marriage.spouse %}
+                                                        <a href="{% url 'shewrote:person' marriage.spouse.id %}">
+                                                            {{ marriage.spouse }}
+                                                        </a>
+                                                    {% else %}
+                                                        UNKNOWN
+                                                    {% endif %}
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
                                             </td>
                                         </tr>
                                     </tbody>
