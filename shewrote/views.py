@@ -32,6 +32,8 @@ def persons(request):
     receptions = Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False).values('image')
     persons = persons.annotate(image=Subquery(receptions[:1]))
 
+    persons = persons.prefetch_related('alternativename_set')
+
     paginator = Paginator(persons, 25)
     page_number = request.GET.get("page")
     paginated_persons = paginator.get_page(page_number)
