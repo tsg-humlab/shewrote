@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from django.db.models import F, Q
+from django.db.models import F, Q, OuterRef, Subquery
 from django.http import JsonResponse
 from .models import Person, Work, Reception, WorkReception, PersonReception, Collective
 from .forms import PersonForm, ShortPersonForm, WorkForm
@@ -28,10 +28,14 @@ def persons(request):
             Q(short_name__icontains=short_name_filter)
             | Q(alternativename__alternative_name__icontains=short_name_filter)
         ).distinct()
+
+    receptions = Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False).values('image')
+    persons = persons.annotate(image=Subquery(receptions[:1]))
+
     paginator = Paginator(persons, 25)
     page_number = request.GET.get("page")
     paginated_persons = paginator.get_page(page_number)
-    context = {'persons': paginated_persons, 'count': persons.count(), 'short_name': short_name_filter}
+    context = {'persons': paginated_persons, 'count': paginator.count, 'short_name': short_name_filter}
     return render(request, 'shewrote/persons.html', context)
 
 
