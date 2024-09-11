@@ -1,8 +1,33 @@
-
+{% load object_info %}
     {% if user.is_authenticated %}
         {% with object.get_last_edit as crudevent %}
             {% if crudevent %}
-                <h6 class="text-muted">Last edited by <i>{{ crudevent.user.username|default:"unknown" }}</i> on {{ crudevent.datetime }}</h6>
+                <h6 class="text-muted">
+                    Last edited by <i>{{ crudevent.user.username|default:"unknown" }}</i> on {{ crudevent.datetime }}
+                    {% with object|content_type as object_content_type %}
+                    <button
+                        hx-get="{% url 'shewrote:list_of_changes' object_content_type.id object.pk %}"
+                        hx-target="#modal_list_of_changes"
+                        hx-trigger="click"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modal_list_of_changes"
+                        class="btn primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ul" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+                        </svg>
+                    </button>
+
+                    <div id="modal_list_of_changes"
+                        class="modal modal-blur fade"
+                        style="display: none"
+                        aria-hidden="false"
+                        tabindex="-1">
+                        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                            <div class="modal-content"></div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                </h6>
             {% endif %}
         {% endwith %}
     {% endif %}

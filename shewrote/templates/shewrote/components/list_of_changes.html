@@ -1,0 +1,15 @@
+<div class="modal-dialog modal-dialog-centered">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">List of changes</h5>
+    </div>
+    <div class="modal-body">
+        {% for crudevent in crudevents %}
+            <p>{{ crudevent.method }} by <i>{{ crudevent.user.username|default:"unknown" }}</i> on {{ crudevent.datetime }}</p>
+        {% endfor %}
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+  </div>
+</div>
