@@ -29,7 +29,8 @@ def persons(request):
             | Q(alternativename__alternative_name__icontains=short_name_filter)
         ).distinct()
 
-    receptions = Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False).values('image')
+    receptions = Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False)\
+        .exclude(image='').values('image')
     persons = persons.annotate(image=Subquery(receptions[:1]))
 
     persons = persons.prefetch_related('alternativename_set')
