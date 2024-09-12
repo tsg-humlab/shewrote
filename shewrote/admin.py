@@ -26,6 +26,13 @@ class AlternativeNameInline(admin.TabularInline):
     extra = 0
 
 
+class CollectivePlaceInline(admin.TabularInline):
+    model = CollectivePlace
+    fields = ["collective", "place"]
+    autocomplete_fields = ["collective", "place"]
+    extra = 0
+
+
 class MarriageInline(admin.TabularInline):
     model = Marriage
     fk_name = "person"
@@ -161,7 +168,8 @@ class PersonAdmin(admin.ModelAdmin):
             {
                 # "classes": ("collapse",),
                 "fields": [("aristocratic_title", "professional_ecclesiastic_title"), ("flourishing_start",
-                           "flourishing_end"), "bibliography"]
+                                                                                       "flourishing_end"),
+                           "bibliography"]
             }
         )
     ]
@@ -173,6 +181,7 @@ class PersonAdmin(admin.ModelAdmin):
     def view_on_site_link(self, obj):
         icon = '<img src="/static/admin/img/icon-viewlink.svg" alt="View on site" title="View on site">'
         return mark_safe(f'<a href="{obj.get_absolute_url()}">{icon}</i></a>')
+
 
 admin.site.register(Education)
 
@@ -203,6 +212,7 @@ admin.site.register(Religion)
 @admin.register(PersonReligion)
 class PersonReligionAdmin(admin.ModelAdmin):
     autocomplete_fields = ['person']
+
 
 @admin.register(Marriage)
 class MarriageAdmin(admin.ModelAdmin):
@@ -238,6 +248,7 @@ admin.site.register(CollectiveType)
 @admin.register(Collective)
 class CollectiveAdmin(admin.ModelAdmin):
     search_fields = ["name"]
+    inlines = [CollectivePlaceInline]
 
 
 @admin.register(PersonCollective)
