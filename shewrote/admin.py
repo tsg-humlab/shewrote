@@ -31,6 +31,7 @@ class CollectivePlaceInline(admin.TabularInline):
     fields = ["collective", "place"]
     autocomplete_fields = ["collective", "place"]
     extra = 0
+    verbose_name = "Place"
 
 
 class MarriageInline(admin.TabularInline):
