@@ -1,12 +1,23 @@
 <div class="modal-dialog modal-dialog-centered">
   <div class="modal-content">
     <div class="modal-header">
-      <h5 class="modal-title">List of changes</h5>
+      <h5 class="modal-title text-black fs-3">List of changes</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body">
-        {% for crudevent in crudevents %}
-            <p>{{ crudevent.method }} by <i>{{ crudevent.user.username|default:"unknown" }}</i> on {{ crudevent.datetime }}</p>
-        {% endfor %}
+        <table class="table table-borderless table-sm table-hover">
+            <tbody>
+                {% for crudevent in crudevents %}
+                    <tr>
+                        <td>{{ crudevent.get_event_type_display }}</td>
+                        <td> by </td>
+                        <td><i>{{ crudevent.user.username|default:"unknown" }}</i></td>
+                        <td> on </td>
+                        <td>{{ crudevent.datetime }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
