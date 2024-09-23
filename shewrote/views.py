@@ -10,6 +10,7 @@ from dal import autocomplete
 from django.http import JsonResponse
 from django.utils.html import escape
 from apiconnectors.viafapi import ViafAPI
+from easyaudit.models import CRUDEvent
 
 from collections import OrderedDict
 
@@ -273,6 +274,12 @@ def edit_work(request, work_id):
 
 def editions(request):
     return render(request, 'shewrote/editions.html', {})
+
+
+@login_required
+def list_of_changes(request, content_type_id, object_id):
+    crudevents = CRUDEvent.objects.filter(object_id=object_id, content_type_id=content_type_id)
+    return render(request, 'shewrote/components/list_of_changes.html', {'crudevents': crudevents})
 
 
 class VIAFSuggest(autocomplete.Select2ListView):

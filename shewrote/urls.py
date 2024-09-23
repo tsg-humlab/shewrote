@@ -39,6 +39,9 @@ urlpatterns = [
     # Editions
     path('editions/', views.editions, name='editions'),
 
+    # List of changes
+    path('list_of_changes/<int:content_type_id>/<uuid:object_id>/', views.list_of_changes, name='list_of_changes'),
+
     # VIAF API Persons
     path('person_viaf_suggest', PersonVIAFSuggest.as_view(), name='person_viaf_suggest'),
     # VIAF API Works
