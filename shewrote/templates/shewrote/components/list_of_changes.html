@@ -1,7 +1,8 @@
+{% load language_utils %}
 <div class="modal-dialog modal-dialog-centered">
   <div class="modal-content">
     <div class="modal-header">
-      <h5 class="modal-title text-black fs-3">List of changes</h5>
+      <h5 class="modal-title text-black fs-3">List of record editors and creator</h5>
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body">
@@ -9,7 +10,7 @@
             <tbody>
                 {% for crudevent in crudevents %}
                     <tr>
-                        <td>{{ crudevent.get_event_type_display }}</td>
+                        <td>{{ crudevent.get_event_type_display|past_particle }}</td>
                         <td> by </td>
                         <td><i>{{ crudevent.user.username|default:"unknown" }}</i></td>
                         <td> on </td>

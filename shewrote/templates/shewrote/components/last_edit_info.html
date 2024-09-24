@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load object_info %}
     {% if user.is_authenticated %}
         {% with object.get_last_edit as crudevent %}
@@ -11,12 +12,10 @@
                         hx-trigger="click"
                         data-bs-toggle="modal"
                         data-bs-target="#modal_list_of_changes"
-                        class="btn primary py-0 px-1 mb-1"
+                        class="btn btn-link py-0 px-1 mb-1"
                         title="View the list of changes"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ul" viewBox="0 0 16 16">
-                          <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
-                        </svg>
+                        {% translate 'View full list of record editors' %}
                     </button>
 
                     <div id="modal_list_of_changes"
