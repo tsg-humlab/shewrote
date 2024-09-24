@@ -69,6 +69,7 @@ class Command(BaseCommand):
         }
 
         crud_events = []
+        datetimes = []
         for ww1_change in ww1_changes:
             tempOldId_name = ww1_object_names[ww1_change["object_name"]]
             tempOldId = f'{tempOldId_name}/{ww1_change["object_id"]}{tempOldId_suffix}'
@@ -77,14 +78,22 @@ class Command(BaseCommand):
                     event_type=event_types[ww1_change['changetype']],
                     object_id=object_id,
                     content_type=content_type,
-                    user=sw_users[ww1_change['user_id']],
-                    datetime=make_aware(datetime.fromtimestamp(ww1_change['created_at'] / 1000))
+                    user=sw_users[ww1_change['user_id']]
                 ))
+                ww1_datetime = make_aware(datetime.fromtimestamp(ww1_change['created_at'] / 1000))
+                datetimes.append(ww1_datetime)
             else:
                 print(f'Not found: {tempOldId}')
 
         print(f'Bulk creating {len(crud_events)} CRUDEvents for {", ".join(ww1_object_names.keys())}...')
         CRUDEvent.objects.bulk_create(crud_events, batch_size=10_000)
+
+        # At this point datetime values are equal to datetime.now.
+        # The next bit is to get the correct datetime values in the database.
+        for index, ww1_datetime in enumerate(datetimes):
+            crud_events[index].datetime = ww1_datetime
+        CRUDEvent.objects.bulk_update(crud_events, ['datetime'])
+
         print('Done')
 
     @staticmethod
