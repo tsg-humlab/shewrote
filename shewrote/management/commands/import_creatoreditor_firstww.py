@@ -31,7 +31,7 @@ class Command(BaseCommand):
                         .values_list('id', 'original_data__tempOldId')
                 }
                 self.import_changes(cursor, sw_users, sw_works, ContentType.objects.get_for_model(Work),
-                                    ['receptions', 'works'])
+                                    {'receptions': 'receptions', 'works': 'works'})
 
                 sw_persons = {
                     person[1]: str(person[0]) for person in
@@ -39,20 +39,24 @@ class Command(BaseCommand):
                         .values_list('id', 'original_data__tempOldId')
                 }
                 self.import_changes(cursor, sw_users, sw_persons, ContentType.objects.get_for_model(Person),
-                                    ['authors'])
+                                    {'authors': 'authors'})
+
+                self.import_changes(cursor, sw_users, sw_persons, ContentType.objects.get_for_model(Person),
+                                    {'pseudonyms': 'authors'}, '/pseudonym')
 
     @staticmethod
-    def import_changes(cursor, sw_users, sw_objects, content_type, ww1_object_names):
+    def import_changes(cursor, sw_users, sw_objects, content_type, ww1_object_names, tempOldId_suffix=''):
         """
         Import the change from the first WomenWriters database
         :param cursor: SQLite cursor
         :param sw_users: newly created users
         :param sw_objects: all tempOldId and id data from Work and Person objects
         :param content_type: content type for CRUDEvent
-        :param ww1_object_names: object names for SELECTing change events from first WomenWriters
+        :param ww1_object_names: object names for SELECTing change events from first WomenWriters paired in a dict
+               with the corresponding name in the second WomenWriters 'tempOldId'
         :return: None
         """
-        object_names = ', '.join([f"'{name}'" for name in ww1_object_names])
+        object_names = ', '.join([f"'{name}'" for name in ww1_object_names.keys()])
         ww1_changes = cursor.execute(
             "SELECT object_name, object_id, changetype, user_id, created_at FROM changes "
             f"WHERE object_name in ({object_names})"
@@ -66,7 +70,8 @@ class Command(BaseCommand):
 
         crud_events = []
         for ww1_change in ww1_changes:
-            tempOldId = f'{ww1_change["object_name"]}/{ww1_change["object_id"]}'
+            tempOldId_name = ww1_object_names[ww1_change["object_name"]]
+            tempOldId = f'{tempOldId_name}/{ww1_change["object_id"]}{tempOldId_suffix}'
             if object_id := sw_objects.get(tempOldId, ''):
                 crud_events.append(CRUDEvent(
                     event_type=event_types[ww1_change['changetype']],
@@ -77,7 +82,10 @@ class Command(BaseCommand):
                 ))
             else:
                 print(f'Not found: {tempOldId}')
+
+        print(f'Bulk creating {len(crud_events)} CRUDEvents for {", ".join(ww1_object_names.keys())}...')
         CRUDEvent.objects.bulk_create(crud_events, batch_size=10_000)
+        print('Done')
 
     @staticmethod
     def create_users(cursor):
