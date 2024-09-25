@@ -25,7 +25,9 @@
                 <tr>
                     <td>
                         {{ crudevent.content_type.model|capfirst }}
-                        <a href="/{{ admin_path }}/{{ request.resolver_match.app_name }}/{{ crudevent.content_type.model }}/{{ crudevent.object_id }}"><i>{{ crudevent.object_repr }}</i></a>
+                        <a href="/{{ admin_path }}/{{ request.resolver_match.app_name }}/{{ crudevent.content_type.model }}/{{ crudevent.object_id }}">
+                            <i>{{ crudevent.object_repr|default:"NO REPRESENTATION" }}</i>
+                        </a>
                     </td>
                     <td>was</td>
                     <td>{{ crudevent.get_event_type_display|past_particle|lower }}</td>
