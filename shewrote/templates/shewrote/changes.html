@@ -1,0 +1,43 @@
+{% extends 'shewrote/base.html' %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load language_utils %}
+{% load object_info %}
+
+{% block page_header %}
+    <div class="hstack gap-3 pb-2 mb-2 border-bottom">
+        <h1>Your contributions</h1>
+    </div>
+{% endblock page_header %}
+
+{% block content %}
+
+     <div class="pt-2 hstack gap-3 border-bottom">
+        <div class="pagination me-auto">
+            {% bootstrap_pagination crudevents url=request.get_full_path %}
+        </div>
+        <div class="text-secondary">{% if count %}{{ count }} changes found.{% endif %}</div>
+    </div>
+
+    <table class="table {{ table_classes }}">
+        <tbody>
+            {% for crudevent in crudevents %}
+                <tr>
+                    <td>
+                        {{ crudevent.content_type.model|capfirst }}
+                        <a href="/{{ admin_path }}/{{ request.resolver_match.app_name }}/{{ crudevent.content_type.model }}/{{ crudevent.object_id }}">
+                            <i>{{ crudevent.object_repr|default:"NO REPRESENTATION" }}</i>
+                        </a>
+                    </td>
+                    <td>was</td>
+                    <td>{{ crudevent.get_event_type_display|past_particle|lower }}</td>
+                    <td> on </td>
+                    <td>{{ crudevent.datetime }}</td>
+                </tr>
+                {% empty %}
+                    <tr><td>No changes found</td></tr>
+                {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock content %}

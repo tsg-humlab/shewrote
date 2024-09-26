@@ -194,6 +194,8 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = config('MEDIA_URL', "")
 MEDIA_ROOT = config('MEDIA_ROOT', "")
 
+ADMIN_URL_NAME=config('ADMIN_URL_NAME', 'admin')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

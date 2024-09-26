@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Q, OuterRef, Subquery
-from django.http import JsonResponse
+from django.conf import settings
 from .models import Person, Work, Reception, WorkReception, PersonReception, Collective
 from .forms import PersonForm, ShortPersonForm, WorkForm
 
@@ -280,6 +280,20 @@ def editions(request):
 def list_of_changes(request, content_type_id, object_id):
     crudevents = CRUDEvent.objects.filter(object_id=object_id, content_type_id=content_type_id)
     return render(request, 'shewrote/components/list_of_changes.html', {'crudevents': crudevents})
+
+
+@login_required
+def changes(request):
+    crud_events = CRUDEvent.objects.filter(user=request.user, content_type__app_label="shewrote")\
+                   .order_by('-datetime').prefetch_related('content_type')
+
+    paginator = Paginator(crud_events, 25)
+    page_number = request.GET.get("page")
+    paginated_crud_events = paginator.get_page(page_number)
+    context = {'crudevents': paginated_crud_events, 'count': paginator.count,
+               'admin_path': settings.ADMIN_URL_NAME}
+
+    return render(request, 'shewrote/changes.html', context)
 
 
 class VIAFSuggest(autocomplete.Select2ListView):
