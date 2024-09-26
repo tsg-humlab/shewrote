@@ -287,7 +287,10 @@
                                             <th scope="row" class="w-25">Memberships</th>
                                             <td>
                                                 {% for collective in person.get_collectives %}
-                                                    {{ collective }}{% if not forloop.last %}, {% endif %}
+                                                    <a href="{% url 'shewrote:collective' collective.id %}">
+                                                        {{ collective }}
+                                                    </a>
+                                                    {% if not forloop.last %}, {% endif %}
                                                 {% endfor %}
                                             </td>
                                         </tr>
