@@ -115,4 +115,10 @@
         {% endfor %}
     </ul>
 
+     <div class="pt-2 hstack gap-3 border-bottom">
+        <div class="pagination me-auto">
+            {% bootstrap_pagination persons url=request.get_full_path %}
+        </div>
+    </div>
+
 {% endblock content %}
