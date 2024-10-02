@@ -3,6 +3,8 @@ from django.urls import reverse_lazy
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 from apiconnectors.widgets import ApiSelectWidget
 from django.utils.safestring import SafeString
+from dal import autocomplete
+from easyaudit.models import CRUDEvent
 
 from .models import Person, Place, Education, PersonEducation, PeriodOfResidence, Work
 
@@ -200,3 +202,24 @@ class WorkForm(forms.ModelForm):
             ),
             'notes': forms.Textarea(attrs={'cols': 80}),
         }
+
+
+class ChangesSearchForm(forms.ModelForm):
+    class Meta:
+        model = CRUDEvent
+        fields = ['user']
+        labels = {
+            'user': ''
+        }
+        widgets = {
+            'user': autocomplete.ModelSelect2(url='shewrote:user_autocomplete',
+                                              attrs={'data-theme': 'bootstrap-5',
+                                                     'data-placeholder': "Change user",
+                                                     'onchange': 'this.form.submit();'}),
+        }
+
+    class Media:
+        css = {
+            'screen': ['css/select2-bootstrap-5-theme.min.css'],
+        }
+

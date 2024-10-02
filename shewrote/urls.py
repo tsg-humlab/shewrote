@@ -3,7 +3,6 @@
 from django.urls import path
 
 from . import views
-from shewrote.views import PersonVIAFSuggest, WorkVIAFSuggest
 
 app_name = 'shewrote'
 urlpatterns = [
@@ -42,9 +41,10 @@ urlpatterns = [
     # List of changes
     path('list_of_changes/<int:content_type_id>/<uuid:object_id>/', views.list_of_changes, name='list_of_changes'),
     path('changes/', views.changes, name='changes'),
+    path('user_autocomplete/', views.UserAutocompleteView.as_view(), name='user_autocomplete'),
 
     # VIAF API Persons
-    path('person_viaf_suggest', PersonVIAFSuggest.as_view(), name='person_viaf_suggest'),
+    path('person_viaf_suggest', views.PersonVIAFSuggest.as_view(), name='person_viaf_suggest'),
     # VIAF API Works
-    path('work_viaf_suggest', WorkVIAFSuggest.as_view(), name='work_viaf_suggest'),
+    path('work_viaf_suggest', views.WorkVIAFSuggest.as_view(), name='work_viaf_suggest'),
 ]
