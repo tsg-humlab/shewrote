@@ -177,7 +177,7 @@
                                     <tbody>
                                         <tr>
                                             <th  scope="row" class="w-25">
-                                                Parents
+                                                Mother
                                             </th>
                                             <td>
                                                 {% if person.mother %}
@@ -185,6 +185,13 @@
                                                     {{ person.mother|default:"" }}
                                                 </a>
                                                 {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th  scope="row" class="w-25">
+                                                Father
+                                            </th>
+                                            <td>
                                                 {% if person.father %}
                                                 <a href="{% url 'shewrote:person' person.father.id %}">
                                                     {{ person.father|default:"" }}
