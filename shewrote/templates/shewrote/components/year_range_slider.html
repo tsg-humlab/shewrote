@@ -1,0 +1,25 @@
+
+                <div class="mt-5 mx-4" id="{{ prefix }}_year_slider"></div>
+                <input type="number" name="{{ prefix }}_year_start" id="{{ prefix }}_year_start" min="{{ year_min }}"
+                       max="{{ year_max }}" value="{{ year_start }}" hidden/>
+                <input type="number" name="{{ prefix }}_year_end" id="{{ prefix }}_year_end" min="{{ year_min }}"
+                       max="{{ year_max }}" value="{{ year_end }}" hidden/>
+                <script>
+                    var slider = document.getElementById('{{ prefix }}_year_slider');
+                    var start = document.getElementById('{{ prefix }}_year_start');
+                    var end = document.getElementById('{{ prefix }}_year_end');
+                    noUiSlider.create(slider, {
+                        start: [{{ year_start }}, {{ year_end }}],
+                        step: 1,
+                        connect: true,
+                        range: {'min': {{ year_min }}, 'max': {{ year_max }}},
+                        tooltips: [
+                            {to: function(value) { return Math.trunc(value); } },
+                            {to: function(value) { return Math.trunc(value); } }
+                        ],
+                    });
+                    function setInputs(values) {
+                        [start.value, end.value] = values.map((x) => Math.trunc(x));
+                    }
+                    slider.noUiSlider.on('change', setInputs);
+                </script>

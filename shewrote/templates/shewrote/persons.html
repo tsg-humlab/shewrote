@@ -35,32 +35,10 @@
                     Filter
                 </button>
             </div>
+
             <div class="py-2 vstack gap-3 border-top">
                 Year of birth
-                <div class="mt-5 mx-4" id="birth_year_slider"></div>
-                <input type="number" name="birth_year_start" id="birth_year_start" min="{{ birth_year_min }}"
-                       max="{{ birth_year_max }}" value="{{ birth_year_start }}" hidden/>
-                <input type="number" name="birth_year_end" id="birth_year_end" min="{{ birth_year_min }}"
-                       max="{{ birth_year_max }}" value="{{ birth_year_end }}" hidden/>
-                <script>
-                    var slider = document.getElementById('birth_year_slider');
-                    var start = document.getElementById('birth_year_start');
-                    var end = document.getElementById('birth_year_end');
-                    noUiSlider.create(slider, {
-                        start: [{{ birth_year_start }}, {{ birth_year_end }}],
-                        step: 1,
-                        connect: true,
-                        range: {'min': {{ birth_year_min }}, 'max': {{ birth_year_max }}},
-                        tooltips: [
-                            {to: function(value) { return Math.trunc(value); } },
-                            {to: function(value) { return Math.trunc(value); } }
-                        ],
-                    });
-                    function setInputs(values) {
-                        [start.value, end.value] = values.map((x) => Math.trunc(x));
-                    }
-                    slider.noUiSlider.on('change', setInputs);
-                </script>
+                {% include 'shewrote/components/year_range_slider.html' with prefix='birth' year_start=birth_year_start year_end=birth_year_end year_min=birth_year_min year_max=birth_year_max %}
             </div>
         </form>
     </div>
