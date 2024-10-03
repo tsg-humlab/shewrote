@@ -19,9 +19,9 @@ def date_of_x_text_to_int(text):
     text = re.sub(r'\s*$', '', text)
 
     # Match options
-    if re.match(r'^\d{1,4}$', text):
-        return int(text)
-    if m := re.match(r'.+\-(\d{1,4})$', text):
+    if m := re.match(r'^(\d{4})[^\d]*', text):
+        return int(m[1])
+    if m := re.match(r'.+\-(\d{4})[^\d]*', text):
         return int(m[1])
     if m := re.match(r'^(\d\d)([xX]{2}|\.\.)$', text):
         return int(m[1]) * 100 + 50
