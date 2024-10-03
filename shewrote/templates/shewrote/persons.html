@@ -40,6 +40,11 @@
                 Year of birth
                 {% include 'shewrote/components/year_range_slider.html' with prefix='birth' slider_info=birth_year_slider_info %}
             </div>
+
+            <div class="py-2 vstack gap-3 border-top">
+                Year of death
+                {% include 'shewrote/components/year_range_slider.html' with prefix='death' slider_info=death_year_slider_info %}
+            </div>
         </form>
     </div>
 </div>

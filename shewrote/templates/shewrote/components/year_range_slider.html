@@ -9,25 +9,27 @@
                             autocomplete=off/>
                 </div>
                 <script>
-                    var slider = document.getElementById('{{ prefix }}_year_slider');
-                    var start = document.getElementById('{{ prefix }}_year_start');
-                    var end = document.getElementById('{{ prefix }}_year_end');
+                    (function() {
+                        var slider = document.getElementById('{{ prefix }}_year_slider');
+                        var start = document.getElementById('{{ prefix }}_year_start');
+                        var end = document.getElementById('{{ prefix }}_year_end');
 
-                    noUiSlider.create(slider, {
-                        start: [{{ slider_info.year_start }}, {{ slider_info.year_end }}],
-                        step: 1,
-                        connect: true,
-                        range: {'min': {{ slider_info.year_min }}, 'max': {{ slider_info.year_max }}},
-                        behaviour: 'drag',
-                    });
+                        noUiSlider.create(slider, {
+                            start: [{{ slider_info.year_start }}, {{ slider_info.year_end }}],
+                            step: 1,
+                            connect: true,
+                            range: {'min': {{ slider_info.year_min }}, 'max': {{ slider_info.year_max }}},
+                            behaviour: 'drag',
+                        });
 
-                    function setInputs(values) {
-                        [start.value, end.value] = values.map((x) => Math.trunc(x));
-                    }
+                        function setInputs(values) {
+                            [start.value, end.value] = values.map((x) => Math.trunc(x));
+                        }
 
-                    slider.noUiSlider.on('slide', setInputs);
-                    start.oninput = function() { console.log('foo'); slider.noUiSlider.set([start.value, null]); };
-                    end.oninput = function() { slider.noUiSlider.set([null, end.value]); };
+                        slider.noUiSlider.on('slide', setInputs);
+                        start.oninput = function() { console.log('foo'); slider.noUiSlider.set([start.value, null]); };
+                        end.oninput = function() { slider.noUiSlider.set([null, end.value]); };
 
-                    slider.noUiSlider.set([start.value, end.value]);
+                        slider.noUiSlider.set([start.value, end.value]);
+                    })();
                 </script>
