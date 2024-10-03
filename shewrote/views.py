@@ -20,6 +20,27 @@ def index(request):
     return render(request, 'shewrote/index.html')
 
 
+def get_year_slider_info(request, qs, field_name, search_field_names):
+    year_min = (qs.model.objects.filter(**{field_name+'__isnull': False})
+                      .order_by(field_name).first().normalised_date_of_birth)
+    year_max = (qs.model.objects.filter(**{field_name+'__isnull': False})
+                      .order_by('-'+field_name).first().normalised_date_of_birth)
+
+    year_start = request.GET.get(search_field_names[0], '')
+    if year_start:
+        qs = qs.filter(normalised_date_of_birth__gte=year_start)
+    else:
+        year_start = year_min
+
+    year_end = request.GET.get(search_field_names[1], '')
+    if year_end:
+        qs = qs.filter(normalised_date_of_birth__lte=year_end)
+    else:
+        year_end = year_max
+
+    return qs, {'year_min': year_min, 'year_max': year_max, 'year_start': year_start, 'year_end': year_end}
+
+
 def persons(request):
     """Show all persons."""
     persons = Person.objects.order_by('short_name')
@@ -30,22 +51,8 @@ def persons(request):
             | Q(alternativename__alternative_name__icontains=short_name_filter)
         ).distinct()
 
-    birth_year_min = (Person.objects.filter(normalised_date_of_birth__isnull=False)
-                      .order_by('normalised_date_of_birth').first().normalised_date_of_birth)
-    birth_year_max = (Person.objects.filter(normalised_date_of_birth__isnull=False)
-                      .order_by('-normalised_date_of_birth').first().normalised_date_of_birth)
-
-    birth_year_start = request.GET.get("birth_year_start", '')
-    if birth_year_start:
-        persons = persons.filter(normalised_date_of_birth__gte=birth_year_start)
-    else:
-        birth_year_start = birth_year_min
-
-    birth_year_end = request.GET.get("birth_year_end", '')
-    if birth_year_end:
-        persons = persons.filter(normalised_date_of_birth__lte=birth_year_end)
-    else:
-        birth_year_end = birth_year_max
+    persons, birth_year_slider_info = get_year_slider_info(request, persons, 'normalised_date_of_birth',
+                                                           ['birth_year_start', 'birth_year_end'])
 
     receptions = Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False)\
         .exclude(image='').values('image')
@@ -57,8 +64,7 @@ def persons(request):
     page_number = request.GET.get("page")
     paginated_persons = paginator.get_page(page_number)
     context = {'persons': paginated_persons, 'count': paginator.count, 'short_name': short_name_filter,
-               'birth_year_start': birth_year_start, 'birth_year_end': birth_year_end,
-               'birth_year_min': birth_year_min, 'birth_year_max': birth_year_max}
+               'birth_year_slider_info': birth_year_slider_info}
     return render(request, 'shewrote/persons.html', context)
 
 
