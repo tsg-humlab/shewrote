@@ -30,6 +30,23 @@ def persons(request):
             | Q(alternativename__alternative_name__icontains=short_name_filter)
         ).distinct()
 
+    birth_year_min = (Person.objects.filter(normalised_date_of_birth__isnull=False)
+                      .order_by('normalised_date_of_birth').first().normalised_date_of_birth)
+    birth_year_max = (Person.objects.filter(normalised_date_of_birth__isnull=False)
+                      .order_by('-normalised_date_of_birth').first().normalised_date_of_birth)
+
+    birth_year_start = request.GET.get("birth_year_start", '')
+    if birth_year_start:
+        persons = persons.filter(normalised_date_of_birth__gte=birth_year_start)
+    else:
+        birth_year_start = birth_year_min
+
+    birth_year_end = request.GET.get("birth_year_end", '')
+    if birth_year_end:
+        persons = persons.filter(normalised_date_of_birth__lte=birth_year_end)
+    else:
+        birth_year_end = birth_year_max
+
     receptions = Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False)\
         .exclude(image='').values('image')
     persons = persons.annotate(image=Subquery(receptions[:1]))
@@ -39,7 +56,9 @@ def persons(request):
     paginator = Paginator(persons, 25)
     page_number = request.GET.get("page")
     paginated_persons = paginator.get_page(page_number)
-    context = {'persons': paginated_persons, 'count': paginator.count, 'short_name': short_name_filter}
+    context = {'persons': paginated_persons, 'count': paginator.count, 'short_name': short_name_filter,
+               'birth_year_start': birth_year_start, 'birth_year_end': birth_year_end,
+               'birth_year_min': birth_year_min, 'birth_year_max': birth_year_max}
     return render(request, 'shewrote/persons.html', context)
 
 
