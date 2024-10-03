@@ -7,9 +7,11 @@ from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
+from computedfields.models import ComputedFieldsModel, computed
 
 from easyaudit.models import CRUDEvent
 
+from shewrote.tools import date_of_x_text_to_int
 
 # # # START Helper classes and functions # # #
 
@@ -89,7 +91,7 @@ class Place(models.Model):
         return self.name
 
 
-class Person(EasyAuditMixin, models.Model):
+class Person(EasyAuditMixin, ComputedFieldsModel):
     """Represents a person."""
 
     class GenderChoices(models.TextChoices):
@@ -123,6 +125,13 @@ class Person(EasyAuditMixin, models.Model):
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
     place_of_residence_notes = models.TextField(blank=True)
+
+    @computed(models.SmallIntegerField(null=True), depends=[('self', ['date_of_birth'])])
+    def normalised_date_of_birth(self):
+        return date_of_x_text_to_int(self.date_of_birth)
+    @computed(models.SmallIntegerField(null=True), depends=[('self', ['date_of_death'])])
+    def normalised_date_of_death(self):
+        return date_of_x_text_to_int(self.date_of_death)
 
     def __str__(self):
         """Return the name of the Person."""
