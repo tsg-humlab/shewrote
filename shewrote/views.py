@@ -63,7 +63,7 @@ def persons(request):
 
     persons = persons.prefetch_related('alternativename_set')
 
-    paginator = Paginator(persons.values('id'), 25)
+    paginator = Paginator(persons, 25)
     page_number = request.GET.get("page")
     paginated_persons = paginator.get_page(page_number)
     context = {'persons': paginated_persons, 'count': paginator.count, 'short_name': short_name_filter,
