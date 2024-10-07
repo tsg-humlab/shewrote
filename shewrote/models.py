@@ -133,6 +133,12 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
     def normalised_date_of_death(self):
         return date_of_x_text_to_int(self.date_of_death)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["normalised_date_of_birth"]),
+            models.Index(fields=["normalised_date_of_death"])
+        ]
+
     def __str__(self):
         """Return the name of the Person."""
         return self.short_name
