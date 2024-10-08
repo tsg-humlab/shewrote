@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F, Q, OuterRef, Subquery
 from django.conf import settings
 from .models import Person, Work, Reception, WorkReception, PersonReception, Collective
-from .forms import PersonForm, ShortPersonForm, WorkForm
+from .forms import PersonForm, ShortPersonForm, WorkForm, ChangesSearchForm
 
 from dal import autocomplete
 from django.http import JsonResponse
@@ -284,16 +285,35 @@ def list_of_changes(request, content_type_id, object_id):
 
 @login_required
 def changes(request):
-    crud_events = CRUDEvent.objects.filter(user=request.user, content_type__app_label="shewrote")\
+    form = ChangesSearchForm(data=request.GET)
+    user = form.cleaned_data['user'] if form.is_valid() and form.cleaned_data['user'] else request.user
+
+    crud_events = CRUDEvent.objects.filter(user=user, content_type__app_label="shewrote")\
                    .order_by('-datetime').prefetch_related('content_type')
 
     paginator = Paginator(crud_events, 25)
     page_number = request.GET.get("page")
     paginated_crud_events = paginator.get_page(page_number)
     context = {'crudevents': paginated_crud_events, 'count': paginator.count,
-               'admin_path': settings.ADMIN_URL_NAME}
+               'selected_user': user,
+               'admin_path': settings.ADMIN_URL_NAME,
+               'form': form}
 
     return render(request, 'shewrote/changes.html', context)
+
+
+from dal import autocomplete
+from django.contrib.auth import get_user_model
+
+
+class UserAutocompleteView(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        qs = get_user_model().objects.all()
+
+        if self.q:
+            qs = qs.filter(username__icontains=self.q)
+
+        return qs
 
 
 class VIAFSuggest(autocomplete.Select2ListView):
