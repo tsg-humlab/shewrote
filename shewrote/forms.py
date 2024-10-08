@@ -1,6 +1,6 @@
 from django import forms
 from django.urls import reverse_lazy
-from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
+from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget, Select2MultipleWidget
 from apiconnectors.widgets import ApiSelectWidget
 from django.utils.safestring import SafeString
 
@@ -158,6 +158,24 @@ class PersonForm(forms.ModelForm):
             self.save_periodsofresidence()
 
         return self.instance
+
+
+class PersonSearchForm(forms.Form):
+    sex = forms.MultipleChoiceField(widget=Select2MultipleWidget(choices=Person.GenderChoices.choices),
+                                    choices=Person.GenderChoices.choices,
+                                    required=False)
+    place_of_birth = forms.ModelMultipleChoiceField(widget=ModelSelect2MultipleWidget(
+        model=Place, search_fields=['name__icontains'],
+        attrs={'data-placeholder': "Select a place"}),
+        queryset=Place.objects.all(),
+        required=False
+    )
+    place_of_death = forms.ModelMultipleChoiceField(widget=ModelSelect2MultipleWidget(
+        model=Place, search_fields=['name__icontains'],
+        attrs={'data-placeholder': "Select a place"}),
+        queryset=Place.objects.all(),
+        required=False
+    )
 
 
 class ShortPersonForm(forms.ModelForm):

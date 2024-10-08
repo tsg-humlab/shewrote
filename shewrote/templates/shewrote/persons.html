@@ -3,6 +3,11 @@
 {% load django_bootstrap5 %}
 
 {% block extra_head %}
+    <link href="{% static 'admin/css/vendor/select2/select2.css' %}" media="screen" rel="stylesheet">
+    <script></script>
+    {{ search_form.media.css }}
+    <script></script>
+
     <link rel="stylesheet" href="{% static 'css/nouislider.min.css' %}">
     <script src="{% static 'js/nouislider.min.js' %}"></script>
 {% endblock extra_head %}
@@ -37,16 +42,33 @@
                        size=30 placeholder="Enter (part of) a name" class="form-control form-control-sm"/>
             </div>
 
-            <div class="py-2 vstack gap-3 border-top">
+            <div class="py-2 vstack gap-1 border-top">
+                <strong>Gender</strong>
+                {{ search_form.sex }}
+            </div>
+
+            <div class="py-2 vstack gap-2 border-top">
                 <strong>Year of birth</strong>
                 {% include 'shewrote/components/year_range_slider.html' with prefix='birth' slider_info=birth_year_slider_info %}
             </div>
 
-            <div class="py-2 vstack gap-3 border-top">
+            <div class="py-2 vstack gap-2">
                 <strong>Year of death</strong>
                 {% include 'shewrote/components/year_range_slider.html' with prefix='death' slider_info=death_year_slider_info %}
             </div>
+
+            <div class="py-2 vstack gap-1 border-top">
+                <strong>Place of birth</strong>
+                {{ search_form.place_of_birth }}
+            </div>
+
+            <div class="py-2 vstack gap-1">
+                <strong>Place of death</strong>
+                {{ search_form.place_of_death }}
+            </div>
         </form>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        {{ search_form.media.js }}
     </div>
 </div>
 <div class="col-md-8">

@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import F, Q, OuterRef, Subquery
 from django.conf import settings
 from .models import Person, Work, Reception, WorkReception, PersonReception, Collective
-from .forms import PersonForm, ShortPersonForm, WorkForm
+from .forms import PersonForm, PersonSearchForm, ShortPersonForm, WorkForm
 
 from dal import autocomplete
 from django.http import JsonResponse
@@ -51,6 +51,11 @@ def persons(request):
             | Q(alternativename__alternative_name__icontains=short_name_filter)
         ).distinct()
 
+    search_form = PersonSearchForm(request.GET)
+    if search_form.is_valid():
+        if sex_filter := search_form.cleaned_data['sex']:
+            persons = persons.filter(sex__in=sex_filter)
+
     persons, birth_year_slider_info = get_year_slider_info(request, persons, 'normalised_date_of_birth',
                                                            ['birth_year_start', 'birth_year_end'])
 
@@ -68,7 +73,8 @@ def persons(request):
     paginated_persons = paginator.get_page(page_number)
     context = {'persons': paginated_persons, 'count': paginator.count, 'short_name': short_name_filter,
                'birth_year_slider_info': birth_year_slider_info,
-               'death_year_slider_info': death_year_slider_info}
+               'death_year_slider_info': death_year_slider_info,
+               'search_form': search_form}
     return render(request, 'shewrote/persons.html', context)
 
 
