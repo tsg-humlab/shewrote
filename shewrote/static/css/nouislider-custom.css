@@ -1,0 +1,8 @@
+.noUi-connect {
+    background: var(--primary);
+}
+.noUi-handle {
+    border-radius: 0;
+}
+.noUi-target {
+    border-radius: 0;
