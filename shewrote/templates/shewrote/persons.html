@@ -49,12 +49,24 @@
             </div>
 
             <div class="py-2 vstack gap-2 border-top">
-                <strong>Year of birth</strong>
+                <div>
+                    <input type="checkbox" name="normalised_date_of_birth_checkbox"
+                           id="normalised_date_of_birth_checkbox" class="form-check-input ms-0 position-relative"
+                           {% if birth_year_slider_info.is_checked %}checked{% endif %}
+                    />
+                    <strong>Year of birth</strong>
+                </div>
                 {% include 'shewrote/components/year_range_slider.html' with prefix='birth' slider_info=birth_year_slider_info %}
             </div>
 
             <div class="py-2 vstack gap-2">
-                <strong>Year of death</strong>
+                <div>
+                    <input type="checkbox" name="normalised_date_of_death_checkbox"
+                           id="normalised_date_of_death_checkbox" class="form-check-input ms-0 position-relative"
+                           {% if death_year_slider_info.is_checked %}checked{% endif %}
+                    />
+                    <strong>Year of death</strong>
+                </div>
                 {% include 'shewrote/components/year_range_slider.html' with prefix='death' slider_info=death_year_slider_info %}
             </div>
 
@@ -70,6 +82,51 @@
         </form>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         {{ search_form.media.js }}
+        <script>
+            (function() {
+                getSliderElements = function(prefix) {
+                    return [
+                        document.getElementById(prefix + "_year_slider"),
+                        document.getElementById(prefix + "_year_start"),
+                        document.getElementById(prefix + "_year_end")
+                    ];
+                };
+
+                enableSlider = function(prefix) {
+                    const [slider, start_input, end_input] = getSliderElements(prefix);
+                    slider.noUiSlider.enable();
+                    start_input.disabled = false;
+                    end_input.disabled = false;
+                };
+
+                disableSlider = function(prefix) {
+                    const [slider, start_input, end_input] = getSliderElements(prefix);
+                    slider.noUiSlider.disable();
+                    start_input.disabled = true;
+                    end_input.disabled = true;
+                };
+
+                setSliderVisibility = function(checkbox, prefix) {
+                    if (checkbox.checked == true) {
+                        enableSlider(prefix);
+                    } else {
+                        disableSlider(prefix);
+                    }
+                };
+
+                addChangeListener = function(checkbox, prefix) {
+                    checkbox.addEventListener('change', function() {
+                        setSliderVisibility(checkbox, prefix);
+                    });
+                };
+
+                ['birth', 'death'].forEach(function(prefix) {
+                    checkbox = document.querySelector("#normalised_date_of_"+prefix+"_checkbox");
+                    addChangeListener(checkbox, prefix);
+                    setSliderVisibility(checkbox, prefix);
+                });
+            })();
+        </script>
     </div>
 </div>
 <div class="col-md-8">

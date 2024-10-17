@@ -26,19 +26,18 @@ def get_year_slider_info(request, qs, field_name, search_field_names):
     year_max = (qs.model.objects.filter(**{field_name+'__isnull': False})
                       .order_by('-'+field_name).first().normalised_date_of_birth)
 
-    year_start = request.GET.get(search_field_names[0], '')
-    if year_start:
-        qs = qs.filter(normalised_date_of_birth__gte=year_start)
-    else:
-        year_start = year_min
+    is_checked = request.GET.get(field_name+'_checkbox', 'off') == 'on'
 
-    year_end = request.GET.get(search_field_names[1], '')
-    if year_end:
-        qs = qs.filter(normalised_date_of_birth__lte=year_end)
-    else:
-        year_end = year_max
+    year_start = request.GET.get(search_field_names[0], '') or year_min
+    if is_checked:
+        qs = qs.filter(**{field_name+'__gte': year_start})
 
-    return qs, {'year_min': year_min, 'year_max': year_max, 'year_start': year_start, 'year_end': year_end}
+    year_end = request.GET.get(search_field_names[1], '') or year_max
+    if is_checked:
+        qs = qs.filter(**{field_name+'__lte': year_end})
+
+    return qs, {'year_min': year_min, 'year_max': year_max, 'year_start': year_start, 'year_end': year_end,
+                'is_checked': is_checked}
 
 
 def persons(request):
