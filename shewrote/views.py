@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from django.db.models import F, Q, OuterRef, Subquery
+from django.db.models import F, Q, OuterRef, Subquery, QuerySet
 from django.conf import settings
 from .models import Person, Work, Reception, WorkReception, PersonReception, Collective
 from .forms import PersonForm, PersonSearchForm, ShortPersonForm, WorkForm
@@ -40,6 +40,22 @@ def get_year_slider_info(request, qs, field_name, search_field_names):
                 'is_checked': is_checked}
 
 
+def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearchForm) -> QuerySet[Person]:
+    """
+    Filter Person objects using a valid instance of PersonSearchForm
+    :param persons: a QuerySet of Persons to filter
+    :param search_form: a valid instance of PersonSearchForm
+    :return: a QuerySet of Person
+    """
+    if sex_filter := search_form.cleaned_data['sex']:
+        persons = persons.filter(sex__in=sex_filter)
+    if place_of_birth_filter := search_form.cleaned_data['place_of_birth']:
+        persons = persons.filter(place_of_birth__in=place_of_birth_filter)
+    if place_of_death_filter := search_form.cleaned_data['place_of_death']:
+        persons = persons.filter(place_of_death__in=place_of_death_filter)
+    return persons
+
+
 def persons(request):
     """Show all persons."""
     persons = Person.objects.order_by('short_name')
@@ -52,8 +68,7 @@ def persons(request):
 
     search_form = PersonSearchForm(request.GET)
     if search_form.is_valid():
-        if sex_filter := search_form.cleaned_data['sex']:
-            persons = persons.filter(sex__in=sex_filter)
+        persons = filter_persons_with_form(persons, search_form)
 
     persons, birth_year_slider_info = get_year_slider_info(request, persons, 'normalised_date_of_birth',
                                                            ['birth_year_start', 'birth_year_end'])
@@ -65,7 +80,7 @@ def persons(request):
         .exclude(image='').values('image')
     persons = persons.annotate(image=Subquery(receptions[:1]))
 
-    persons = persons.prefetch_related('alternativename_set')
+    persons = persons.prefetch_related('alternativename_set', 'place_of_birth', 'place_of_death')
 
     paginator = Paginator(persons, 25)
     page_number = request.GET.get("page")
