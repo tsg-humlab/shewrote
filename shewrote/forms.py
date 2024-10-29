@@ -161,18 +161,20 @@ class PersonForm(forms.ModelForm):
 
 
 class PersonSearchForm(forms.Form):
-    sex = forms.MultipleChoiceField(widget=Select2MultipleWidget(choices=Person.GenderChoices.choices),
+    sex = forms.MultipleChoiceField(widget=Select2MultipleWidget(choices=Person.GenderChoices.choices,
+                                                                 attrs={'data-placeholder': "Select one or more genders",
+                                                                        'style': "width: 100%"}),
                                     choices=Person.GenderChoices.choices,
                                     required=False)
     place_of_birth = forms.ModelMultipleChoiceField(widget=ModelSelect2MultipleWidget(
         model=Place, search_fields=['name__icontains'],
-        attrs={'data-placeholder': "Select a place"}),
+        attrs={'data-placeholder': "Select one or more places",  'style': "width: 100%"}),
         queryset=Place.objects.all(),
         required=False
     )
     place_of_death = forms.ModelMultipleChoiceField(widget=ModelSelect2MultipleWidget(
         model=Place, search_fields=['name__icontains'],
-        attrs={'data-placeholder': "Select a place"}),
+        attrs={'data-placeholder': "Select one or more places",  'style': "width: 100%"}),
         queryset=Place.objects.all(),
         required=False
     )
