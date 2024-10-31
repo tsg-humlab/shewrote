@@ -73,11 +73,13 @@
             <div class="py-2 vstack gap-1 border-top">
                 <strong>Country/place of birth</strong>
                 {{ search_form.country_or_place_of_birth }}
+                <small class="text-danger">{{ search_form.country_or_place_of_birth.errors }}</small>
             </div>
 
             <div class="py-2 vstack gap-1">
                 <strong>Country/place of death</strong>
                 {{ search_form.country_or_place_of_death }}
+                <small class="text-danger">{{ search_form.country_or_place_of_death.errors }}</small>
             </div>
         </form>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

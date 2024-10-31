@@ -7,6 +7,8 @@ from django_select2.forms import (ModelSelect2Widget, ModelSelect2MultipleWidget
 from apiconnectors.widgets import ApiSelectWidget
 from django.utils.safestring import SafeString
 
+import functools
+
 from .models import Person, Place, Education, PersonEducation, PeriodOfResidence, Work
 
 
@@ -167,17 +169,27 @@ class CountryOrPlaceField(forms.MultipleChoiceField):
     def to_python(self, value):
         objects = []
         for country_or_place in value:
-            model_name, pk = country_or_place.split('|', 1)
-            if model_name not in ['country', 'place']:
-                raise ValidationError("Invalid model name: %(value)s", code="invalid",
-                                      params={"value": f"{model_name} with id {pk}"})
-            model = apps.get_model('shewrote', model_name.capitalize())
-            try:
-                objects.append(model.objects.get(pk=pk))
-            except ObjectDoesNotExist:
-                raise ValidationError("Invalid id: %(value)s", code="invalid",
-                                      params={"value": f"{model.__name__} with id {pk}"})
+            obj = self.get_country_or_place_instance(country_or_place)
+            objects.append(obj)
         return objects
+
+    @staticmethod
+    @functools.lru_cache
+    def get_country_or_place_instance(country_or_place):
+        if '|' not in country_or_place:
+            raise ValidationError("Invalid value: %(value)s", code="invalid",
+                                  params={"value": f'{country_or_place}'})
+        model_name, pk = country_or_place.split('|', 1)
+        if model_name not in ['country', 'place']:
+            raise ValidationError("Invalid model name: %(value)s", code="invalid",
+                                  params={"value": f"{model_name} with id {pk}"})
+        model = apps.get_model('shewrote', model_name.capitalize())
+        try:
+            obj = model.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            raise ValidationError("Invalid id: %(value)s", code="invalid",
+                                  params={"value": f"{model.__name__} with id {pk}"})
+        return obj
 
     def validate(self, value):
         # Validation is done in method 'to_python'
@@ -209,16 +221,19 @@ class PersonSearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        country_or_place_of_birth = self.fields['country_or_place_of_birth']
-        country_or_place_of_birth.choices = [
-            (f'{obj.__class__.__name__.lower()}|{obj.pk}', f'{obj} ({obj.__class__.__name__.lower()})')
-            for obj in country_or_place_of_birth.to_python(self.data.getlist('country_or_place_of_birth'))
-        ]
-        country_or_place_of_death = self.fields['country_or_place_of_death']
-        country_or_place_of_death.choices = [
-            (f'{obj.__class__.__name__.lower()}|{obj.pk}', f'{obj} ({obj.__class__.__name__.lower()})')
-            for obj in country_or_place_of_death.to_python(self.data.getlist('country_or_place_of_death'))
-        ]
+
+        for field_name in ['country_or_place_of_birth', 'country_or_place_of_death']:
+            field = self.fields[field_name]
+            field.choices = []
+            for country_or_place_string in self.data.getlist(field_name):
+                try:
+                    obj = CountryOrPlaceField.get_country_or_place_instance(country_or_place_string)
+                except ValidationError as e:
+                    # Errors are handled in an is_valid() call
+                    pass
+                else:
+                    field.choices.append((f'{obj.__class__.__name__.lower()}|{obj.pk}',
+                                          f'{obj} ({obj.__class__.__name__.lower()})'))
 
 
 class ShortPersonForm(forms.ModelForm):
