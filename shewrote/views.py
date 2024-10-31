@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Q, OuterRef, Subquery, QuerySet
 from django.conf import settings
-from .models import Person, Work, Reception, WorkReception, PersonReception, Collective
+from .models import Person, Work, Reception, WorkReception, PersonReception, Collective, Country, Place
 from .forms import PersonForm, PersonSearchForm, ShortPersonForm, WorkForm
 
 from dal import autocomplete
@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from django.utils.html import escape
 from apiconnectors.viafapi import ViafAPI
 from easyaudit.models import CRUDEvent
+from django_select2.views import AutoResponseView
 
 from collections import OrderedDict
 
@@ -40,6 +41,37 @@ def get_year_slider_info(request, qs, field_name, search_field_names):
                 'is_checked': is_checked}
 
 
+class CountryAndPlaceAutocompleteView(AutoResponseView):
+    page_size = 10
+
+    def get(self, request, *args, **kwargs):
+        term = request.GET.get('term', '')
+        page = int(request.GET.get('page', 1))
+        begin = (page - 1) * self.page_size / 2
+        end = page * self.page_size / 2
+
+        countries = ('country', Country.objects.filter(modern_country__icontains=term).distinct()
+                     .order_by('modern_country')[begin:end])
+        places = ('place', Place.objects.filter(name__icontains=term).distinct()
+                     .order_by('name')[begin:end])
+
+        results: list = []
+        for name, qs in [countries, places]:
+            results.extend([
+                {'id': f"{name}|{obj.pk}", 'text': f"{obj} ({name})" }
+                for obj in qs
+            ])
+
+        more = True
+        if countries[1].count() != self.page_size/2 and places[1].count() != self.page_size/2:
+            more = False
+
+        return JsonResponse({
+            'results': results,
+            'more': more
+        })
+
+
 def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearchForm) -> QuerySet[Person]:
     """
     Filter Person objects using a valid instance of PersonSearchForm
@@ -49,10 +81,17 @@ def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearc
     """
     if sex_filter := search_form.cleaned_data['sex']:
         persons = persons.filter(sex__in=sex_filter)
-    if place_of_birth_filter := search_form.cleaned_data['place_of_birth']:
-        persons = persons.filter(place_of_birth__in=place_of_birth_filter)
-    if place_of_death_filter := search_form.cleaned_data['place_of_death']:
-        persons = persons.filter(place_of_death__in=place_of_death_filter)
+
+    if country_or_place_of_birth_filter := search_form.cleaned_data['country_or_place_of_birth']:
+        countries = [obj for obj in country_or_place_of_birth_filter if isinstance(obj, Country)]
+        places = [obj for obj in country_or_place_of_birth_filter if isinstance(obj, Place)]
+        persons = persons.filter(Q(place_of_birth__in=places) | Q(place_of_birth__modern_country__in=countries))
+
+    if country_or_place_of_death_filter := search_form.cleaned_data['country_or_place_of_death']:
+        countries = [obj for obj in country_or_place_of_death_filter if isinstance(obj, Country)]
+        places = [obj for obj in country_or_place_of_death_filter if isinstance(obj, Place)]
+        persons = persons.filter(Q(place_of_death__in=places) | Q(place_of_death__modern_country__in=countries))
+        
     return persons
 
 

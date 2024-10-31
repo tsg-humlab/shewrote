@@ -1,6 +1,9 @@
 from django import forms
 from django.urls import reverse_lazy
-from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget, Select2MultipleWidget
+from django.apps import apps
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django_select2.forms import (ModelSelect2Widget, ModelSelect2MultipleWidget, Select2MultipleWidget,
+                                  HeavySelect2MultipleWidget)
 from apiconnectors.widgets import ApiSelectWidget
 from django.utils.safestring import SafeString
 
@@ -160,24 +163,62 @@ class PersonForm(forms.ModelForm):
         return self.instance
 
 
+class CountryOrPlaceField(forms.MultipleChoiceField):
+    def to_python(self, value):
+        objects = []
+        for country_or_place in value:
+            model_name, pk = country_or_place.split('|', 1)
+            if model_name not in ['country', 'place']:
+                raise ValidationError("Invalid model name: %(value)s", code="invalid",
+                                      params={"value": f"{model_name} with id {pk}"})
+            model = apps.get_model('shewrote', model_name.capitalize())
+            try:
+                objects.append(model.objects.get(pk=pk))
+            except ObjectDoesNotExist:
+                raise ValidationError("Invalid id: %(value)s", code="invalid",
+                                      params={"value": f"{model.__name__} with id {pk}"})
+        return objects
+
+    def validate(self, value):
+        # Validation is done in method 'to_python'
+        pass
+
+
 class PersonSearchForm(forms.Form):
     sex = forms.MultipleChoiceField(widget=Select2MultipleWidget(choices=Person.GenderChoices.choices,
                                                                  attrs={'data-placeholder': "Select one or more genders",
                                                                         'style': "width: 100%"}),
                                     choices=Person.GenderChoices.choices,
                                     required=False)
-    place_of_birth = forms.ModelMultipleChoiceField(widget=ModelSelect2MultipleWidget(
-        model=Place, search_fields=['name__icontains'],
-        attrs={'data-placeholder': "Select one or more places",  'style': "width: 100%"}),
-        queryset=Place.objects.all(),
+
+    country_or_place_of_birth = CountryOrPlaceField(
+        widget=HeavySelect2MultipleWidget(
+            attrs={'data-placeholder': "Select multiple"},
+            data_view='shewrote:countryplaceautoresponse'
+        ),
         required=False
     )
-    place_of_death = forms.ModelMultipleChoiceField(widget=ModelSelect2MultipleWidget(
-        model=Place, search_fields=['name__icontains'],
-        attrs={'data-placeholder': "Select one or more places",  'style': "width: 100%"}),
-        queryset=Place.objects.all(),
+
+    country_or_place_of_death = CountryOrPlaceField(
+        widget=HeavySelect2MultipleWidget(
+            attrs={'data-placeholder': "Select multiple"},
+            data_view='shewrote:countryplaceautoresponse'
+        ),
         required=False
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        country_or_place_of_birth = self.fields['country_or_place_of_birth']
+        country_or_place_of_birth.choices = [
+            (f'{obj.__class__.__name__.lower()}|{obj.pk}', f'{obj} ({obj.__class__.__name__.lower()})')
+            for obj in country_or_place_of_birth.to_python(self.data.getlist('country_or_place_of_birth'))
+        ]
+        country_or_place_of_death = self.fields['country_or_place_of_death']
+        country_or_place_of_death.choices = [
+            (f'{obj.__class__.__name__.lower()}|{obj.pk}', f'{obj} ({obj.__class__.__name__.lower()})')
+            for obj in country_or_place_of_death.to_python(self.data.getlist('country_or_place_of_death'))
+        ]
 
 
 class ShortPersonForm(forms.ModelForm):

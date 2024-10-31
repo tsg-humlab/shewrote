@@ -3,7 +3,7 @@
 from django.urls import path
 
 from . import views
-from shewrote.views import PersonVIAFSuggest, WorkVIAFSuggest
+from shewrote.views import PersonVIAFSuggest, WorkVIAFSuggest, CountryAndPlaceAutocompleteView
 
 app_name = 'shewrote'
 urlpatterns = [
@@ -38,6 +38,9 @@ urlpatterns = [
 
     # Editions
     path('editions/', views.editions, name='editions'),
+
+    # AutoResponse
+    path(r'countryplaceautoresponse/', CountryAndPlaceAutocompleteView.as_view(), name='countryplaceautoresponse'),
 
     # List of changes
     path('list_of_changes/<int:content_type_id>/<uuid:object_id>/', views.list_of_changes, name='list_of_changes'),
