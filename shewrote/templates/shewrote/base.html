@@ -11,12 +11,13 @@
     {% load django_bootstrap5 %}
     <script src="{% static 'js/htmx.js' %}" defer></script>
     {% bootstrap_css %}
-    <link rel="stylesheet" href="{% static 'css/bootstrap_ru.css' %}">
     <link href='https://fonts.googleapis.com/css?family=Open Sans' rel='stylesheet'>
     {% bootstrap_javascript %}
 
     {% block extra_head %}{% endblock extra_head %}
 
+    {% block extrahead %}{% endblock extrahead %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap_ru.css' %}">
     <style>
         body {
             font-family: 'Open Sans';
@@ -67,7 +68,6 @@
             border-radius: 0;
         }
     </style>
-    {% block extrahead %}{% endblock extrahead %}
 </head>
 <body>
     <nav class="navbar navbar-expand-md mb-4 border">
@@ -118,10 +118,10 @@
     </nav>
 
     <main class="container">
-        <div>
+        <div class="row">
             {% block page_header %}{% endblock page_header %}
         </div>
-        <div>
+        <div class="row">
             {% block content %}{% endblock content %}
        </div>
     </main>

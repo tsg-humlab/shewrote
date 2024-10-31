@@ -2,8 +2,19 @@
 {% load static %}
 {% load django_bootstrap5 %}
 
+{% block extra_head %}
+    <link href="{% static 'admin/css/vendor/select2/select2.css' %}" media="screen" rel="stylesheet">
+    <script></script>
+    {{ search_form.media.css }}
+    <script></script>
+
+    <link rel="stylesheet" href="{% static 'css/nouislider.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nouislider-custom.css' %}">
+    <script src="{% static 'js/nouislider.min.js' %}"></script>
+{% endblock extra_head %}
+
 {% block page_header %}
-    <div class="hstack gap-3 pb-2 mb-2 border-bottom">
+    <div class="col hstack gap-3 pb-2 mb-2 border-bottom">
         <h1>Persons</h1>
             {% if user.is_authenticated %}
                 <a class="btn btn-primary btn-sm mt-1 mb-1 ms-auto text-nowrap" href="{% url 'shewrote:new_person' %}">
@@ -17,18 +28,110 @@
 {% endblock page_header %}
 
 {% block content %}
-    <form action="" method="get">
-        <div class="hstack gap-3">
-            <input type="text" id="short_name" name="short_name" value="{{ short_name }}"
-                   size=30 placeholder="Enter (part of) a short name or alternative name" class="form-control form-control-sm"/>
-            <button type="submit" class="btn btn-secondary btn-sm mt-1 mb-1 text-nowrap">
+<div class="col-md-4">
+    <div>
+        <form action="" method="get">
+            <button type="submit" class="btn btn-secondary btn-sm my-1 text-nowrap w-100">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
                   <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
                 </svg>
-                Filter
+                Apply filters
             </button>
-        </div>
-    </form>
+            <div class="py-2 vstack gap-1">
+                <strong>Name</strong>
+                <input type="text" id="short_name" name="short_name" value="{{ short_name }}"
+                       size=30 placeholder="Enter (part of) a name" class="form-control form-control-sm"/>
+            </div>
+
+            <div class="py-2 vstack gap-1 border-top">
+                <strong>Gender</strong>
+                {{ search_form.sex }}
+            </div>
+
+            <div class="py-2 vstack gap-2 border-top">
+                <div>
+                    <input type="checkbox" name="normalised_date_of_birth_checkbox"
+                           id="normalised_date_of_birth_checkbox" class="form-check-input ms-0 position-relative"
+                           {% if birth_year_slider_info.is_checked %}checked{% endif %}
+                    />
+                    <strong>Year of birth</strong>
+                </div>
+                {% include 'shewrote/components/year_range_slider.html' with prefix='birth' slider_info=birth_year_slider_info %}
+            </div>
+
+            <div class="py-2 vstack gap-2">
+                <div>
+                    <input type="checkbox" name="normalised_date_of_death_checkbox"
+                           id="normalised_date_of_death_checkbox" class="form-check-input ms-0 position-relative"
+                           {% if death_year_slider_info.is_checked %}checked{% endif %}
+                    />
+                    <strong>Year of death</strong>
+                </div>
+                {% include 'shewrote/components/year_range_slider.html' with prefix='death' slider_info=death_year_slider_info %}
+            </div>
+
+            <div class="py-2 vstack gap-1 border-top">
+                <strong>Country/place of birth</strong>
+                {{ search_form.country_or_place_of_birth }}
+                <small class="text-danger">{{ search_form.country_or_place_of_birth.errors }}</small>
+            </div>
+
+            <div class="py-2 vstack gap-1">
+                <strong>Country/place of death</strong>
+                {{ search_form.country_or_place_of_death }}
+                <small class="text-danger">{{ search_form.country_or_place_of_death.errors }}</small>
+            </div>
+        </form>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        {{ search_form.media.js }}
+        <script>
+            (function() {
+                getSliderElements = function(prefix) {
+                    return [
+                        document.getElementById(prefix + "_year_slider"),
+                        document.getElementById(prefix + "_year_start"),
+                        document.getElementById(prefix + "_year_end")
+                    ];
+                };
+
+                enableSlider = function(prefix) {
+                    const [slider, start_input, end_input] = getSliderElements(prefix);
+                    slider.noUiSlider.enable();
+                    start_input.disabled = false;
+                    end_input.disabled = false;
+                };
+
+                disableSlider = function(prefix) {
+                    const [slider, start_input, end_input] = getSliderElements(prefix);
+                    slider.noUiSlider.disable();
+                    start_input.disabled = true;
+                    end_input.disabled = true;
+                };
+
+                setSliderVisibility = function(checkbox, prefix) {
+                    if (checkbox.checked == true) {
+                        enableSlider(prefix);
+                    } else {
+                        disableSlider(prefix);
+                    }
+                };
+
+                addChangeListener = function(checkbox, prefix) {
+                    checkbox.addEventListener('change', function() {
+                        setSliderVisibility(checkbox, prefix);
+                    });
+                };
+
+                ['birth', 'death'].forEach(function(prefix) {
+                    checkbox = document.querySelector("#normalised_date_of_"+prefix+"_checkbox");
+                    addChangeListener(checkbox, prefix);
+                    setSliderVisibility(checkbox, prefix);
+                });
+            })();
+        </script>
+    </div>
+</div>
+<div class="col-md-8">
 
      <div class="pt-2 hstack gap-3 border-bottom">
         <div class="pagination me-auto">
@@ -114,5 +217,12 @@
             <li class="list-group-item border-0">No persons found.</li>
         {% endfor %}
     </ul>
+
+     <div class="pt-2 hstack gap-3 border-bottom">
+        <div class="pagination me-auto">
+            {% bootstrap_pagination persons url=request.get_full_path %}
+        </div>
+    </div>
+</div>
 
 {% endblock content %}

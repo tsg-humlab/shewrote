@@ -2,16 +2,17 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import F, Q, OuterRef, Subquery
+from django.db.models import F, Q, OuterRef, Subquery, QuerySet
 from django.conf import settings
-from .models import Person, Work, Reception, WorkReception, PersonReception, Collective
-from .forms import PersonForm, ShortPersonForm, WorkForm, ChangesSearchForm
+from .models import Person, Work, Reception, WorkReception, PersonReception, Collective, Country, Place
+from .forms import PersonForm, PersonSearchForm, ShortPersonForm, WorkForm, ChangesSearchForm
 
 from dal import autocomplete
 from django.http import JsonResponse
 from django.utils.html import escape
 from apiconnectors.viafapi import ViafAPI
 from easyaudit.models import CRUDEvent
+from django_select2.views import AutoResponseView
 
 from collections import OrderedDict
 
@@ -19,6 +20,80 @@ from collections import OrderedDict
 def index(request):
     """The home page for SHEWROTE."""
     return render(request, 'shewrote/index.html')
+
+
+def get_year_slider_info(request, qs, field_name, search_field_names):
+    year_min = (qs.model.objects.filter(**{field_name+'__isnull': False})
+                      .order_by(field_name).first().normalised_date_of_birth)
+    year_max = (qs.model.objects.filter(**{field_name+'__isnull': False})
+                      .order_by('-'+field_name).first().normalised_date_of_birth)
+
+    is_checked = request.GET.get(field_name+'_checkbox', 'off') == 'on'
+
+    year_start = request.GET.get(search_field_names[0], '') or year_min
+    if is_checked:
+        qs = qs.filter(**{field_name+'__gte': year_start})
+
+    year_end = request.GET.get(search_field_names[1], '') or year_max
+    if is_checked:
+        qs = qs.filter(**{field_name+'__lte': year_end})
+
+    return qs, {'year_min': year_min, 'year_max': year_max, 'year_start': year_start, 'year_end': year_end,
+                'is_checked': is_checked}
+
+
+class CountryAndPlaceAutocompleteView(AutoResponseView):
+    page_size = 10
+
+    def get(self, request, *args, **kwargs):
+        term = request.GET.get('term', '')
+        page = int(request.GET.get('page', 1))
+        begin = (page - 1) * self.page_size / 2
+        end = page * self.page_size / 2
+
+        countries = ('country', Country.objects.filter(modern_country__icontains=term).distinct()
+                     .order_by('modern_country')[begin:end])
+        places = ('place', Place.objects.filter(name__icontains=term).distinct()
+                     .order_by('name')[begin:end])
+
+        results: list = []
+        for name, qs in [countries, places]:
+            results.extend([
+                {'id': f"{name}|{obj.pk}", 'text': f"{obj} ({name})" }
+                for obj in qs
+            ])
+
+        more = True
+        if countries[1].count() != self.page_size/2 and places[1].count() != self.page_size/2:
+            more = False
+
+        return JsonResponse({
+            'results': results,
+            'more': more
+        })
+
+
+def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearchForm) -> QuerySet[Person]:
+    """
+    Filter Person objects using a valid instance of PersonSearchForm
+    :param persons: a QuerySet of Persons to filter
+    :param search_form: a valid instance of PersonSearchForm
+    :return: a QuerySet of Person
+    """
+    if sex_filter := search_form.cleaned_data['sex']:
+        persons = persons.filter(sex__in=sex_filter)
+
+    if country_or_place_of_birth_filter := search_form.cleaned_data['country_or_place_of_birth']:
+        countries = [obj for obj in country_or_place_of_birth_filter if isinstance(obj, Country)]
+        places = [obj for obj in country_or_place_of_birth_filter if isinstance(obj, Place)]
+        persons = persons.filter(Q(place_of_birth__in=places) | Q(place_of_birth__modern_country__in=countries))
+
+    if country_or_place_of_death_filter := search_form.cleaned_data['country_or_place_of_death']:
+        countries = [obj for obj in country_or_place_of_death_filter if isinstance(obj, Country)]
+        places = [obj for obj in country_or_place_of_death_filter if isinstance(obj, Place)]
+        persons = persons.filter(Q(place_of_death__in=places) | Q(place_of_death__modern_country__in=countries))
+        
+    return persons
 
 
 def persons(request):
@@ -31,16 +106,29 @@ def persons(request):
             | Q(alternativename__alternative_name__icontains=short_name_filter)
         ).distinct()
 
+    search_form = PersonSearchForm(request.GET)
+    if search_form.is_valid():
+        persons = filter_persons_with_form(persons, search_form)
+
+    persons, birth_year_slider_info = get_year_slider_info(request, persons, 'normalised_date_of_birth',
+                                                           ['birth_year_start', 'birth_year_end'])
+
+    persons, death_year_slider_info = get_year_slider_info(request, persons, 'normalised_date_of_death',
+                                                           ['death_year_start', 'death_year_end'])
+
     receptions = Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False)\
         .exclude(image='').values('image')
     persons = persons.annotate(image=Subquery(receptions[:1]))
 
-    persons = persons.prefetch_related('alternativename_set')
+    persons = persons.prefetch_related('alternativename_set', 'place_of_birth', 'place_of_death')
 
     paginator = Paginator(persons, 25)
     page_number = request.GET.get("page")
     paginated_persons = paginator.get_page(page_number)
-    context = {'persons': paginated_persons, 'count': paginator.count, 'short_name': short_name_filter}
+    context = {'persons': paginated_persons, 'count': paginator.count, 'short_name': short_name_filter,
+               'birth_year_slider_info': birth_year_slider_info,
+               'death_year_slider_info': death_year_slider_info,
+               'search_form': search_form}
     return render(request, 'shewrote/persons.html', context)
 
 

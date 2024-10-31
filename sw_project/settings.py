@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'dal_select2',
     "admin_interface",
     "colorfield",
+    "computedfields",
 
     # Default django apps.
     'django.contrib.admin',

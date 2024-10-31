@@ -1,0 +1,35 @@
+
+                <div class="mx-3" id="{{ prefix }}_year_slider"></div>
+                <div class="">
+                    <input type="number" name="{{ prefix }}_year_start" id="{{ prefix }}_year_start" min="{{ year_min }}"
+                            max="{{ slider_info.year_max }}" value="{{ slider_info.year_start }}" class="w-25"
+                            autocomplete=off/>
+                    <input type="number" name="{{ prefix }}_year_end" id="{{ prefix }}_year_end" min="{{ slider_info.year_min }}"
+                            max="{{ slider_info.year_max }}" value="{{ slider_info.year_end }}"  class="w-25 float-end"
+                            autocomplete=off/>
+                </div>
+                <script>
+                    (function() {
+                        var slider = document.getElementById('{{ prefix }}_year_slider');
+                        var start = document.getElementById('{{ prefix }}_year_start');
+                        var end = document.getElementById('{{ prefix }}_year_end');
+
+                        noUiSlider.create(slider, {
+                            start: [{{ slider_info.year_start }}, {{ slider_info.year_end }}],
+                            step: 1,
+                            connect: true,
+                            range: {'min': {{ slider_info.year_min }}, 'max': {{ slider_info.year_max }}},
+                            behaviour: 'drag',
+                        });
+
+                        function setInputs(values) {
+                            [start.value, end.value] = values.map((x) => Math.trunc(x));
+                        }
+
+                        slider.noUiSlider.on('slide', setInputs);
+                        start.oninput = function() { console.log('foo'); slider.noUiSlider.set([start.value, null]); };
+                        end.oninput = function() { slider.noUiSlider.set([null, end.value]); };
+
+                        slider.noUiSlider.set([start.value, end.value]);
+                    })();
+                </script>
