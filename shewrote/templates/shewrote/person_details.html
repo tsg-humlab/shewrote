@@ -57,14 +57,16 @@
                                             <th scope="row" class="w-25">Birth name</th>
                                             <td>{{ person.birth_name }}</td>
                                         </tr>
-                                        <tr>
-                                            <th scope="row" class="w-25">Married name</th>
-                                            <td>
-                                                {% for marriage in person.get_marriages %}
-                                                    {{ marriage.married_name }}{% if not forloop.last %}, {% endif %}
-                                                {% endfor %}
-                                            </td>
-                                        </tr>
+                                        {% if person.sex == person.GenderChoices.FEMALE.0 %}
+                                            <tr>
+                                                <th scope="row" class="w-25">Married name</th>
+                                                <td>
+                                                    {% for marriage in person.get_marriages %}
+                                                        {{ marriage.married_name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </td>
+                                            </tr>
+                                        {% endif %}
                                         {% if person.get_alternative_names %}
                                             <tr>
                                                 <th scope="row" class="w-25">Alternative name</th>
