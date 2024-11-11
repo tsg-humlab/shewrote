@@ -324,6 +324,7 @@
                                                     {% for work in is_creator_of %}
                                                         <li>
                                                             <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
+                                                            ({{ work.date_of_publication_text }})
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
