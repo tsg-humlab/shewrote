@@ -365,8 +365,8 @@ def editions(request):
     return render(request, 'shewrote/editions.html', {})
 
 
-def circulations(request):
-    return render(request, 'shewrote/circulations.html', {})
+def circulation(request):
+    return render(request, 'shewrote/circulation.html', {})
 
 
 @login_required

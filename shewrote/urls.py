@@ -39,7 +39,7 @@ urlpatterns = [
     path('editions/', views.editions, name='editions'),
 
     # Editions
-    path('circulations/', views.circulations, name='circulations'),
+    path('circulation/', views.circulation, name='circulation'),
 
     # AutoResponse
     path(r'countryplaceautoresponse/', views.CountryAndPlaceAutocompleteView.as_view(), name='countryplaceautoresponse'),
