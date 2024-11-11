@@ -365,6 +365,10 @@ def editions(request):
     return render(request, 'shewrote/editions.html', {})
 
 
+def circulations(request):
+    return render(request, 'shewrote/circulations.html', {})
+
+
 @login_required
 def list_of_changes(request, content_type_id, object_id):
     crudevents = CRUDEvent.objects.filter(object_id=object_id, content_type_id=content_type_id)

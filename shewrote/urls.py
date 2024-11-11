@@ -38,6 +38,9 @@ urlpatterns = [
     # Editions
     path('editions/', views.editions, name='editions'),
 
+    # Editions
+    path('circulations/', views.circulations, name='circulations'),
+
     # AutoResponse
     path(r'countryplaceautoresponse/', views.CountryAndPlaceAutocompleteView.as_view(), name='countryplaceautoresponse'),
 
