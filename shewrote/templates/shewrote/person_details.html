@@ -247,21 +247,9 @@
         {% slot contents %}
                                 <table class="table">
                                     <tbody>
-                                        <tr>
-                                            <th scope="row" class="w-25">Marital status</th>
-                                            <td>
-                                                {% for marriage in person.get_marriages %}
-                                                    {{ marriage.get_marital_status_display }}
-                                                    {% if marriage.start_year %}
-                                                        ({{ marriage.start_year }}-{{ marriage.end_year }}){% endif %}
-                                                    {% if not forloop.last %}, {% endif %}
-                                                {% endfor %}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row" class="w-25">Spouse</th>
-                                            <td>
-                                                {% for marriage in person.get_marriages %}
+                                    {% for marriage in person.get_marriages %}
+                                            <tr>
+                                                <td>
                                                     {% if marriage.spouse %}
                                                         <a href="{% url 'shewrote:person' marriage.spouse.id %}">
                                                             {{ marriage.spouse }}
@@ -269,10 +257,17 @@
                                                     {% else %}
                                                         UNKNOWN
                                                     {% endif %}
-                                                    {% if not forloop.last %}, {% endif %}
-                                                {% endfor %}
-                                            </td>
-                                        </tr>
+                                                </td>
+                                                <td>
+                                                    {% if marriage.start_year %}
+                                                        {{ marriage.start_year }}-{{ marriage.end_year }}
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {{ marriage.get_marital_status_display }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
                                     </tbody>
                                 </table>
         {% endslot %}
