@@ -138,20 +138,6 @@
                                             <td>{{ person.place_of_residence_notes }}</td>
                                         </tr>
                                         <tr>
-                                            <th scope="row" class="w-25">Related to</th>
-                                            <td>
-                                                {% if person.related_to.all %}
-                                                    {% for related_person in person.related_to.all %}
-                                                        <a href="{% url 'shewrote:person' related_person.id %}">
-                                                            {{ related_person }}
-                                                        </a>{% if not forloop.last %}, {% endif %}
-                                                    {% endfor %}
-                                                {% else %}
-                                                    -
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        <tr>
                                             <th scope="row" class="w-25">Bibliography</th>
                                             <td>{{ person.bibliography|default:"-" }}</td>
                                         </tr>
