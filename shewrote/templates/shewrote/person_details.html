@@ -283,8 +283,9 @@
                                             <tr>
                                                 <td>
                                                     {% for type in relation.types.all %}
-                                                        {% if not forloop.first and not forloop.last %}, {% endif %}
-                                                        {% if forloop.last %} and {% endif %}
+                                                        {% if not forloop.first %}
+                                                            {% if forloop.last %} and {% else %}, {% endif %}
+                                                        {% endif %}
                                                         {{ type }}
                                                     {% endfor %}
                                                 </td>
