@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F, Q, OuterRef, Subquery, QuerySet
 from django.conf import settings
-from .models import Person, Work, Reception, WorkReception, PersonReception, Collective, Country, Place
+from .models import (Person, Work, Reception, WorkReception, PersonReception, Collective, Country, Place,
+                     PersonPersonRelation)
 from .forms import PersonForm, PersonSearchForm, ShortPersonForm, WorkForm, ChangesSearchForm
 
 from dal import autocomplete
@@ -141,6 +142,8 @@ def person(request, person_id):
     reception_with_image = person_receptions.first().reception if person_receptions else None
     image = person_receptions.first().reception.image if person_receptions else None
 
+    relations = PersonPersonRelation.objects.filter(from_person=person)
+
     context = {
         'person': person,
         'is_creator_of': person.get_works_for_role("is creator of").order_by('date_of_publication_start'),
@@ -148,7 +151,8 @@ def person(request, person_id):
         'is_commented_on_in': person.get_works_for_role("is commented on in"),
         'is_mentioned_in': person.get_works_for_role("is mentioned in"),
         'is_referenced_in': person.get_works_for_role("is referenced in"),
-        'reception_with_image': reception_with_image
+        'reception_with_image': reception_with_image,
+        'relations': relations
     }
     return render(request, 'shewrote/person_details.html', context)
 

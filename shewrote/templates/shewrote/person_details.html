@@ -30,6 +30,7 @@
     {% include 'shewrote/components/details_section_button.html' with section_name='basic' section_title='Basic Info' active='active' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='personal' section_title='Personal situation' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='marriage' section_title='Marital status' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='relation' section_title='Related to' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='profession' section_title='Professional situation' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='work' section_title='Works' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='reception' section_title='Receptions' %}
@@ -270,6 +271,33 @@
                                         {% endfor %}
                                     </tbody>
                                 </table>
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='relation' section_title='Related to' %}
+        {% slot contents %}
+                            <div class="vstack gap-2">
+                                {{ person }} was ...
+                                <table class="table">
+                                    <tbody>
+                                    {% for relation in relations %}
+                                            <tr>
+                                                <td>
+                                                    {% for type in relation.types.all %}
+                                                        {% if not forloop.first and not forloop.last %}, {% endif %}
+                                                        {% if forloop.last %} and {% endif %}
+                                                        {{ type }}
+                                                    {% endfor %}
+                                                </td>
+                                                <td>
+                                                    <a href="{% url 'shewrote:person' relation.to_person_id %}">
+                                                        {{ relation.to_person }}
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
         {% endslot %}
     {% endembed %}
     {% embed 'shewrote/components/details_section.html' with section_name='profession' section_title='Professional situation' %}
