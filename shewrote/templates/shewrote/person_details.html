@@ -34,6 +34,8 @@
     {% include 'shewrote/components/details_section_button.html' with section_name='profession' section_title='Professional situation' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='work' section_title='Works' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='reception' section_title='Receptions' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='bibliography' section_title='Bibliography' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='provisional_notes' section_title='Provisional notes' %}
 {% endblock %}
 
 {% block sections %}
@@ -136,14 +138,6 @@
                                         <tr>
                                             <th scope="row" class="w-25">Place of residence notes</th>
                                             <td>{{ person.place_of_residence_notes }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row" class="w-25">Bibliography</th>
-                                            <td>{{ person.bibliography|default:"-" }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row" class="w-25">Provisional Notes</th>
-                                            <td>{{ person.notes|default:"-" }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -405,6 +399,18 @@
                                         </tr>
                                     </tbody>
                                 </table>
+        {% endslot %}
+    {% endembed %}
+
+    {% embed 'shewrote/components/details_section.html' with section_name='bibliography' section_title='Bibliography' %}
+        {% slot contents %}
+                                {{ person.bibliography|default:"-" }}
+        {% endslot %}
+    {% endembed %}
+
+    {% embed 'shewrote/components/details_section.html' with section_name='provisional_notes' section_title='Provisional notes' %}
+        {% slot contents %}
+                                {{ person.notes|default:"-" }}
         {% endslot %}
     {% endembed %}
 
