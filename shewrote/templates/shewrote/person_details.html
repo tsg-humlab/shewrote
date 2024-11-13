@@ -273,6 +273,8 @@
                                                             {% if forloop.last %} and {% else %}, {% endif %}
                                                         {% endif %}
                                                         {{ type }}
+                                                    {% empty %}
+                                                        related to
                                                     {% endfor %}
                                                 </td>
                                                 <td>
