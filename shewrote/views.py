@@ -137,9 +137,9 @@ def person(request, person_id):
     """Show a single person and all their details."""
     person = Person.objects.get(id=person_id)
 
-    person_receptions = PersonReception.objects.filter(reception__image__isnull=False, person=person)\
-        .exclude(reception__image="")
-    reception_with_image = person_receptions.first().reception if person_receptions else None
+    person_receptions = PersonReception.objects.filter(person=person)
+    person_receptions_with_image = person_receptions.filter(reception__image__isnull=False).exclude(reception__image="")
+    reception_with_image = person_receptions_with_image.first().reception if person_receptions else None
     image = person_receptions.first().reception.image if person_receptions else None
 
     relations = PersonPersonRelation.objects.filter(from_person=person)
@@ -152,7 +152,8 @@ def person(request, person_id):
         'is_mentioned_in': person.get_works_for_role("is mentioned in"),
         'is_referenced_in': person.get_works_for_role("is referenced in"),
         'reception_with_image': reception_with_image,
-        'relations': relations
+        'relations': relations,
+        'person_receptions': person_receptions.order_by('reception__date_of_reception')
     }
     return render(request, 'shewrote/person_details.html', context)
 

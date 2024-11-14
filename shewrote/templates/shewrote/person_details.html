@@ -347,6 +347,8 @@
     {% endembed %}
     {% embed 'shewrote/components/details_section.html' with section_name='reception' section_title='Receptions' %}
         {% slot contents %}
+                            <div class="vstack gap-3">
+                                <h5>Works that are receptions of {{ person }}</h5>
                                 <table class="table">
                                     <tbody>
                                         <tr>
@@ -399,6 +401,27 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                                <h5>Receptions of {{ person }}</h5>
+                                <table class="table">
+                                    <tbody>
+                                        {% for person_reception in person_receptions %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{% url 'shewrote:reception' person_reception.reception_id %}">
+                                                        {{ person_reception.reception }}
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    {{ person_reception.reception.date_of_reception }}
+                                                </td>
+                                                <td>
+                                                    {{ person_reception.type}}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
         {% endslot %}
     {% endembed %}
 
