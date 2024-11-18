@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F, Q, OuterRef, Subquery, QuerySet, Count
 from django.conf import settings
 from .models import (Person, Work, Reception, WorkReception, PersonReception, Collective, Country, Place,
-                     PersonPersonRelation)
+                     PersonPersonRelation, Edition)
 from .forms import PersonForm, PersonSearchForm, ShortPersonForm, WorkForm, ChangesSearchForm
 
 from dal import autocomplete
@@ -380,6 +380,24 @@ def editions(request):
     paginated_works = paginator.get_page(page_number)
     context = {'works': paginated_works, 'count': paginator.count, 'title': title_filter}
     return render(request, 'shewrote/editions.html', context)
+
+
+def work_edition(request, work_id):
+    work = get_object_or_404(Work, pk=work_id)
+    editions = Edition.objects.filter(related_work=work)
+    context = {
+        'work': work,
+        'editions': editions
+    }
+    return render(request, 'shewrote/work_edition_details.html', context)
+
+
+def edition(request, edition_id):
+    edition = get_object_or_404(Edition, pk=edition_id)
+    context = {
+        'edition': edition
+    }
+    return render(request, 'shewrote/edition_details.html', context)
 
 
 def circulation(request):

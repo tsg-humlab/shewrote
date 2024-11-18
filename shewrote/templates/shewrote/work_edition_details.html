@@ -1,0 +1,39 @@
+{% extends 'shewrote/generic_details.html' %}
+
+{% load embed %}
+
+{% block heading %}
+    {{ work.title }}
+{% endblock %}
+
+{% block edit_button %}
+    {% include 'shewrote/components/details_edit_button.html' with object=work url_name='shewrote:edit_work' %}
+{% endblock %}
+
+{% block last_edit_info %}
+    {% include 'shewrote/components/last_edit_info.html' with object=work %}
+{% endblock %}
+
+{% block section_buttons %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='editions' section_title='Editions' active='active' %}
+{% endblock %}
+
+{% block sections %}
+    {% embed 'shewrote/components/details_section.html' with section_name='editions' section_title='Editions' %}
+        {% slot contents %}
+                                    <table class="table">
+                                        <tbody>
+                                            {% for edition in editions %}
+                                                <tr>
+                                                    <th>
+                                                        <a href="{% url 'shewrote:edition' edition.id %}">
+                                                            {{ edition }}
+                                                        </a>
+                                                    </th>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+        {% endslot %}
+    {% endembed %}
+{% endblock %}
