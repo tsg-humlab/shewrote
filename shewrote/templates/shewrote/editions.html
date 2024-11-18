@@ -1,17 +1,82 @@
 {% extends 'shewrote/base.html' %}
+{% load django_bootstrap5 %}
 
 {% block page_header %}
-            {% if user.is_authenticated and user.is_staff %}
-                <a href="{% url 'admin:shewrote_edition_changelist' %}" title="Edit" class="btn btn-primary float-end">
-                    Editions in admin
-                </a>
-            {% endif %}
-    <h1 class="text-muted">
-        No editions to view yet
-    </h1>
+    <div class="hstack gap-3 pb-2 mb-2 border-bottom">
+        <h1>Editions</h1>
+        {% if user.is_authenticated %}
+            <a class="btn btn-primary btn-sm mt-1 mb-1 ms-auto text-nowrap" href="{% url 'admin:shewrote_edition_add' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                </svg>
+                Add edition
+            </a>
+        {% endif %}
+    </div>
 {% endblock page_header %}
 
 {% block content %}
-    <div class="row">
+    <form action="" method="get">
+        <div class="hstack gap-3">
+            <input type="text" id="title" name="title" value="{{ title }}"
+                   size=30 placeholder="Enter (part of) a title" class="form-control form-control-sm"/>
+            <button type="submit" class="btn btn-secondary btn-sm mt-1 mb-1 text-nowrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                  <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+                Filter
+            </button>
+        </div>
+    </form>
+
+     <div class="pt-2 hstack gap-3 border-bottom">
+        <div class="pagination me-auto">
+            {% bootstrap_pagination works url=request.get_full_path %}
+        </div>
+        <div class="text-secondary">{% if count %}{{ count }} works with editions found.{% endif %}</div>
     </div>
+
+    <ul class="list-group list-group-flush pb-2 mb-4">
+        <li class="list-group-item px-0 container">
+            <div class="row fs-5">
+                <div class="col-3">
+                    Author
+                </div>
+                <div class="col-6">
+                    Work
+                </div>
+                <div class="col-2">
+                    Date
+                </div>
+                <div class="col-1">
+                    Editions
+                </div>
+            </div>
+        </li>
+        {% for work in works %}
+            <li class="list-group-item px-0 container">
+                <div class="row">
+                    <div class="col-3">
+                        {% for personwork in work.personwork_set.all %}
+                            {% if personwork.role.name == 'is creator of' %}
+                                {{ personwork.person }}
+                                {% if not forloop.last %}, {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="col-6">
+                        {{ work }}
+                    </div>
+                    <div class="col-2">
+                        {{ work.date_of_publication_text }}
+                    </div>
+                    <div class="col-1">
+                        {{ work.edition_count }}
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+
+
 {% endblock %}

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import F, Q, OuterRef, Subquery, QuerySet
+from django.db.models import F, Q, OuterRef, Subquery, QuerySet, Count
 from django.conf import settings
 from .models import (Person, Work, Reception, WorkReception, PersonReception, Collective, Country, Place,
                      PersonPersonRelation)
@@ -367,7 +367,19 @@ def edit_work(request, work_id):
 
 
 def editions(request):
-    return render(request, 'shewrote/editions.html', {})
+    works = Work.objects.filter(edition__isnull=False)\
+                        .annotate(edition_count=Count('edition'))\
+                        .prefetch_related('personwork_set')
+
+    title_filter = request.GET.get('title', '')
+    if title_filter:
+        works = works.filter(title__icontains=title_filter)
+
+    paginator = Paginator(works, 25)
+    page_number = request.GET.get('page')
+    paginated_works = paginator.get_page(page_number)
+    context = {'works': paginated_works, 'count': paginator.count, 'title': title_filter}
+    return render(request, 'shewrote/editions.html', context)
 
 
 def circulation(request):
