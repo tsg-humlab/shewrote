@@ -139,7 +139,7 @@ def person(request, person_id):
 
     person_receptions = PersonReception.objects.filter(person=person)
     person_receptions_with_image = person_receptions.filter(reception__image__isnull=False).exclude(reception__image="")
-    reception_with_image = person_receptions_with_image.first().reception if person_receptions else None
+    reception_with_image = person_receptions_with_image.first().reception if person_receptions_with_image else None
     image = person_receptions.first().reception.image if person_receptions else None
 
     relations = PersonPersonRelation.objects.filter(from_person=person)
