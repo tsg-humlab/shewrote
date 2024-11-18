@@ -348,60 +348,11 @@
     {% embed 'shewrote/components/details_section.html' with section_name='reception' section_title='Receptions' %}
         {% slot contents %}
                             <div class="vstack gap-3">
-                                <h5>Works that are receptions of {{ person }}</h5>
-                                <table class="table">
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row" class="w-25">Biography</th>
-                                            <td>
-                                                <ul>
-                                                    {% for work in has_biography %}
-                                                        <li>
-                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row" class="w-25">Commented on in</th>
-                                            <td>
-                                                <ul>
-                                                    {% for work in is_commented_on_in %}
-                                                        <li>
-                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row" class="w-25">Mentioned in</th>
-                                            <td>
-                                                <ul>
-                                                    {% for work in is_mentioned_in %}
-                                                        <li>
-                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row" class="w-25">Referenced in</th>
-                                            <td>
-                                                <ul>
-                                                    {% for work in is_referenced_in %}
-                                                        <li>
-                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <h5>Receptions of {{ person }}</h5>
+                                <h6>
+                                    Works that are receptions of {{ person }}
+                                    (for receptions of {% if person.sex == 'F' %}her{% else %}his{% endif %} works,
+                                    see under each individual Work)
+                                </h6>
                                 <table class="table">
                                     <tbody>
                                         {% for person_reception in person_receptions %}
