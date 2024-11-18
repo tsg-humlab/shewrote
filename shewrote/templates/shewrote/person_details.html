@@ -354,6 +354,14 @@
                                     see under each individual Work)
                                 </h6>
                                 <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <td>Title</td>
+                                            <td>Author</td>
+                                            <td>Date</td>
+                                            <td>Type</td>
+                                        </tr>
+                                    </thead>
                                     <tbody>
                                         {% for person_reception in person_receptions %}
                                             <tr>
@@ -361,6 +369,12 @@
                                                     <a href="{% url 'shewrote:reception' person_reception.reception_id %}">
                                                         {{ person_reception.reception }}
                                                     </a>
+                                                </td>
+                                                <td>
+                                                    {% for person in person_reception.reception.part_of_work.get_creators %}
+                                                        {{ person }}
+                                                        {% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
                                                 </td>
                                                 <td>
                                                     {{ person_reception.reception.date_of_reception }}
