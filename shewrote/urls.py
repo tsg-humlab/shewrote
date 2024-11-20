@@ -37,6 +37,8 @@ urlpatterns = [
 
     # Editions
     path('editions/', views.editions, name='editions'),
+    path('work_edition/<uuid:work_id>/', views.work_edition, name='work_edition'),
+    path('editions/<uuid:edition_id>/', views.edition, name='edition'),
 
     # Editions
     path('circulation/', views.circulation, name='circulation'),

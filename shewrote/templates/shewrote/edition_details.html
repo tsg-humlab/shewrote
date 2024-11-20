@@ -1,0 +1,82 @@
+{% extends 'shewrote/generic_details.html' %}
+
+{% load embed %}
+
+{% block heading %}
+    {{ edition.related_work }}
+{% endblock %}
+
+{% block edit_button %}
+    {% include 'shewrote/components/details_edit_button.html' with object=edition url_name='admin:shewrote_edition_change' %}
+{% endblock %}
+
+{% block last_edit_info %}
+    {% include 'shewrote/components/last_edit_info.html' with object=edition %}
+{% endblock %}
+
+{% block section_buttons %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='info' section_title='Info' active='active' %}
+{% endblock %}
+
+{% block sections %}
+    {% embed 'shewrote/components/details_section.html' with section_name='info' section_title='Info' %}
+        {% slot contents %}
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row" class="w-25">Title of the related work</th>
+                                                <td>{{ edition.related_work }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">Publication year</th>
+                                                <td>{{ edition.publication_year }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">Place of publication</th>
+                                                <td>{{ edition.place_of_publication }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">Language</th>
+                                                <td>
+                                                    {% for language in edition.language.all %}
+                                                        {{ language }}
+                                                        {% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">CERL publisher</th>
+                                                <td>{{ edition.cerl_publisher }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">Persons</th>
+                                                <td>
+                                                    {% for person in edition.related_persons.all %}
+                                                        <a href="{% url 'shewrote:person' person.id %}">
+                                                            {{ person }}
+                                                        </a>
+                                                        {% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">Genre</th>
+                                                <td>{{ edition.genre }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">URL</th>
+                                                <td>
+                                                    <a href="{{ edition.url }}">
+                                                        {{ edition.url }}
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="w-25">Notes</th>
+                                                <td>{{ edition.notes }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+        {% endslot %}
+    {% endembed %}
+{% endblock %}
