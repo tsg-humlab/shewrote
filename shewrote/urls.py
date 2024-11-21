@@ -8,6 +8,8 @@ app_name = 'shewrote'
 urlpatterns = [
     # Home page
     path('', views.index, name='index'),
+    # Flat pages, see templates/shewrote/pages, <page> without .html
+    path('p/<page>', views.pages, name='pages'),
     # Page that shows all persons
     path('persons/', views.persons, name='persons'),
     # Detail page for a single person

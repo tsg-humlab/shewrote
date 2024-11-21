@@ -9,7 +9,8 @@ from .models import (Person, Work, Reception, WorkReception, PersonReception, Co
 from .forms import PersonForm, PersonSearchForm, ShortPersonForm, WorkForm, ChangesSearchForm
 
 from dal import autocomplete
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
+from django.template.exceptions import TemplateDoesNotExist
 from django.utils.html import escape
 from apiconnectors.viafapi import ViafAPI
 from easyaudit.models import CRUDEvent
@@ -21,6 +22,13 @@ from collections import OrderedDict
 def index(request):
     """The home page for SHEWROTE."""
     return render(request, 'shewrote/index.html')
+
+
+def pages(request, page):
+    try:
+        return render(request, f'shewrote/pages/{page}.html')
+    except TemplateDoesNotExist:
+        raise Http404
 
 
 def get_year_slider_info(request, qs, field_name, search_field_names):
