@@ -3,14 +3,18 @@
 
 {% block page_header %}
     <div class="hstack gap-3 pb-2 mb-2 border-bottom">
-        <h1>Works</h1>
-        {% if user.is_authenticated %}
-            <a class="btn btn-primary btn-sm mt-1 mb-1 ms-auto text-nowrap" href="{% url 'shewrote:new_work' %}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
-                </svg>
-                Add work
-            </a>
+        {% if heading %}
+            <h1>{{ heading|capfirst }}</h1>
+        {% else %}
+            <h1>Works</h1>
+            {% if user.is_authenticated %}
+                <a class="btn btn-primary btn-sm mt-1 mb-1 ms-auto text-nowrap" href="{% url 'shewrote:new_work' %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                    </svg>
+                    Add work
+                </a>
+            {% endif %}
         {% endif %}
     </div>
 {% endblock page_header %}
@@ -51,7 +55,7 @@
         <div class="pagination me-auto">
             {% bootstrap_pagination works url=request.get_full_path %}
         </div>
-        <div class="text-secondary">{% if count %}{{ count }} works found.{% endif %}</div>
+        <div class="text-secondary">{% if count %}{{ count }} {{ heading|default:'works' }} found.{% endif %}</div>
     </div>
 
     <ul class="list-group list-group-flush pb-2 mb-4">

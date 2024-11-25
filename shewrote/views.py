@@ -290,9 +290,9 @@ def reception(request, reception_id):
     return render(request, 'shewrote/reception_details.html', context)
 
 
-def works(request):
+def works_list(request, base_qs, extra_context={}):
     """Show all works."""
-    works = Work.objects.prefetch_related("personwork_set__person", "personwork_set__role")
+    works = base_qs.prefetch_related("personwork_set__person", "personwork_set__role")
 
     get_params = request.GET.dict()
     order_by = get_params.pop('order_by', 'date_of_publication_start')
@@ -315,11 +315,20 @@ def works(request):
     page_number = request.GET.get("page")
     paginated_works = paginator.get_page(page_number)
 
-    context = {'works': paginated_works, 'count': works.count(), 'title': title_filter, 'order_by': order_by,
+    context = {'works': paginated_works, 'count': paginator.count, 'title': title_filter, 'order_by': order_by,
                'order_by_options': order_by_options, 'current_order_by_label': current_order_by_label,
-               'get_params': get_params_str}
+               'get_params': get_params_str} | extra_context
 
     return render(request, 'shewrote/works.html', context)
+
+
+def works(request):
+    return works_list(request, base_qs=Work.work_objects.all())
+
+
+def sources(request):
+    return works_list(request, base_qs=Work.source_objects.all(),
+                      extra_context={'heading': "sources", 'details_path_name': 'shewrote:source'})
 
 
 def work(request, work_id):

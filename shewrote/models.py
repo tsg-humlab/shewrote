@@ -447,6 +447,16 @@ class Language(models.Model):
         return self.name
 
 
+class IsNotSourceWorkManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().exclude(**{'original_data__@relations__isDocumentSourceOf__isnull': False})
+
+
+class IsSourceWorkManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(**{'original_data__@relations__isDocumentSourceOf__isnull': False})
+
+
 class Work(EasyAuditMixin, models.Model):
     """Represent a Work by a Person that may have multiple Editions."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -463,6 +473,10 @@ class Work(EasyAuditMixin, models.Model):
     )
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
+
+    objects = models.Manager()
+    work_objects = IsNotSourceWorkManager()
+    source_objects = IsSourceWorkManager()
 
     class Meta:
         indexes = [

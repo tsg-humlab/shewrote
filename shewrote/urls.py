@@ -26,6 +26,8 @@ urlpatterns = [
     path('collectives/<uuid:collective_id>/', views.collective, name='collective'),
     # Page that shows all works
     path('works/', views.works, name='works'),
+    # List of Works that are sources
+    path('sources/', views.sources, name='sources'),
     # Detail page for a single work
     path('works/<uuid:work_id>/', views.work, name='work'),
     # Page for adding a new work
