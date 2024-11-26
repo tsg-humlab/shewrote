@@ -33,6 +33,7 @@
     {% include 'shewrote/components/details_section_button.html' with section_name='relation' section_title='Related to' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='profession' section_title='Professional situation' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='work' section_title='Works' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='edition' section_title='Editions' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='reception' section_title='Receptions' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='bibliography' section_title='Bibliography' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='provisional_notes' section_title='Provisional notes' %}
@@ -341,6 +342,23 @@
                                                 </ul>
                                             </td>
                                         </tr>
+                                    </tbody>
+                                </table>
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='edition' section_title='Editions' %}
+        {% slot contents %}
+                                <table class="table">
+                                    <tbody>
+                                        {% for edition in person.edition_set.all %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{% url 'shewrote:edition' edition.id %}">
+                                                        {{ edition }}
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
                                     </tbody>
                                 </table>
         {% endslot %}
