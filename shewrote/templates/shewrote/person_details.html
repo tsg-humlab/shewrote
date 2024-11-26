@@ -34,6 +34,7 @@
     {% include 'shewrote/components/details_section_button.html' with section_name='profession' section_title='Professional situation' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='work' section_title='Works' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='edition' section_title='Editions' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='circulation' section_title='Circulation' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='reception' section_title='Receptions' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='bibliography' section_title='Bibliography' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='provisional_notes' section_title='Provisional notes' %}
@@ -361,6 +362,10 @@
                                         {% endfor %}
                                     </tbody>
                                 </table>
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='circulation' section_title='Circulation' %}
+        {% slot contents %}
         {% endslot %}
     {% endembed %}
     {% embed 'shewrote/components/details_section.html' with section_name='reception' section_title='Receptions' %}
