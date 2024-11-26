@@ -317,7 +317,7 @@ def works(request):
 def work(request, work_id):
     """Show a single work and all its details."""
     work = Work.objects.prefetch_related("personwork_set__person", "personwork_set__role").get(id=work_id)
-    work_receptions = WorkReception.objects.filter(work=work).prefetch_related('reception', 'type')\
+    work_receptions = WorkReception.objects.filter(work=work).prefetch_related('reception', 'type', 'languages')\
         .order_by('reception__date_of_reception')
     context = {
         'work': work,

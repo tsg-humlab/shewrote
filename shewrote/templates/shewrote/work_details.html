@@ -61,6 +61,17 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <th scope="row">
+                                                    Language(s)
+                                                </th>
+                                                <td>
+                                                    {% for language in work.languages.all %}
+                                                        {{ language }}
+                                                        {% if not forloop.last%}, {% endif %}
+                                                    {% endfor %}
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <th scope="row" class="w-25">
                                                     Notes
                                                 </th>
