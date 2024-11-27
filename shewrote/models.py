@@ -303,6 +303,9 @@ class Marriage(models.Model):
         MARRIED = "M", _("Married")
         DIVORCED = "D", _("Divorced")
         WIDOWED = "W", _("Widowed")
+        UNMARRIED = "U", _("Unmarried")
+        LIVING_TOGETHER = "L", _("Living together")
+        OTHER = "O", _("Other")
 
     person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name="+")
     spouse = models.ForeignKey(Person, models.SET_NULL, null=True, blank=True)
@@ -313,7 +316,14 @@ class Marriage(models.Model):
     notes = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
-        return f'{self.person.short_name} was married to {self.spouse.short_name if self.spouse else "UNKNOWN"}'
+        marital_status = self.get_marital_status_display().lower()
+        if self.marital_status == Marriage.MaritalStatusChoices.LIVING_TOGETHER[0]:
+            return f'{self.person.short_name} and {self.spouse.short_name if self.spouse else "UNKNOWN"} were {marital_status}'
+        if self.marital_status in (Marriage.MaritalStatusChoices.UNMARRIED[0]):
+            return f'{self.person.short_name} was {marital_status}'
+        if self.marital_status == Marriage.MaritalStatusChoices.OTHER[0]:
+            return f'{self.person.short_name} and {self.spouse.short_name if self.spouse else "UNKNOWN"}: {marital_status}'
+        return f'{self.person.short_name} {marital_status} {self.spouse.short_name if self.spouse else "UNKNOWN"}'
 
 
 @receiver(post_save, sender=Marriage)

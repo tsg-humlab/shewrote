@@ -37,7 +37,7 @@ class CollectivePlaceInline(admin.TabularInline):
 class MarriageInline(admin.TabularInline):
     model = Marriage
     fk_name = "person"
-    fields = ["person", "spouse", "married_name", "start_year", "end_year", "notes"]
+    fields = ["marital_status", "person", "spouse", "married_name", "start_year", "end_year", "notes"]
     extra = 0
     autocomplete_fields = ["person", "spouse"]
 
