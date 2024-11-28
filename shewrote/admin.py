@@ -310,11 +310,16 @@ class PersonWorkAdmin(admin.ModelAdmin):
 
 @admin.register(Edition)
 class EditionAdmin(admin.ModelAdmin):
+    search_fields = ['related_work__title']
     autocomplete_fields = ['related_work', 'place_of_publication', 'genre']
 
 
 admin.site.register(EditionLanguage)
-admin.site.register(PersonEdition)
+
+
+@admin.register(PersonEdition)
+class PersonEditionAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['person', 'edition', 'role']
 
 
 @admin.register(ReceptionSource)
