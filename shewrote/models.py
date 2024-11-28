@@ -471,6 +471,12 @@ class Work(EasyAuditMixin, models.Model):
         through_fields=("work", "person"),
         blank=True,
     )
+    languages = models.ManyToManyField(
+        Language,
+        through="WorkLanguage",
+        through_fields=("work", "language"),
+        blank=True,
+    )
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
@@ -521,6 +527,12 @@ class PersonWork(models.Model):
 
     def __str__(self):
         return f'{self.person} {self.role} {self.work}'
+
+
+class WorkLanguage(models.Model):
+    """Model linking an Edition to its Language(s)."""
+    work = models.ForeignKey(Work, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, models.SET_NULL, null=True)
 
 
 class Edition(EasyAuditMixin, models.Model):
