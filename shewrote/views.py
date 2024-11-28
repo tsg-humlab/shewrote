@@ -146,8 +146,7 @@ def person(request, person_id):
     person = Person.objects.get(id=person_id)
 
     person_receptions = (PersonReception.objects.filter(person=person)
-                         .prefetch_related('type', 'reception__part_of_work__personwork_set',
-                                           'personedition_set__edition'))
+                         .prefetch_related('type', 'reception__part_of_work__personwork_set'))
     person_receptions_with_image = person_receptions.filter(reception__image__isnull=False).exclude(reception__image="")
     reception_with_image = person_receptions_with_image.first().reception if person_receptions_with_image else None
     image = person_receptions.first().reception.image if person_receptions else None
