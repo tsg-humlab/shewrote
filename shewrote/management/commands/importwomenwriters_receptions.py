@@ -51,8 +51,8 @@ class Command(BaseCommand):
                     print(f"Source Work with id {doc['document_id_s']} not found")
                     continue
 
-                part_of_work = get_obj_or_none(Work, id=doc["reception_id_s"])
-                if not part_of_work:
+                is_same_as_work = get_obj_or_none(Work, id=doc["reception_id_s"])
+                if not is_same_as_work:
                     print(f"Reception Work with id {doc['reception_id_s']} not found")
                     continue
 
@@ -92,7 +92,7 @@ class Command(BaseCommand):
                         id = doc["id"],
                         # source = reception_source,
                         title = title,
-                        part_of_work = part_of_work,
+                        is_same_as_work = is_same_as_work,
                         place_of_reception = place_of_reception,
                         date_of_reception = doc.get("date_i", 0),
                         document_type = document_type,
