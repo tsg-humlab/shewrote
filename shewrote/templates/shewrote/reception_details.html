@@ -47,6 +47,16 @@
                                             </td>
                                         </tr>
                                         <tr>
+                                            <th scope="row" class="w-25">Part of work</th>
+                                            <td>
+                                                {% if reception.part_of_work %}
+                                                    <a href="{% url 'shewrote:work' reception.part_of_work_id %}">
+                                                        {{ reception.part_of_work }}
+                                                    </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <th scope="row" class="w-25">Author</th>
                                             <td>
                                                 {% for person in reception.is_same_as_work.get_creators %}
