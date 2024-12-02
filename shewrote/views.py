@@ -92,15 +92,17 @@ def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearc
     if sex_filter := search_form.cleaned_data['sex']:
         persons = persons.filter(sex__in=sex_filter)
 
-    if country_or_place_of_birth_filter := search_form.cleaned_data['country_or_place_of_birth']:
-        countries = [obj for obj in country_or_place_of_birth_filter if isinstance(obj, Country)]
-        places = [obj for obj in country_or_place_of_birth_filter if isinstance(obj, Place)]
-        persons = persons.filter(Q(place_of_birth__in=places) | Q(place_of_birth__modern_country__in=countries))
+    def get_country_or_place_q(field_name: str, qs_filter_prefix: str) -> Q:
+        if not (filter := search_form.cleaned_data[field_name]):
+            return Q()
+        countries = [obj for obj in filter if isinstance(obj, Country)]
+        places = [obj for obj in filter if isinstance(obj, Place)]
+        return Q(**{qs_filter_prefix + '__in':places}) | Q(**{qs_filter_prefix+'__modern_country__in':countries})
 
-    if country_or_place_of_death_filter := search_form.cleaned_data['country_or_place_of_death']:
-        countries = [obj for obj in country_or_place_of_death_filter if isinstance(obj, Country)]
-        places = [obj for obj in country_or_place_of_death_filter if isinstance(obj, Place)]
-        persons = persons.filter(Q(place_of_death__in=places) | Q(place_of_death__modern_country__in=countries))
+    country_or_place_of_birth_q = get_country_or_place_q('country_or_place_of_birth', 'place_of_birth')
+    country_or_place_of_death_q = get_country_or_place_q('country_or_place_of_death', 'place_of_death')
+    country_or_place_of_residence_q = get_country_or_place_q('country_or_place_of_residence', 'periodofresidence__place')
+    persons = persons.filter(country_or_place_of_birth_q | country_or_place_of_death_q | country_or_place_of_residence_q)
         
     return persons
 
