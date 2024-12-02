@@ -366,7 +366,7 @@ class ReceptionAdmin(admin.ModelAdmin):
     search_fields = ['title', 'reference']
     autocomplete_fields = [
         'source',
-        'part_of_work',
+        'is_same_as_work',
         'place_of_reception',
         'document_type',
     ]
@@ -375,7 +375,7 @@ class ReceptionAdmin(admin.ModelAdmin):
             None,
             {
                 "fields": [
-                    ("title", "source", "part_of_work", "reference"),
+                    ("title", "source", "is_same_as_work", "reference"),
                     "document_type",
                     ("place_of_reception", "date_of_reception"),
                     ("quotation_reception", "url", "viaf_work"),

@@ -371,7 +371,7 @@
                                                     </a>
                                                 </td>
                                                 <td>
-                                                    {% for person in person_reception.reception.part_of_work.get_creators %}
+                                                    {% for person in person_reception.reception.is_same_as_work.get_creators %}
                                                         {{ person }}
                                                         {% if not forloop.last %}, {% endif %}
                                                     {% endfor %}

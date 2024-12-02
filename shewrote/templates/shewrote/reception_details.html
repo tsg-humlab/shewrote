@@ -39,9 +39,9 @@
                                         <tr>
                                             <th scope="row" class="w-25">Is same as work</th>
                                             <td>
-                                                {% if reception.part_of_work %}
-                                                    <a href="{% url 'shewrote:work' reception.part_of_work_id %}">
-                                                        {{ reception.part_of_work }}
+                                                {% if reception.is_same_as_work %}
+                                                    <a href="{% url 'shewrote:work' reception.is_same_as_work_id %}">
+                                                        {{ reception.is_same_as_work }}
                                                     </a>
                                                 {% endif %}
                                             </td>
@@ -49,7 +49,7 @@
                                         <tr>
                                             <th scope="row" class="w-25">Author</th>
                                             <td>
-                                                {% for person in reception.part_of_work.get_creators %}
+                                                {% for person in reception.is_same_as_work.get_creators %}
                                                     <a href="{% url 'shewrote:person' person.id %}">{{ person }}</a>
                                                     {% if not forloop.last %}, {% endif %}
                                                 {% endfor %}
