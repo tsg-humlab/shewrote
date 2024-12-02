@@ -5,7 +5,7 @@ from .models import (Country, Place, Person, Education, PersonEducation, Role, P
                      PersonCollective, CollectivePlace, Genre, Language, Work, PersonWork, Edition, EditionLanguage,
                      PersonEdition, ReceptionSource, PersonReceptionSource, DocumentType, ReceptionType,
                      Reception, PersonReception, ReceptionLanguage, ReceptionGenre,
-                     WorkReception, EditionReception, PersonPersonRelation, RelationType)
+                     WorkReception, EditionReception, PersonPersonRelation, RelationType, WorkLanguage)
 
 admin.site.register(Country)
 
@@ -265,13 +265,22 @@ class GenreAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 
-admin.site.register(Language)
+@admin.register(Language)
+class LanguageAdmin(admin.ModelAdmin):
+    search_fields = ['name']
 
 
 class EditionInline(admin.StackedInline):
     model = Edition
     extra = 0
     autocomplete_fields = ['related_work', 'place_of_publication', 'genre']
+
+
+class WorkLanguageInline(admin.TabularInline):
+    model = WorkLanguage
+    extra = 0
+    fields = ['work', 'language']
+    autocomplete_fields = ['language']
 
 
 class WorkReceptionInline(admin.TabularInline):
@@ -294,7 +303,7 @@ class WorkAdmin(admin.ModelAdmin):
     list_display = ['title', 'viaf_link']
     search_fields = ['title']
 
-    inlines = [PersonWorkInlineFromWorks, EditionInline, WorkReceptionInlineFromWork]
+    inlines = [WorkLanguageInline, PersonWorkInlineFromWorks, EditionInline, WorkReceptionInlineFromWork]
 
     def viaf_link(self, obj):
         return mark_safe(f'<a href="{obj.viaf_work}">{obj.viaf_work}</a>')
@@ -310,11 +319,16 @@ class PersonWorkAdmin(admin.ModelAdmin):
 
 @admin.register(Edition)
 class EditionAdmin(admin.ModelAdmin):
+    search_fields = ['related_work__title']
     autocomplete_fields = ['related_work', 'place_of_publication', 'genre']
 
 
 admin.site.register(EditionLanguage)
-admin.site.register(PersonEdition)
+
+
+@admin.register(PersonEdition)
+class PersonEditionAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['person', 'edition', 'role']
 
 
 @admin.register(ReceptionSource)
@@ -357,6 +371,7 @@ class ReceptionAdmin(admin.ModelAdmin):
     search_fields = ['title', 'reference']
     autocomplete_fields = [
         'source',
+        'is_same_as_work',
         'part_of_work',
         'place_of_reception',
         'document_type',
@@ -366,7 +381,9 @@ class ReceptionAdmin(admin.ModelAdmin):
             None,
             {
                 "fields": [
-                    ("title", "source", "part_of_work", "reference"),
+                    "title",
+                    ("source", "is_same_as_work", "part_of_work"),
+                    "reference",
                     "document_type",
                     ("place_of_reception", "date_of_reception"),
                     ("quotation_reception", "url", "viaf_work"),

@@ -92,15 +92,17 @@ def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearc
     if sex_filter := search_form.cleaned_data['sex']:
         persons = persons.filter(sex__in=sex_filter)
 
-    if country_or_place_of_birth_filter := search_form.cleaned_data['country_or_place_of_birth']:
-        countries = [obj for obj in country_or_place_of_birth_filter if isinstance(obj, Country)]
-        places = [obj for obj in country_or_place_of_birth_filter if isinstance(obj, Place)]
-        persons = persons.filter(Q(place_of_birth__in=places) | Q(place_of_birth__modern_country__in=countries))
+    def get_country_or_place_q(field_name: str, qs_filter_prefix: str) -> Q:
+        if not (filter := search_form.cleaned_data[field_name]):
+            return Q()
+        countries = [obj for obj in filter if isinstance(obj, Country)]
+        places = [obj for obj in filter if isinstance(obj, Place)]
+        return Q(**{qs_filter_prefix + '__in':places}) | Q(**{qs_filter_prefix+'__modern_country__in':countries})
 
-    if country_or_place_of_death_filter := search_form.cleaned_data['country_or_place_of_death']:
-        countries = [obj for obj in country_or_place_of_death_filter if isinstance(obj, Country)]
-        places = [obj for obj in country_or_place_of_death_filter if isinstance(obj, Place)]
-        persons = persons.filter(Q(place_of_death__in=places) | Q(place_of_death__modern_country__in=countries))
+    country_or_place_of_birth_q = get_country_or_place_q('country_or_place_of_birth', 'place_of_birth')
+    country_or_place_of_death_q = get_country_or_place_q('country_or_place_of_death', 'place_of_death')
+    country_or_place_of_residence_q = get_country_or_place_q('country_or_place_of_residence', 'periodofresidence__place')
+    persons = persons.filter(country_or_place_of_birth_q | country_or_place_of_death_q | country_or_place_of_residence_q)
         
     return persons
 
@@ -144,8 +146,8 @@ def persons(request):
 def person(request, person_id):
     """Show a single person and all their details."""
     person = Person.objects.get(id=person_id)
-
-    person_receptions = PersonReception.objects.filter(person=person).prefetch_related('type', 'reception__part_of_work__personwork_set')
+    person_receptions = (PersonReception.objects.filter(person=person)
+                         .prefetch_related('type', 'reception__is_same_as_work__personwork_set'))
     person_receptions_with_image = person_receptions.filter(reception__image__isnull=False).exclude(reception__image="")
     reception_with_image = person_receptions_with_image.first().reception if person_receptions_with_image else None
     image = person_receptions.first().reception.image if person_receptions else None
@@ -272,7 +274,7 @@ def receptions(request):
 
 
 def reception(request, reception_id):
-    reception = get_object_or_404(Reception.objects.select_related('part_of_work', 'document_type'), id=reception_id)
+    reception = get_object_or_404(Reception.objects.select_related('is_same_as_work', 'document_type'), id=reception_id)
 
     work_receptions = WorkReception.objects.filter(reception=reception).prefetch_related(
         'work',

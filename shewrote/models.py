@@ -481,6 +481,12 @@ class Work(EasyAuditMixin, models.Model):
         through_fields=("work", "person"),
         blank=True,
     )
+    languages = models.ManyToManyField(
+        Language,
+        through="WorkLanguage",
+        through_fields=("work", "language"),
+        blank=True,
+    )
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
@@ -531,6 +537,12 @@ class PersonWork(models.Model):
 
     def __str__(self):
         return f'{self.person} {self.role} {self.work}'
+
+
+class WorkLanguage(models.Model):
+    """Model linking an Edition to its Language(s)."""
+    work = models.ForeignKey(Work, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, models.SET_NULL, null=True)
 
 
 class Edition(EasyAuditMixin, models.Model):
@@ -648,7 +660,8 @@ class Reception(EasyAuditMixin, models.Model):
     )
     source = models.ForeignKey(ReceptionSource, models.SET_NULL, null=True, blank=True)
     title = models.TextField(blank=True)
-    part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+", verbose_name="is same as work")
+    is_same_as_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+", verbose_name="is same as work")
+    part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+")
     reference = models.TextField(blank=True)
     place_of_reception = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
     date_of_reception = models.IntegerField(blank=True, null=True)

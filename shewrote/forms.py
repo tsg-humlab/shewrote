@@ -221,10 +221,18 @@ class PersonSearchForm(forms.Form):
         required=False
     )
 
+    country_or_place_of_residence = CountryOrPlaceField(
+        widget=HeavySelect2MultipleWidget(
+            attrs={'data-placeholder': "Select multiple"},
+            data_view='shewrote:countryplaceautoresponse'
+        ),
+        required=False
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        for field_name in ['country_or_place_of_birth', 'country_or_place_of_death']:
+        for field_name in ['country_or_place_of_birth', 'country_or_place_of_death', 'country_or_place_of_residence']:
             field = self.fields[field_name]
             field.choices = []
             for country_or_place_string in self.data.getlist(field_name):
