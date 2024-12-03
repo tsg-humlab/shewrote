@@ -256,6 +256,26 @@ def collective(request, collective_id):
     return render(request, 'shewrote/collective_details.html', context)
 
 
+def order_queryset(qs: QuerySet, get_params: dict, order_by_options: OrderedDict, default_option: str) \
+        -> tuple[QuerySet, dict]:
+    """
+    Orders the given Queryset and returns it with a dict containing context variables to be used in the template
+    :param qs: QuerySet to order
+    :param get_params: parameters in the GET request
+    :param order_by_options: options the user can choose from
+    :param default_option: the default option if none is selected
+    :return: ordered QuerySet and a dict with context variables
+    """
+    order_by: str = get_params.pop('order_by', default_option)
+    qs: QuerySet = qs.order_by(F(order_by).asc(nulls_last=True))
+    current_order_by_label: str = order_by_options[order_by]
+    get_params_str: str = '&'.join(
+        f'{key}={value}' for key, value in get_params.items()
+    )
+    return qs, {'order_by': order_by, 'order_by_options': order_by_options,
+                'current_order_by_label': current_order_by_label, 'get_params': get_params_str}
+
+
 def receptions(request):
     receptions = Reception.objects.prefetch_related(
         'place_of_reception',
@@ -266,10 +286,17 @@ def receptions(request):
     title_filter = request.GET.get('title', '')
     if title_filter:
         receptions = receptions.filter(title__icontains=title_filter)
+
+    order_by_options = OrderedDict([
+        ('title', 'Title'),
+        ('date_of_reception', 'Date of reception'),
+    ])
+    receptions, ordering_context = order_queryset(receptions, request.GET.dict(), order_by_options, 'date_of_reception')
+
     paginator = Paginator(receptions, 25)
     page_number = request.GET.get('page')
     paginated_receptions = paginator.get_page(page_number)
-    context = {'receptions': paginated_receptions, 'count': paginator.count, 'title': title_filter}
+    context = {'receptions': paginated_receptions, 'count': paginator.count, 'title': title_filter} | ordering_context
     return render(request, 'shewrote/receptions.html', context)
 
 
@@ -296,18 +323,11 @@ def works_list(request, base_qs, extra_context={}):
     """Show all works."""
     works = base_qs.prefetch_related("personwork_set__person", "personwork_set__role")
 
-    get_params = request.GET.dict()
-    order_by = get_params.pop('order_by', 'date_of_publication_start')
-    works = works.order_by(F(order_by).asc(nulls_last=True))
-
     order_by_options = OrderedDict([
         ('title', 'Title'),
         ('date_of_publication_start', 'Publication date'),
     ])
-    current_order_by_label = order_by_options[order_by]
-    get_params_str = '&'.join(
-        f'{key}={value}' for key, value in get_params.items()
-    )
+    works, ordering_context = order_queryset(works, request.GET.dict(), order_by_options, 'date_of_publication_start')
 
     title_filter = request.GET.get("title", '')
     if title_filter:
@@ -317,9 +337,7 @@ def works_list(request, base_qs, extra_context={}):
     page_number = request.GET.get("page")
     paginated_works = paginator.get_page(page_number)
 
-    context = {'works': paginated_works, 'count': paginator.count, 'title': title_filter, 'order_by': order_by,
-               'order_by_options': order_by_options, 'current_order_by_label': current_order_by_label,
-               'get_params': get_params_str} | extra_context
+    context = {'works': paginated_works, 'count': paginator.count, 'title': title_filter} | ordering_context | extra_context
 
     return render(request, 'shewrote/works.html', context)
 
