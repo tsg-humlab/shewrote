@@ -26,6 +26,24 @@
                 </svg>
                 Filter
             </button>
+            <div class="vr"></div>
+            <div class="dropdown">
+              <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                      aria-expanded="false" title="Order by">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sort-down" viewBox="0 0 16 16">
+                      <path d="M3.5 2.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 11.293zm3.5 1a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5M7.5 6a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1z"/>
+                  </svg>
+                  {{ current_order_by_label }}
+              </button>
+              <ul class="dropdown-menu">
+                  <li><h6 class="dropdown-header">Order by</h6></li>
+                  {% for order_by_value, order_by_label in order_by_options.items %}
+                    <li><a class="dropdown-item" href=".?order_by={{ order_by_value }}&{{ get_params }}">
+                        {{ order_by_label }}
+                    </a></li>
+                  {% endfor %}
+              </ul>
+            </div>
         </div>
     </form>
 
@@ -40,27 +58,71 @@
         {% for reception in receptions %}
             <li class="list-group-item px-0 container">
                 <div class="row">
-                    <div class="col-12 col-sm-8">
-                        <div class="float-end">
-                            {{ reception.place_of_reception|default:"" }}
-                            {{ reception.date_of_reception|default:"" }}
-                        </div>
-                        <div class="mb-2">
-                            <a href="{% url 'shewrote:reception' reception.id %}" title="Person details">
-                            {{ reception.title }}
+                    <div class="col-12 ps-0">
+                        {% if user.is_authenticated and user.is_staff %}
+                            <a href="{% url 'admin:shewrote_reception_change' reception.id %}" title="Edit" class="ms-2 float-end">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                                </svg>
                             </a>
-                        </div>
-                        <div class="float-end">
-                            {% if reception.viaf_work %}
-                                <a href="{{ reception.viaf_work }}" title="VIAF" class="float-end icon-link icon-link-hover">
-                                    VIAF
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
-                                      <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
-                                      <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
-                                    </svg>
-                                </a>
-                            {% endif %}
-                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2">
+                        {% for author in reception.is_same_as_work.get_creators %}
+                            {{ author }}
+                            {% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="col-3">
+                        <a href="{% url 'shewrote:reception' reception.id %}" title="Reception details">
+                            {{ reception.title|truncatewords:20 }}
+                        </a>
+                    </div>
+                    <div class="col-1">
+                        {{ reception.place_of_reception|default:"" }}
+                    </div>
+                    <div class="col-1">
+                        {{ reception.date_of_reception|default_if_none:"" }}
+                    </div>
+                    <div class="col-2">
+                        <table>
+                            <tbody>
+                                {% with reception.personreception_set.all as personreceptions %}
+                                    {% if personreceptions %}
+                                        {% for personreception in personreceptions %}
+                                        <tr>
+                                            <td class="text-secondary pe-1">
+                                                {{ personreception.type }}
+                                            </td>
+                                            <td>
+                                                {{ personreception.person }}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endwith %}
+                                {% with reception.workreception_set.all as workreceptions %}
+                                    {% if workreceptions %}
+                                        {% for workreception in workreceptions %}
+                                            {% for person in workreception.work.related_persons.all %}
+                                                <tr>
+                                                    <td class="text-secondary pe-1">
+
+                                                    </td>
+                                                    <td>
+                                                        {{ person }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endwith %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-3">
                         <table>
                             <tbody>
                                 {% with reception.workreception_set.all as workreceptions %}
@@ -79,22 +141,6 @@
                                 {% endwith %}
                             </tbody>
                         </table>
-                    </div>
-                    <div class="col-11 col-sm-3">
-                        {% if reception.image %}
-                            <img src="{{ reception.image.url }}" class="img-thumbnail"/>
-                        {% else %}
-                        <div class="text-muted text-center fst-italic"><small>No image</small></div>
-                        {% endif %}
-                    </div>
-                    <div class="col-1 ps-0">
-                        {% if user.is_authenticated and user.is_staff %}
-                            <a href="{% url 'admin:shewrote_reception_change' reception.id %}" title="Edit" class="ms-2 float-end">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
-                                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-                                </svg>
-                            </a>
-                        {% endif %}
                     </div>
                 </div>
             </li>

@@ -686,6 +686,12 @@ class Reception(EasyAuditMixin, models.Model):
     image = models.ImageField(upload_to="reception", null=True, blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["title"]),
+            models.Index(fields=["date_of_reception"])
+        ]
+
     def __str__(self):
         """Returns the title of the Reception."""
         return self.title
