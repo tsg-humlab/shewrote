@@ -103,6 +103,22 @@
                                         {% endfor %}
                                     {% endif %}
                                 {% endwith %}
+                                {% with reception.workreception_set.all as workreceptions %}
+                                    {% if workreceptions %}
+                                        {% for workreception in workreceptions %}
+                                            {% for person in workreception.work.related_persons.all %}
+                                                <tr>
+                                                    <td class="text-secondary pe-1">
+
+                                                    </td>
+                                                    <td>
+                                                        <i>{{ person }}</i>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endwith %}
                             </tbody>
                         </table>
                     </div>
