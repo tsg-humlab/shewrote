@@ -31,7 +31,7 @@ class Command(BaseCommand):
         # The next bit is to get the correct datetime values in the database.
         for index, datetime in enumerate(self._crud_events_datetime):
             self._crud_events[index].datetime = datetime
-        CRUDEvent.objects.bulk_update(self._crud_events, ['datetime'])
+        CRUDEvent.objects.bulk_update(self._crud_events, ['datetime'], batch_size=1000)
 
     def create_events(self, cls):
         print("Creating events for", cls.__name__)
