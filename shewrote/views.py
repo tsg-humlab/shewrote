@@ -281,7 +281,10 @@ def receptions(request):
         'place_of_reception',
         'workreception_set',
         'workreception_set__work',
+        'workreception_set__work__related_persons',
         'workreception_set__type',
+        'is_same_as_work',
+        'personreception_set'
     )
     title_filter = request.GET.get('title', '')
     if title_filter:
