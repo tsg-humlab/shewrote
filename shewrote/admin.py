@@ -1,5 +1,10 @@
+import json
 from django.contrib import admin
 from django.utils.safestring import mark_safe
+from pygments import highlight
+from pygments.lexers import JsonLexer
+from pygments.formatters import HtmlFormatter
+
 from .models import (Country, Place, Person, Education, PersonEducation, Role, Profession, PersonProfession, Religion,
                      PersonReligion, Marriage, AlternativeName, PeriodOfResidence, CollectiveType, Collective,
                      PersonCollective, CollectivePlace, Genre, Language, Work, PersonWork, Edition, EditionLanguage,
@@ -7,12 +12,32 @@ from .models import (Country, Place, Person, Education, PersonEducation, Role, P
                      Reception, PersonReception, ReceptionLanguage, ReceptionGenre,
                      WorkReception, EditionReception, PersonPersonRelation, RelationType, WorkLanguage)
 
+
+def pretty_json(self, instance, field_name):
+    """Function to display pretty version of our data"""
+    json_data = getattr(instance, field_name)
+    json_string = json.dumps(json_data, ensure_ascii=False, indent=2) if json_data else ''
+    formatter = HtmlFormatter(style='colorful')
+    response = highlight(json_string, JsonLexer(), formatter)
+    scroll_style = ".highlight { height: 20em; overflow: scroll; border: 1px solid lightgray; resize: both; min-width: 30em; } "
+    style = "<style>" + scroll_style + formatter.get_style_defs() + "</style><br>"
+    return mark_safe(style + response)
+
+
+class PrettyOriginalDataMixin:
+    def pretty_original_data(self, instance):
+        return pretty_json(self, instance, 'original_data')
+
+    pretty_original_data.short_description = 'Original data'
+
+
 admin.site.register(Country)
 
 
 @admin.register(Place)
-class PlaceAdmin(admin.ModelAdmin):
+class PlaceAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
     search_fields = ["name"]
+    readonly_fields = ('pretty_original_data',)
 
 
 class AlternativeNameInline(admin.TabularInline):
@@ -136,10 +161,11 @@ class PersonCollectiveInline(admin.TabularInline):
 
 
 @admin.register(Person)
-class PersonAdmin(admin.ModelAdmin):
+class PersonAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
     list_display = ["short_name", "first_name", "birth_name", "sex", "date_of_birth", "place_of_birth",
                     "date_of_death", "place_of_death", "notes", 'view_on_site_link']
     search_fields = ['short_name']
+    readonly_fields = ('pretty_original_data',)
     ordering = ['short_name']
     list_filter = ["sex", "place_of_birth__modern_country__modern_country"]
     autocomplete_fields = [
@@ -154,7 +180,7 @@ class PersonAdmin(admin.ModelAdmin):
             {
                 "fields": [("short_name", "viaf_or_cerl"), ("first_name", "birth_name",),
                            ("date_of_birth", "place_of_birth"), ("date_of_death", "place_of_death"),
-                           "notes"],
+                           "notes", "pretty_original_data"],
             },
         ),
         (
@@ -178,6 +204,9 @@ class PersonAdmin(admin.ModelAdmin):
                PersonEducationInline, PersonProfessionInline, PersonReligionInline,
                AlternativeNameInline, PeriodsOfResidenceInline,
                PersonWorkInlineFromPersons, PersonCollectiveInline, PersonReceptionInlineFromPerson]
+
+
+
 
     def view_on_site_link(self, obj):
         icon = '<img src="/static/admin/img/icon-viewlink.svg" alt="View on site" title="View on site">'
@@ -247,8 +276,9 @@ admin.site.register(CollectiveType)
 
 
 @admin.register(Collective)
-class CollectiveAdmin(admin.ModelAdmin):
+class CollectiveAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
     search_fields = ["name"]
+    readonly_fields = ('pretty_original_data', )
     inlines = [CollectivePlaceInline]
 
 
@@ -299,9 +329,10 @@ class WorkReceptionInlineFromReception(WorkReceptionInline):
 
 
 @admin.register(Work)
-class WorkAdmin(admin.ModelAdmin):
+class WorkAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
     list_display = ['title', 'viaf_link']
     search_fields = ['title']
+    readonly_fields = ('pretty_original_data',)
 
     inlines = [WorkLanguageInline, PersonWorkInlineFromWorks, EditionInline, WorkReceptionInlineFromWork]
 
@@ -365,7 +396,7 @@ class ReceptionGenreInline(admin.TabularInline):
 
 
 @admin.register(Reception)
-class ReceptionAdmin(admin.ModelAdmin):
+class ReceptionAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
     list_display = ['title', 'reference']
     list_display_links = ['title', 'reference']
     search_fields = ['title', 'reference']
@@ -376,6 +407,7 @@ class ReceptionAdmin(admin.ModelAdmin):
         'place_of_reception',
         'document_type',
     ]
+    readonly_fields = ('pretty_original_data', )
     fieldsets = [
         (
             None,
@@ -388,7 +420,8 @@ class ReceptionAdmin(admin.ModelAdmin):
                     ("place_of_reception", "date_of_reception"),
                     ("quotation_reception", "url", "viaf_work"),
                     "image",
-                    "notes"
+                    "notes",
+                    "pretty_original_data"
                 ],
             },
         ),
