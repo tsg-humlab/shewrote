@@ -70,6 +70,7 @@ class Country(models.Model):
 
     class Meta:
         verbose_name_plural = 'countries'
+        ordering = ['modern_country']
 
     def __str__(self):
         """Return the modern name of the country."""
@@ -85,6 +86,9 @@ class Place(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         """Return the Place name."""
@@ -138,6 +142,7 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
             models.Index(fields=["normalised_date_of_birth"]),
             models.Index(fields=["normalised_date_of_death"])
         ]
+        ordering = ['short_name']
 
     def __str__(self):
         """Return the name of the Person."""
@@ -180,6 +185,9 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
 class RelationType(models.Model):
     text = models.CharField(max_length=255, unique=True)
     reverse = models.ForeignKey('self', blank=True, null=True, on_delete=models.SET_NULL)
+
+    class Meta:
+        ordering = ['text']
 
     def __str__(self):
         return self.text
@@ -229,6 +237,9 @@ class Education(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, blank=True, unique=True)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         """Return the name of the Education."""
         return self.name
@@ -248,6 +259,9 @@ class Role(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         """Return the name of the Role."""
         return self.name
@@ -257,6 +271,9 @@ class Profession(models.Model):
     """Model describing the profession of a Person."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         """Return the name of the Profession."""
@@ -279,6 +296,9 @@ class Religion(models.Model):
     """Model describing the profession of a Person."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         """Return the name of the Religion."""
@@ -390,6 +410,9 @@ class CollectiveType(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_collective = models.CharField(max_length=255)
 
+    class Meta:
+        ordering = ['type_of_collective']
+
     def __str__(self):
         """Returns the name of the type of Collective."""
         return self.type_of_collective
@@ -417,6 +440,9 @@ class Collective(models.Model):
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         """Returns the name of the Collective."""
         return self.name
@@ -442,6 +468,9 @@ class Genre(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         """Returns the name of the Genre."""
         return self.name
@@ -451,6 +480,9 @@ class Language(models.Model):
     """Model listing various languages."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         """Returns the name of the language."""
@@ -500,6 +532,7 @@ class Work(EasyAuditMixin, models.Model):
             models.Index(fields=["date_of_publication_start"]),
             models.Index(fields=["date_of_publication_end"]),
         ]
+        ordering = ['title']
 
     def __str__(self):
         """Returns the title of the Work"""
@@ -608,6 +641,9 @@ class ReceptionSource(models.Model):
     notes = models.TextField(blank=True)
     original_Data = models.JSONField(blank=True, null=True, editable=False)
 
+    class Meta:
+        ordering = ['title_work']
+
     def __str__(self):
         """Returns the title of the Reception Source."""
         return self.title_work
@@ -625,6 +661,9 @@ class DocumentType(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_document = models.CharField(max_length=255)
 
+    class Meta:
+        ordering = ['type_of_document']
+
     def __str__(self):
         """Returns the name of the Type of Document."""
         return self.type_of_document
@@ -634,6 +673,9 @@ class ReceptionType(models.Model):
     """This model defines the different types of Reception that can occur."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_of_reception = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ['type_of_reception']
 
     def __str__(self):
         """Returns the name of the Type of Reception."""
@@ -691,6 +733,7 @@ class Reception(EasyAuditMixin, models.Model):
             models.Index(fields=["title"]),
             models.Index(fields=["date_of_reception"])
         ]
+        ordering = ['title']
 
     def __str__(self):
         """Returns the title of the Reception."""
