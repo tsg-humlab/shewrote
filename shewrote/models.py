@@ -747,8 +747,7 @@ class PersonReception(models.Model):
     type = models.ForeignKey(ReceptionType, models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        type_str = self.type.type_of_reception if self.type else ""
-        return f'{self.reception.title} {type_str} {self.person.short_name}'
+        return f'{self.reception.title} {self.type or "receives"} {self.person.short_name}'
 
 
 class WorkReception(models.Model):
