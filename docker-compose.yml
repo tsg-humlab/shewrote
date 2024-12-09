@@ -22,9 +22,9 @@ services:
       - postgres_data:/var/lib/postgresql/data/
       - postgres_dumps:/postgres_dumps
     environment:
-      - POSTGRES_USER=django_app_pg_user
-      - POSTGRES_PASSWORD=django_app_pg_password
-      - POSTGRES_DB=django_app_pg_dbname
+      - POSTGRES_USER=${SQL_USER}
+      - POSTGRES_PASSWORD=${SQL_PASSWORD}
+      - POSTGRES_DB=${SQL_DATABASE}
     restart: unless-stopped
   redis:
     image: redis:latest
