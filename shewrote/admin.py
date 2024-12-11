@@ -37,7 +37,12 @@ admin.site.register(Country)
 @admin.register(Place)
 class PlaceAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
     search_fields = ["name"]
-    readonly_fields = ('pretty_original_data',)
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ('pretty_original_data',)
+        else:
+            return ()
 
 
 class AlternativeNameInline(admin.TabularInline):
@@ -165,7 +170,6 @@ class PersonAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
     list_display = ["short_name", "first_name", "birth_name", "sex", "date_of_birth", "place_of_birth",
                     "date_of_death", "place_of_death", "notes", 'view_on_site_link']
     search_fields = ['short_name']
-    readonly_fields = ('pretty_original_data',)
     ordering = ['short_name']
     list_filter = ["sex", "place_of_birth__modern_country__modern_country"]
     autocomplete_fields = [
@@ -174,39 +178,44 @@ class PersonAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
         "mother",
         "father",
     ]
-    fieldsets = [
-        (
-            None,
-            {
-                "fields": [("short_name", "viaf_or_cerl"), ("first_name", "birth_name",),
-                           ("date_of_birth", "place_of_birth"), ("date_of_death", "place_of_death"),
-                           "notes", "pretty_original_data"],
-            },
-        ),
-        (
-            "Parents",
-            {
-                # "classes": ("collapse",),
-                "fields": [("mother", "father")]
-            }
-        ),
-        (
-            "Professional",
-            {
-                # "classes": ("collapse",),
-                "fields": [("aristocratic_title", "professional_ecclesiastic_title"), ("flourishing_start",
-                                                                                       "flourishing_end"),
-                           "bibliography"]
-            }
-        )
-    ]
     inlines = [MarriageInline, PersonPersonRelationInline,
                PersonEducationInline, PersonProfessionInline, PersonReligionInline,
                AlternativeNameInline, PeriodsOfResidenceInline,
                PersonWorkInlineFromPersons, PersonCollectiveInline, PersonReceptionInlineFromPerson]
 
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = [
+            (
+                None,
+                {
+                    "fields": [("short_name", "viaf_or_cerl"),
+                               ("first_name", "birth_name",),
+                               ("date_of_birth", "place_of_birth"),
+                               ("date_of_death", "place_of_death"),
+                               "notes"],
+                },
+            ),
+            (
+                "Parents", {"fields": [("mother", "father")]}
+            ),
+            (
+                "Professional",
+                {
+                    "fields": [("aristocratic_title", "professional_ecclesiastic_title"),
+                               ("flourishing_start", "flourishing_end"),
+                               "bibliography"]
+                }
+            )
+        ]
+        if request.user.is_superuser:
+            fieldsets[0][1]['fields'].append('pretty_original_data')
+        return fieldsets
 
-
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ('pretty_original_data',)
+        else:
+            return ()
 
     def view_on_site_link(self, obj):
         icon = '<img src="/static/admin/img/icon-viewlink.svg" alt="View on site" title="View on site">'
@@ -278,8 +287,13 @@ admin.site.register(CollectiveType)
 @admin.register(Collective)
 class CollectiveAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
     search_fields = ["name"]
-    readonly_fields = ('pretty_original_data', )
     inlines = [CollectivePlaceInline]
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ('pretty_original_data',)
+        else:
+            return ()
 
 
 @admin.register(PersonCollective)
@@ -332,9 +346,14 @@ class WorkReceptionInlineFromReception(WorkReceptionInline):
 class WorkAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
     list_display = ['title', 'viaf_link']
     search_fields = ['title']
-    readonly_fields = ('pretty_original_data',)
 
     inlines = [WorkLanguageInline, PersonWorkInlineFromWorks, EditionInline, WorkReceptionInlineFromWork]
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ('pretty_original_data',)
+        else:
+            return ()
 
     def viaf_link(self, obj):
         return mark_safe(f'<a href="{obj.viaf_work}">{obj.viaf_work}</a>')
@@ -407,27 +426,36 @@ class ReceptionAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
         'place_of_reception',
         'document_type',
     ]
-    readonly_fields = ('pretty_original_data', )
-    fieldsets = [
-        (
-            None,
-            {
-                "fields": [
-                    "title",
-                    ("source", "is_same_as_work", "part_of_work"),
-                    "reference",
-                    "document_type",
-                    ("place_of_reception", "date_of_reception"),
-                    ("quotation_reception", "url", "viaf_work"),
-                    "image",
-                    "notes",
-                    "pretty_original_data"
-                ],
-            },
-        ),
-    ]
     inlines = [PersonReceptionInlineFromReception, WorkReceptionInlineFromReception, ReceptionLanguageInline,
                ReceptionGenreInline]
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = [
+            (
+                None,
+                {
+                    "fields": [
+                        "title",
+                        ("source", "is_same_as_work", "part_of_work"),
+                        "reference",
+                        "document_type",
+                        ("place_of_reception", "date_of_reception"),
+                        ("quotation_reception", "url", "viaf_work"),
+                        "image",
+                        "notes",
+                    ],
+                },
+            ),
+        ]
+        if request.user.is_superuser:
+            fieldsets[0][1]['fields'].append('pretty_original_data')
+        return fieldsets
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ('pretty_original_data',)
+        else:
+            return ()
 
 
 @admin.register(PersonReception)
