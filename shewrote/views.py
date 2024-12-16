@@ -103,6 +103,8 @@ def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearc
     country_or_place_of_death_q = get_country_or_place_q('country_or_place_of_death', 'place_of_death')
     country_or_place_of_residence_q = get_country_or_place_q('country_or_place_of_residence', 'periodofresidence__place')
     persons = persons.filter(country_or_place_of_birth_q | country_or_place_of_death_q | country_or_place_of_residence_q)
+
+    persons = persons.filter(marriage__marital_status__in=search_form.cleaned_data.get('marital_status', []))
         
     return persons
 

@@ -87,6 +87,11 @@
                 {{ search_form.country_or_place_of_residence }}
                 <small class="text-danger">{{ search_form.country_or_place_of_residence.errors }}</small>
             </div>
+
+            <div class="py-2 vstack gap-1 border-top">
+                <strong>Marital status</strong>
+                {{ search_form.marital_status }}
+            </div>
         </form>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         {{ search_form.media.js }}
