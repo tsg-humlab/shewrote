@@ -11,7 +11,7 @@ from easyaudit.models import CRUDEvent
 
 import functools
 
-from .models import Person, Place, Education, PersonEducation, PeriodOfResidence, Work, Marriage
+from .models import Person, Place, Education, PersonEducation, PeriodOfResidence, Work, Marriage, Religion
 
 
 class AddAnotherWidget(ModelSelect2Widget):
@@ -234,6 +234,15 @@ class PersonSearchForm(forms.Form):
                                      attrs={'data-placeholder': "Select multiple",
                                             'style': "width: 100%"}),
         choices=Marriage.MaritalStatusChoices.choices,
+        required=False
+    )
+
+    religion = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Religion, search_fields=['name__icontains'],
+                                          attrs={'data-placeholder': "Select multiple",
+                                                 'data-minimum-input-length': 0,
+                                                 'style': "width: 100%"}),
+        queryset=Religion.objects.all(),
         required=False
     )
 

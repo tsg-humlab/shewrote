@@ -106,6 +106,9 @@ def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearc
 
     if marital_status_filter := search_form.cleaned_data.get('marital_status', []):
         persons = persons.filter(marriage__marital_status__in=marital_status_filter)
+
+    if religion_filter := search_form.cleaned_data.get('religion', []):
+        persons = persons.filter(personreligion__religion_id__in=religion_filter)
         
     return persons
 
