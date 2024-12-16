@@ -89,9 +89,6 @@ def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearc
     :param search_form: a valid instance of PersonSearchForm
     :return: a QuerySet of Person
     """
-    if sex_filter := search_form.cleaned_data['sex']:
-        persons = persons.filter(sex__in=sex_filter)
-
     def get_country_or_place_q(field_name: str, qs_filter_prefix: str) -> Q:
         if not (filter := search_form.cleaned_data[field_name]):
             return Q()
@@ -104,11 +101,15 @@ def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearc
     country_or_place_of_residence_q = get_country_or_place_q('country_or_place_of_residence', 'periodofresidence__place')
     persons = persons.filter(country_or_place_of_birth_q | country_or_place_of_death_q | country_or_place_of_residence_q)
 
-    if marital_status_filter := search_form.cleaned_data.get('marital_status', []):
-        persons = persons.filter(marriage__marital_status__in=marital_status_filter)
+    def filter_qs_by_field(qs: QuerySet, form_field: str, lookup: str) -> QuerySet:
+        if form_data := search_form.cleaned_data.get(form_field, None):
+            return qs.filter(**{lookup: form_data})
+        return qs
 
-    if religion_filter := search_form.cleaned_data.get('religion', []):
-        persons = persons.filter(personreligion__religion_id__in=religion_filter)
+    persons = filter_qs_by_field(persons, 'sex', 'sex__in')
+    persons = filter_qs_by_field(persons, 'marital_status', 'marriage__marital_status__in')
+    persons = filter_qs_by_field(persons, 'religion', 'personreligion__religion_id__in')
+    persons = filter_qs_by_field(persons, 'education', 'personeducation__education_id__in')
         
     return persons
 

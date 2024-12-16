@@ -246,6 +246,15 @@ class PersonSearchForm(forms.Form):
         required=False
     )
 
+    education = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Education, search_fields=['name__icontains'],
+                                          attrs={'data-placeholder': "Select multiple",
+                                                 'data-minimum-input-length': 0,
+                                                 'style': "width: 100%"}),
+        queryset=Education.objects.all(),
+        required=False
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
