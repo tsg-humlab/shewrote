@@ -12,7 +12,7 @@ from easyaudit.models import CRUDEvent
 import functools
 
 from .models import (Person, Place, Education, PersonEducation, PeriodOfResidence, Work, Marriage, Religion, Profession,
-                     RelationType, ReceptionType)
+                     RelationType, ReceptionType, Language)
 
 
 class AddAnotherWidget(ModelSelect2Widget):
@@ -270,6 +270,12 @@ class PersonSearchForm(forms.Form):
     reception_type = forms.ModelMultipleChoiceField(
         widget=ModelSelect2MultipleWidget(model=ReceptionType, search_fields=['type_of_reception__icontains'], attrs=default_attrs),
         queryset=ReceptionType.objects.all(),
+        required=False
+    )
+
+    language = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Language, search_fields=['name__icontains'], attrs=default_attrs),
+        queryset=Language.objects.all(),
         required=False
     )
 
