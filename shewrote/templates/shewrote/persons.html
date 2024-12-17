@@ -40,7 +40,7 @@
             <div class="py-2 vstack gap-1">
                 <strong>Name</strong>
                 <input type="text" id="short_name" name="short_name" value="{{ short_name }}"
-                       size=30 placeholder="Enter (part of) a name" class="form-control form-control-sm"/>
+                       size=30 placeholder="Enter (part of) a name" class="form-control"/>
             </div>
 
             <div class="py-2 vstack gap-1 border-top">
@@ -111,6 +111,11 @@
             <div class="py-2 vstack gap-1">
                 <strong>Relation type</strong>
                 {{ search_form.relation_type }}
+            </div>
+
+            <div class="py-2 vstack gap-1">
+                <strong>Provisional notes</strong>
+                {{ search_form.provisional_notes }}
             </div>
         </form>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

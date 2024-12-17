@@ -262,6 +262,11 @@ class PersonSearchForm(forms.Form):
         required=False
     )
 
+    provisional_notes = forms.CharField(
+        widget=forms.widgets.TextInput(attrs={'class':"form-control", 'placeholder': "Enter one or more words"}),
+        required = False
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
