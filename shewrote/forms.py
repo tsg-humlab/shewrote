@@ -268,7 +268,7 @@ class PersonSearchForm(forms.Form):
     )
 
     reception_type = forms.ModelMultipleChoiceField(
-        widget=ModelSelect2MultipleWidget(model=ReceptionType, search_fields=['text__icontains'], attrs=default_attrs),
+        widget=ModelSelect2MultipleWidget(model=ReceptionType, search_fields=['type_of_reception__icontains'], attrs=default_attrs),
         queryset=ReceptionType.objects.all(),
         required=False
     )
