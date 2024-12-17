@@ -111,6 +111,7 @@ def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearc
     persons = filter_qs_by_field(persons, 'religion', 'personreligion__religion_id__in')
     persons = filter_qs_by_field(persons, 'education', 'personeducation__education_id__in')
     persons = filter_qs_by_field(persons, 'profession', 'personprofession__profession_id__in')
+    persons = filter_qs_by_field(persons, 'relation_type', 'from_relations__types__id__in')
         
     return persons
 

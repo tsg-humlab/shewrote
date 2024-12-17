@@ -11,7 +11,8 @@ from easyaudit.models import CRUDEvent
 
 import functools
 
-from .models import Person, Place, Education, PersonEducation, PeriodOfResidence, Work, Marriage, Religion, Profession
+from .models import (Person, Place, Education, PersonEducation, PeriodOfResidence, Work, Marriage, Religion, Profession,
+                     RelationType)
 
 
 class AddAnotherWidget(ModelSelect2Widget):
@@ -199,11 +200,13 @@ class CountryOrPlaceField(forms.MultipleChoiceField):
 
 
 class PersonSearchForm(forms.Form):
-    sex = forms.MultipleChoiceField(widget=Select2MultipleWidget(choices=Person.GenderChoices.choices,
-                                                                 attrs={'data-placeholder': "Select one or more genders",
-                                                                        'style': "width: 100%"}),
-                                    choices=Person.GenderChoices.choices,
-                                    required=False)
+    default_attrs = {'data-placeholder': "Select multiple", 'data-minimum-input-length': 0,  'style': "width: 100%"}
+
+    sex = forms.MultipleChoiceField(
+        widget=Select2MultipleWidget(choices=Person.GenderChoices.choices, attrs=default_attrs),
+        choices=Person.GenderChoices.choices,
+        required=False
+    )
 
     country_or_place_of_birth = CountryOrPlaceField(
         widget=HeavySelect2MultipleWidget(
@@ -230,37 +233,32 @@ class PersonSearchForm(forms.Form):
     )
 
     marital_status = forms.MultipleChoiceField(
-        widget=Select2MultipleWidget(choices=Marriage.MaritalStatusChoices.choices,
-                                     attrs={'data-placeholder': "Select multiple",
-                                            'style': "width: 100%"}),
+        widget=Select2MultipleWidget(choices=Marriage.MaritalStatusChoices.choices, attrs=default_attrs),
         choices=Marriage.MaritalStatusChoices.choices,
         required=False
     )
 
     religion = forms.ModelMultipleChoiceField(
-        widget=ModelSelect2MultipleWidget(model=Religion, search_fields=['name__icontains'],
-                                          attrs={'data-placeholder': "Select multiple",
-                                                 'data-minimum-input-length': 0,
-                                                 'style': "width: 100%"}),
+        widget=ModelSelect2MultipleWidget(model=Religion, search_fields=['name__icontains'], attrs=default_attrs),
         queryset=Religion.objects.all(),
         required=False
     )
 
     education = forms.ModelMultipleChoiceField(
-        widget=ModelSelect2MultipleWidget(model=Education, search_fields=['name__icontains'],
-                                          attrs={'data-placeholder': "Select multiple",
-                                                 'data-minimum-input-length': 0,
-                                                 'style': "width: 100%"}),
+        widget=ModelSelect2MultipleWidget(model=Education, search_fields=['name__icontains'], attrs=default_attrs),
         queryset=Education.objects.all(),
         required=False
     )
 
     profession = forms.ModelMultipleChoiceField(
-        widget=ModelSelect2MultipleWidget(model=Profession, search_fields=['name__icontains'],
-                                          attrs={'data-placeholder': "Select multiple",
-                                                 'data-minimum-input-length': 0,
-                                                 'style': "width: 100%"}),
+        widget=ModelSelect2MultipleWidget(model=Profession, search_fields=['name__icontains'], attrs=default_attrs),
         queryset=Profession.objects.all(),
+        required=False
+    )
+
+    relation_type = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=RelationType, search_fields=['text__icontains'], attrs=default_attrs),
+        queryset=RelationType.objects.all(),
         required=False
     )
 
