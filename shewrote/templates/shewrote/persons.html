@@ -56,7 +56,7 @@
                     />
                     <strong>Year of birth</strong>
                 </div>
-                {% include 'shewrote/components/int_range_slider.html' with prefix='birth_year' slider_info=birth_year_slider_info %}
+                {% include 'shewrote/components/int_range_slider.html' with prefix='normalised_date_of_birth' slider_info=birth_year_slider_info %}
             </div>
 
             <div class="py-2 vstack gap-2">
@@ -67,7 +67,7 @@
                     />
                     <strong>Year of death</strong>
                 </div>
-                {% include 'shewrote/components/int_range_slider.html' with prefix='death_year' slider_info=death_year_slider_info %}
+                {% include 'shewrote/components/int_range_slider.html' with prefix='normalised_date_of_death' slider_info=death_year_slider_info %}
             </div>
 
             <div class="py-2 vstack gap-1 border-top">
@@ -108,6 +108,17 @@
                 {{ search_form.profession }}
             </div>
 
+            <div class="py-2 vstack gap-2">
+                <div>
+                    <input type="checkbox" name="relation_count_checkbox"
+                           id="relation_count_checkbox" class="form-check-input ms-0 position-relative"
+                           {% if relation_count_slider_info.is_checked %}checked{% endif %}
+                    />
+                    <strong>Number of relations</strong>
+                </div>
+                {% include 'shewrote/components/int_range_slider.html' with prefix='relation_count' slider_info=relation_count_slider_info %}
+            </div>
+
             <div class="py-2 vstack gap-1">
                 <strong>Relation type</strong>
                 {{ search_form.relation_type }}
@@ -134,9 +145,9 @@
             (function() {
                 getSliderElements = function(prefix) {
                     return [
-                        document.getElementById(prefix + "_year_slider"),
-                        document.getElementById(prefix + "_year_start"),
-                        document.getElementById(prefix + "_year_end")
+                        document.getElementById(prefix + "_slider"),
+                        document.getElementById(prefix + "_start"),
+                        document.getElementById(prefix + "_end")
                     ];
                 };
 
@@ -168,8 +179,10 @@
                     });
                 };
 
-                ['birth', 'death'].forEach(function(prefix) {
-                    checkbox = document.querySelector("#normalised_date_of_"+prefix+"_checkbox");
+                ['normalised_date_of_birth',
+                 'normalised_date_of_death',
+                 'relation_count'].forEach(function(prefix) {
+                    checkbox = document.querySelector("#"+prefix+"_checkbox");
                     addChangeListener(checkbox, prefix);
                     setSliderVisibility(checkbox, prefix);
                 });

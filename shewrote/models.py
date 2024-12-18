@@ -137,6 +137,13 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
     def normalised_date_of_death(self):
         return date_of_x_text_to_int(self.date_of_death)
 
+    @computed(models.IntegerField(default=0), depends=[('from_relations', ['to_person']),
+                                                        ('to_relations', ['from_person'])])
+    def relation_count(self):
+        if not self.pk:
+            return 0
+        return self.related_to.count()
+
     class Meta:
         indexes = [
             models.Index(fields=["normalised_date_of_birth"]),

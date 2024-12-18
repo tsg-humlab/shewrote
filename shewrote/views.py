@@ -133,6 +133,9 @@ def persons(request):
     persons, death_year_slider_info = get_int_slider_info(request, persons, 'normalised_date_of_death',
                                                            ['death_year_start', 'death_year_end'])
 
+    persons, relation_count_slider_info = get_int_slider_info(request, persons, 'relation_count',
+                                                              ['relation_count_start', 'relation_count_end'])
+
     receptions = Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False)\
         .exclude(image='').values('image')
     persons = persons.annotate(image=Subquery(receptions[:1]))
@@ -145,6 +148,7 @@ def persons(request):
     context = {'persons': paginated_persons, 'count': paginator.count, 'short_name': short_name_filter,
                'birth_year_slider_info': birth_year_slider_info,
                'death_year_slider_info': death_year_slider_info,
+               'relation_count_slider_info': relation_count_slider_info,
                'search_form': search_form}
     return render(request, 'shewrote/persons.html', context)
 
