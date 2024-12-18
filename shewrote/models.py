@@ -144,6 +144,12 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
             return 0
         return self.related_to.count()
 
+    @computed(models.IntegerField(default=0), depends=[('personwork', ['person', 'work'])])
+    def work_count(self):
+        if not self.pk:
+            return 0
+        return self.personwork_set.count()
+
     class Meta:
         indexes = [
             models.Index(fields=["normalised_date_of_birth"]),
