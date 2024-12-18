@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import F, Q, OuterRef, Subquery, QuerySet, Count
+from django.db.models import F, Q, OuterRef, Subquery, QuerySet, Count, Max, Min
 from django.conf import settings
 from .models import (Person, Work, Reception, WorkReception, PersonReception, Collective, Country, Place,
                      PersonPersonRelation, Edition)
@@ -31,24 +31,18 @@ def pages(request, page):
         raise Http404
 
 
-def get_year_slider_info(request, qs, field_name, search_field_names):
-    year_min = (qs.model.objects.filter(**{field_name+'__isnull': False})
-                      .order_by(field_name).first().normalised_date_of_birth)
-    year_max = (qs.model.objects.filter(**{field_name+'__isnull': False})
-                      .order_by('-'+field_name).first().normalised_date_of_birth)
+def get_int_slider_info(request, qs, field_name, search_field_names):
+    min = qs.model.objects.aggregate(Min(field_name))[field_name+'__min']
+    max = qs.model.objects.aggregate(Max(field_name))[field_name+'__max']
+
+    start = request.GET.get(search_field_names[0], '') or min
+    end = request.GET.get(search_field_names[1], '') or max
 
     is_checked = request.GET.get(field_name+'_checkbox', 'off') == 'on'
-
-    year_start = request.GET.get(search_field_names[0], '') or year_min
     if is_checked:
-        qs = qs.filter(**{field_name+'__gte': year_start})
+        qs = qs.filter(**{field_name+'__gte': start, field_name+'__lte': end})
 
-    year_end = request.GET.get(search_field_names[1], '') or year_max
-    if is_checked:
-        qs = qs.filter(**{field_name+'__lte': year_end})
-
-    return qs, {'year_min': year_min, 'year_max': year_max, 'year_start': year_start, 'year_end': year_end,
-                'is_checked': is_checked}
+    return qs, {'min': min, 'max': max, 'start': start, 'end': end, 'is_checked': is_checked}
 
 
 class CountryAndPlaceAutocompleteView(AutoResponseView):
@@ -133,10 +127,10 @@ def persons(request):
     if search_form.is_valid():
         persons = filter_persons_with_form(persons, search_form)
 
-    persons, birth_year_slider_info = get_year_slider_info(request, persons, 'normalised_date_of_birth',
+    persons, birth_year_slider_info = get_int_slider_info(request, persons, 'normalised_date_of_birth',
                                                            ['birth_year_start', 'birth_year_end'])
 
-    persons, death_year_slider_info = get_year_slider_info(request, persons, 'normalised_date_of_death',
+    persons, death_year_slider_info = get_int_slider_info(request, persons, 'normalised_date_of_death',
                                                            ['death_year_start', 'death_year_end'])
 
     receptions = Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False)\
