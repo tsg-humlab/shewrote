@@ -149,6 +149,17 @@
                 </div>
                 {% include 'shewrote/components/int_range_slider.html' with prefix='work_count' slider_info=work_count_slider_info %}
             </div>
+
+            <div class="py-2 vstack gap-2">
+                <div>
+                    <input type="checkbox" name="edition_count_checkbox"
+                           id="edition_count_checkbox" class="form-check-input ms-0 position-relative"
+                           {% if edition_count_slider_info.is_checked %}checked{% endif %}
+                    />
+                    <strong>Number of editions</strong>
+                </div>
+                {% include 'shewrote/components/int_range_slider.html' with prefix='edition_count' slider_info=edition_count_slider_info %}
+            </div>
         </form>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         {{ search_form.media.js }}
@@ -193,7 +204,8 @@
                 ['normalised_date_of_birth',
                  'normalised_date_of_death',
                  'relation_count',
-                 'work_count'].forEach(function(prefix) {
+                 'work_count',
+                 'edition_count'].forEach(function(prefix) {
                     checkbox = document.querySelector("#"+prefix+"_checkbox");
                     addChangeListener(checkbox, prefix);
                     setSliderVisibility(checkbox, prefix);

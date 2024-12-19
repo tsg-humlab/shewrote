@@ -131,6 +131,7 @@ def persons(request):
     persons, death_year_slider_info = get_int_slider_info(request, persons, 'normalised_date_of_death')
     persons, relation_count_slider_info = get_int_slider_info(request, persons, 'relation_count')
     persons, work_count_slider_info = get_int_slider_info(request, persons, 'work_count')
+    persons, edition_count_slider_info = get_int_slider_info(request, persons, 'edition_count')
 
     receptions = Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False)\
         .exclude(image='').values('image')
@@ -146,6 +147,7 @@ def persons(request):
                'death_year_slider_info': death_year_slider_info,
                'relation_count_slider_info': relation_count_slider_info,
                'work_count_slider_info': work_count_slider_info,
+               'edition_count_slider_info': edition_count_slider_info,
                'search_form': search_form}
     return render(request, 'shewrote/persons.html', context)
 

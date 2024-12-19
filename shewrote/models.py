@@ -133,6 +133,7 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
     @computed(models.SmallIntegerField(null=True), depends=[('self', ['date_of_birth'])])
     def normalised_date_of_birth(self):
         return date_of_x_text_to_int(self.date_of_birth)
+
     @computed(models.SmallIntegerField(null=True), depends=[('self', ['date_of_death'])])
     def normalised_date_of_death(self):
         return date_of_x_text_to_int(self.date_of_death)
@@ -149,6 +150,12 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
         if not self.pk:
             return 0
         return self.personwork_set.count()
+
+    @computed(models.IntegerField(default=0), depends=[('personedition', ['person', 'edition'])])
+    def edition_count(self):
+        if not self.pk:
+            return 0
+        return self.personedition_set.count()
 
     class Meta:
         indexes = [
