@@ -133,6 +133,7 @@ def persons(request):
     persons, work_count_slider_info = get_int_slider_info(request, persons, 'work_count')
     persons, edition_count_slider_info = get_int_slider_info(request, persons, 'edition_count')
     persons, reception_count_slider_info = get_int_slider_info(request, persons, 'reception_count')
+    persons, work_reception_count_slider_info = get_int_slider_info(request, persons, 'work_reception_count')
 
     receptions = Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False)\
         .exclude(image='').values('image')
@@ -150,6 +151,7 @@ def persons(request):
                'work_count_slider_info': work_count_slider_info,
                'edition_count_slider_info': edition_count_slider_info,
                'reception_count_slider_info': reception_count_slider_info,
+               'work_reception_count_slider_info': work_reception_count_slider_info,
                'search_form': search_form}
     return render(request, 'shewrote/persons.html', context)
 

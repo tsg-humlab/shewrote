@@ -140,6 +140,17 @@
                 {% include 'shewrote/components/int_range_slider.html' with prefix='reception_count' slider_info=reception_count_slider_info %}
             </div>
 
+            <div class="py-2 vstack gap-2">
+                <div>
+                    <input type="checkbox" name="work_reception_count_checkbox"
+                           id="work_reception_count_checkbox" class="form-check-input ms-0 position-relative"
+                           {% if work_reception_count_slider_info.is_checked %}checked{% endif %}
+                    />
+                    <strong>Number of person-work_receptions</strong>
+                </div>
+                {% include 'shewrote/components/int_range_slider.html' with prefix='work_reception_count' slider_info=work_reception_count_slider_info %}
+            </div>
+
             <div class="py-2 vstack gap-1">
                 <strong>Reception type</strong>
                 {{ search_form.reception_type }}
@@ -217,7 +228,8 @@
                  'relation_count',
                  'work_count',
                  'edition_count',
-                 'reception_count'].forEach(function(prefix) {
+                 'reception_count',
+                 'work_reception_count'].forEach(function(prefix) {
                     checkbox = document.querySelector("#"+prefix+"_checkbox");
                     addChangeListener(checkbox, prefix);
                     setSliderVisibility(checkbox, prefix);
