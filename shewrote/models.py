@@ -157,6 +157,12 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
             return 0
         return self.personedition_set.count()
 
+    @computed(models.IntegerField(default=0), depends=[('personreception', ['person', 'reception'])])
+    def reception_count(self):
+        if not self.pk:
+            return 0
+        return self.personreception_set.count()
+
     class Meta:
         indexes = [
             models.Index(fields=["normalised_date_of_birth"]),

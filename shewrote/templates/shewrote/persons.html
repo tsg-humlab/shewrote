@@ -129,6 +129,17 @@
                 {{ search_form.provisional_notes }}
             </div>
 
+            <div class="py-2 vstack gap-2">
+                <div>
+                    <input type="checkbox" name="reception_count_checkbox"
+                           id="reception_count_checkbox" class="form-check-input ms-0 position-relative"
+                           {% if reception_count_slider_info.is_checked %}checked{% endif %}
+                    />
+                    <strong>Number of person-receptions</strong>
+                </div>
+                {% include 'shewrote/components/int_range_slider.html' with prefix='reception_count' slider_info=reception_count_slider_info %}
+            </div>
+
             <div class="py-2 vstack gap-1">
                 <strong>Reception type</strong>
                 {{ search_form.reception_type }}
@@ -205,7 +216,8 @@
                  'normalised_date_of_death',
                  'relation_count',
                  'work_count',
-                 'edition_count'].forEach(function(prefix) {
+                 'edition_count',
+                 'reception_count'].forEach(function(prefix) {
                     checkbox = document.querySelector("#"+prefix+"_checkbox");
                     addChangeListener(checkbox, prefix);
                     setSliderVisibility(checkbox, prefix);
