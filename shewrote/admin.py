@@ -48,7 +48,21 @@ class ShewroteModelAdmin(NoDeleteRelatedMixin, admin.ModelAdmin):
     pass
 
 
-admin.site.register(Country)
+class PlaceInline(admin.TabularInline):
+    model = Place
+    fields = ["name"]
+    max_num = 0
+    can_delete = False
+    show_change_link = True
+
+    def get_readonly_fields(self, request, obj=None):
+        return ('name',)
+
+
+@admin.register(Country)
+class CountryAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
+    search_fields = ["modern_country"]
+    inlines = [PlaceInline]
 
 
 @admin.register(Place)
