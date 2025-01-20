@@ -31,11 +31,28 @@ class PrettyOriginalDataMixin:
     pretty_original_data.short_description = 'Original data'
 
 
+class NoDeleteRelatedMixin:
+    """
+    Mixin to remove the delete button (red x) from a related (FK or M2M) form field
+    """
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        no_delete_fields = getattr(self, 'no_delete_fields', [f.name for f in self.model._meta.get_fields()
+                                                              if f.many_to_one or f.one_to_one or f.many_to_many])
+        for field_name in (no_delete_fields & form.base_fields.keys()):
+                form.base_fields[field_name].widget.can_delete_related = False
+        return form
+
+
+class ShewroteModelAdmin(NoDeleteRelatedMixin, admin.ModelAdmin):
+    pass
+
+
 admin.site.register(Country)
 
 
 @admin.register(Place)
-class PlaceAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
+class PlaceAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     search_fields = ["name"]
 
     def get_readonly_fields(self, request, obj=None):
@@ -166,7 +183,7 @@ class PersonCollectiveInline(admin.TabularInline):
 
 
 @admin.register(Person)
-class PersonAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
+class PersonAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     list_display = ["short_name", "first_name", "birth_name", "sex", "date_of_birth", "place_of_birth",
                     "date_of_death", "place_of_death", "notes", 'view_on_site_link']
     search_fields = ['short_name']
@@ -226,22 +243,22 @@ admin.site.register(Education)
 
 
 @admin.register(PersonEducation)
-class PersonEducationAdmin(admin.ModelAdmin):
+class PersonEducationAdmin(ShewroteModelAdmin):
     autocomplete_fields = ['person']
 
 
 @admin.register(Role)
-class RoleAdmin(admin.ModelAdmin):
+class RoleAdmin(ShewroteModelAdmin):
     search_fields = ['name']
 
 
 @admin.register(Profession)
-class ProfessionAdmin(admin.ModelAdmin):
+class ProfessionAdmin(ShewroteModelAdmin):
     search_fields = ['name']
 
 
 @admin.register(PersonProfession)
-class PersonProfessionAdmin(admin.ModelAdmin):
+class PersonProfessionAdmin(ShewroteModelAdmin):
     autocomplete_fields = ['person', 'profession']
 
 
@@ -249,34 +266,34 @@ admin.site.register(Religion)
 
 
 @admin.register(PersonReligion)
-class PersonReligionAdmin(admin.ModelAdmin):
+class PersonReligionAdmin(ShewroteModelAdmin):
     autocomplete_fields = ['person']
 
 
 @admin.register(Marriage)
-class MarriageAdmin(admin.ModelAdmin):
+class MarriageAdmin(ShewroteModelAdmin):
     autocomplete_fields = ['person', 'spouse']
 
 
 @admin.register(PersonPersonRelation)
-class PersonPersonRelation(admin.ModelAdmin):
+class PersonPersonRelation(ShewroteModelAdmin):
     fields = ['from_person', 'types', 'to_person']
     autocomplete_fields = ['from_person', 'types', 'to_person']
 
 
 @admin.register(RelationType)
-class RelationType(admin.ModelAdmin):
+class RelationType(ShewroteModelAdmin):
     autocomplete_fields = ['reverse']
     search_fields = ['text']
 
 
 @admin.register(AlternativeName)
-class AlternativeNameAdmin(admin.ModelAdmin):
+class AlternativeNameAdmin(ShewroteModelAdmin):
     autocomplete_fields = ['person']
 
 
 @admin.register(PeriodOfResidence)
-class PeriodOfResidenceAdmin(admin.ModelAdmin):
+class PeriodOfResidenceAdmin(ShewroteModelAdmin):
     search_fields = ['person__short_name', 'place__name']
     autocomplete_fields = ['person', 'place']
 
@@ -285,7 +302,7 @@ admin.site.register(CollectiveType)
 
 
 @admin.register(Collective)
-class CollectiveAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
+class CollectiveAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     search_fields = ["name"]
     inlines = [CollectivePlaceInline]
 
@@ -297,7 +314,7 @@ class CollectiveAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
 
 
 @admin.register(PersonCollective)
-class PersonCollectiveAdmin(admin.ModelAdmin):
+class PersonCollectiveAdmin(ShewroteModelAdmin):
     autocomplete_fields = ['person', 'collective']
 
 
@@ -305,12 +322,12 @@ admin.site.register(CollectivePlace)
 
 
 @admin.register(Genre)
-class GenreAdmin(admin.ModelAdmin):
+class GenreAdmin(ShewroteModelAdmin):
     search_fields = ['name']
 
 
 @admin.register(Language)
-class LanguageAdmin(admin.ModelAdmin):
+class LanguageAdmin(ShewroteModelAdmin):
     search_fields = ['name']
 
 
@@ -343,7 +360,7 @@ class WorkReceptionInlineFromReception(WorkReceptionInline):
 
 
 @admin.register(Work)
-class WorkAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
+class WorkAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     list_display = ['title', 'viaf_link']
     search_fields = ['title']
 
@@ -360,7 +377,7 @@ class WorkAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
 
 
 @admin.register(PersonWork)
-class PersonWorkAdmin(admin.ModelAdmin):
+class PersonWorkAdmin(ShewroteModelAdmin):
     list_display = ["person", "role", "work"]
     list_display_links = ["person", "role", "work"]
     search_fields = ["person__short_name", "role__name", "work__title"]
@@ -368,7 +385,7 @@ class PersonWorkAdmin(admin.ModelAdmin):
 
 
 @admin.register(Edition)
-class EditionAdmin(admin.ModelAdmin):
+class EditionAdmin(ShewroteModelAdmin):
     search_fields = ['related_work__title']
     autocomplete_fields = ['related_work', 'place_of_publication', 'genre']
 
@@ -377,12 +394,12 @@ admin.site.register(EditionLanguage)
 
 
 @admin.register(PersonEdition)
-class PersonEditionAdmin(admin.ModelAdmin):
+class PersonEditionAdmin(ShewroteModelAdmin):
     autocomplete_fields = ['person', 'edition', 'role']
 
 
 @admin.register(ReceptionSource)
-class ReceptionSourceAdmin(admin.ModelAdmin):
+class ReceptionSourceAdmin(ShewroteModelAdmin):
     search_fields = ['title_work']
     autocomplete_fields = ['work', 'part_of']
 
@@ -391,12 +408,12 @@ admin.site.register(PersonReceptionSource)
 
 
 @admin.register(DocumentType)
-class DocumentTypeAdmin(admin.ModelAdmin):
+class DocumentTypeAdmin(ShewroteModelAdmin):
     search_fields = ['type_of_document']
 
 
 @admin.register(ReceptionType)
-class ReceptionTypeAdmin(admin.ModelAdmin):
+class ReceptionTypeAdmin(ShewroteModelAdmin):
     search_fields = ['type_of_reception']
 
 
@@ -415,7 +432,7 @@ class ReceptionGenreInline(admin.TabularInline):
 
 
 @admin.register(Reception)
-class ReceptionAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
+class ReceptionAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     list_display = ['title', 'reference']
     list_display_links = ['title', 'reference']
     search_fields = ['title', 'reference']
@@ -459,7 +476,7 @@ class ReceptionAdmin(PrettyOriginalDataMixin, admin.ModelAdmin):
 
 
 @admin.register(PersonReception)
-class PersonReception(admin.ModelAdmin):
+class PersonReception(ShewroteModelAdmin):
     search_fields = []
     autocomplete_fields = ['person', 'reception']
 
