@@ -82,7 +82,7 @@ class Place(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, blank=True, unique=True)
     cerl_id = models.IntegerField(blank=True, null=True)
-    modern_country = models.ForeignKey(Country, models.SET_NULL, null=True, blank=True)
+    modern_country = models.ForeignKey(Country, models.PROTECT, null=True, blank=True, related_name='places')
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
