@@ -118,7 +118,7 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
     sex = models.CharField(max_length=1, choices=GenderChoices.choices, blank=True)
     alternative_name_gender = models.CharField(max_length=1, choices=GenderChoices.choices, blank=True)
     place_of_birth = models.ForeignKey(Place, models.PROTECT, blank=True, null=True, related_name="birthplace_of")
-    place_of_death = models.ForeignKey(Place, models.SET_NULL, blank=True, null=True, related_name="+")
+    place_of_death = models.ForeignKey(Place, models.PROTECT, blank=True, null=True, related_name="deathplace_of")
     professional_ecclesiastic_title = models.CharField(max_length=255, blank=True)
     aristocratic_title = models.CharField(max_length=255, blank=True)
     mother = models.ForeignKey("self", models.SET_NULL, null=True, blank=True, related_name="+")
