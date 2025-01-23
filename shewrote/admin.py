@@ -76,10 +76,18 @@ class PersonPlaceOfBirthInline(ReadOnlyInline):
     verbose_name_plural = "Persons born in this place"
 
 
+class PersonPlaceOfDeathInline(ReadOnlyInline):
+    model = Person
+    fk_name = 'place_of_death'
+    fields = ['short_name', 'place_of_birth', 'date_of_birth', 'date_of_death']
+    verbose_name = "Person died in this place"
+    verbose_name_plural = "Persons died in this place"
+
+
 @admin.register(Place)
 class PlaceAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     search_fields = ["name"]
-    inlines = [PersonPlaceOfBirthInline]
+    inlines = [PersonPlaceOfBirthInline, PersonPlaceOfDeathInline]
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
