@@ -44,19 +44,22 @@ class NoDeleteRelatedMixin:
         return form
 
 
-class ShewroteModelAdmin(NoDeleteRelatedMixin, admin.ModelAdmin):
-    pass
-
-
-class PlaceInline(admin.TabularInline):
-    model = Place
-    fields = ["name"]
+class ReadOnlyInline(admin.TabularInline):
     max_num = 0
     can_delete = False
     show_change_link = True
 
     def get_readonly_fields(self, request, obj=None):
-        return ('name',)
+        return self.fields
+
+
+class ShewroteModelAdmin(NoDeleteRelatedMixin, admin.ModelAdmin):
+    pass
+
+
+class PlaceInline(ReadOnlyInline):
+    model = Place
+    fields = ["name"]
 
 
 @admin.register(Country)
@@ -65,9 +68,18 @@ class CountryAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     inlines = [PlaceInline]
 
 
+class PersonPlaceOfBirthInline(ReadOnlyInline):
+    model = Person
+    fk_name = 'place_of_birth'
+    fields = ['short_name', 'date_of_birth', 'place_of_death', 'date_of_death']
+    verbose_name = "Person born in this place"
+    verbose_name_plural = "Persons born in this place"
+
+
 @admin.register(Place)
 class PlaceAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     search_fields = ["name"]
+    inlines = [PersonPlaceOfBirthInline]
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
