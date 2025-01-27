@@ -422,7 +422,7 @@ class Collective(models.Model):
     """Represents a Collective with multiple Persons as members in multiple Places."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
-    type = models.ForeignKey(CollectiveType, models.SET_NULL, null=True, blank=True)
+    type = models.ForeignKey(CollectiveType, models.PROTECT, null=True, blank=True, related_name='collectives')
     place = models.ManyToManyField(
         Place,
         through="CollectivePlace",
