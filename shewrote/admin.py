@@ -216,6 +216,17 @@ class PersonCollectiveInline(admin.TabularInline):
     verbose_name = "Collective"
 
 
+class ChildrenOfInline(ReadOnlyInline):
+    model = Person
+    fields = ['short_name', 'place_of_birth', 'date_of_birth', 'place_of_death', 'date_of_death']
+    verbose_name = "Child"
+    verbose_name_plural = "Children"
+
+    def __init__(self, *args, **kwargs):
+        self.fk_name = kwargs.pop('fk_name')
+        super().__init__(*args, **kwargs)
+
+
 @admin.register(Person)
 class PersonAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     list_display = ["short_name", "first_name", "birth_name", "sex", "date_of_birth", "place_of_birth",
@@ -233,6 +244,14 @@ class PersonAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
                PersonEducationInline, PersonProfessionInline, PersonReligionInline,
                AlternativeNameInline, PeriodsOfResidenceInline,
                PersonWorkInlineFromPersons, PersonCollectiveInline, PersonReceptionInlineFromPerson]
+
+    def get_inline_instances(self, request, obj=None):
+        inline_instances = [inline(self.model, self.admin_site) for inline in self.inlines]
+        if obj.sex == Person.GenderChoices.FEMALE:
+            inline_instances.append(ChildrenOfInline(self.model, self.admin_site, fk_name='mother'))
+        elif obj.sex == Person.GenderChoices.MALE:
+            inline_instances.append(ChildrenOfInline(self.model, self.admin_site, fk_name='father'))
+        return inline_instances
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = [
