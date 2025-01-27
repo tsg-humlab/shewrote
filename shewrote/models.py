@@ -563,7 +563,7 @@ class PersonWork(models.Model):
     """Many-to-Many model connecting Persons, Works, and their Roles."""
     work = models.ForeignKey(Work, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, models.SET_NULL, null=True, blank=True)
+    role = models.ForeignKey(Role, models.PROTECT, null=True, blank=True)
     start_year = models.IntegerField(blank=True, null=True)
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
