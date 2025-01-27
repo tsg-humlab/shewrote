@@ -248,7 +248,7 @@ class Education(models.Model):
 class PersonEducation(models.Model):
     """Model linking Person to Education."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    education = models.ForeignKey(Education, on_delete=models.CASCADE)
+    education = models.ForeignKey(Education, on_delete=models.PROTECT)
 
     def __str__(self):
         return f'{self.person.short_name}: {self.education.name.lower()}'
@@ -283,7 +283,7 @@ class Profession(models.Model):
 class PersonProfession(models.Model):
     """Model linking a Person to a Profession during a period of time."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    profession = models.ForeignKey(Profession, models.SET_NULL, null=True)
+    profession = models.ForeignKey(Profession, models.PROTECT)
     start_year = models.IntegerField(blank=True, null=True)
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
@@ -308,7 +308,7 @@ class Religion(models.Model):
 class PersonReligion(models.Model):
     """Model linking a Person to a Profession during a period of time."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    religion = models.ForeignKey(Religion, models.SET_NULL, null=True)
+    religion = models.ForeignKey(Religion, models.PROTECT)
     start_year = models.IntegerField(blank=True, null=True)
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
