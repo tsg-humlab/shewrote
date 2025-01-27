@@ -121,8 +121,8 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
     place_of_death = models.ForeignKey(Place, models.PROTECT, blank=True, null=True, related_name="deathplace_of")
     professional_ecclesiastic_title = models.CharField(max_length=255, blank=True)
     aristocratic_title = models.CharField(max_length=255, blank=True)
-    mother = models.ForeignKey("self", models.SET_NULL, null=True, blank=True, related_name="+")
-    father = models.ForeignKey("self", models.SET_NULL, null=True, blank=True, related_name="+")
+    mother = models.ForeignKey("self", models.PROTECT, null=True, blank=True, related_name="mother_of")
+    father = models.ForeignKey("self", models.PROTECT, null=True, blank=True, related_name="father_of")
     bibliography = models.TextField(blank=True)
     related_to = models.ManyToManyField("self", blank=True, through="PersonPersonRelation",
                                         through_fields=('from_person', 'to_person'))
@@ -153,9 +153,9 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
 
     def get_children(self):
         if self.sex == Person.GenderChoices.FEMALE:
-            return Person.objects.filter(mother=self).order_by('date_of_birth')
+            return self.mother_of.order_by('date_of_birth')
         elif self.sex == Person.GenderChoices.MALE:
-            return Person.objects.filter(father=self).order_by('date_of_birth')
+            return self.father_of.order_by('date_of_birth')
 
     def get_religions(self):
         return Religion.objects.filter(personreligion__person=self)
