@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import HtmlFormatter
+from django_admin_inline_paginator_plus.admin import TabularInlinePaginated
 
 from .models import (Country, Place, Person, Education, PersonEducation, Role, Profession, PersonProfession, Religion,
                      PersonReligion, Marriage, AlternativeName, PeriodOfResidence, CollectiveType, Collective,
@@ -57,9 +58,10 @@ class ShewroteModelAdmin(NoDeleteRelatedMixin, admin.ModelAdmin):
     pass
 
 
-class PlaceInline(ReadOnlyInline):
+class PlaceInline(TabularInlinePaginated, ReadOnlyInline):
     model = Place
     fields = ["name"]
+    pagination_key = 'place_inline'
 
 
 @admin.register(Country)
@@ -68,20 +70,22 @@ class CountryAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     inlines = [PlaceInline]
 
 
-class PersonPlaceOfBirthInline(ReadOnlyInline):
+class PersonPlaceOfBirthInline(TabularInlinePaginated, ReadOnlyInline):
     model = Person
     fk_name = 'place_of_birth'
     fields = ['short_name', 'date_of_birth', 'place_of_death', 'date_of_death']
     verbose_name = "Person born in this place"
     verbose_name_plural = "Persons born in this place"
+    pagination_key = 'person_placeofbirth_inline'
 
 
-class PersonPlaceOfDeathInline(ReadOnlyInline):
+class PersonPlaceOfDeathInline(TabularInlinePaginated, ReadOnlyInline):
     model = Person
     fk_name = 'place_of_death'
     fields = ['short_name', 'place_of_birth', 'date_of_birth', 'date_of_death']
     verbose_name = "Person died in this place"
     verbose_name_plural = "Persons died in this place"
+    pagination_key = 'person_placeofdeath_inline'
 
 
 @admin.register(Place)
@@ -216,11 +220,12 @@ class PersonCollectiveInline(admin.TabularInline):
     verbose_name = "Collective"
 
 
-class ChildrenOfInline(ReadOnlyInline):
+class ChildrenOfInline(TabularInlinePaginated, ReadOnlyInline):
     model = Person
     fields = ['short_name', 'place_of_birth', 'date_of_birth', 'place_of_death', 'date_of_death']
     verbose_name = "Child"
     verbose_name_plural = "Children"
+    pagination_key = 'childrenof_inline'
 
     def __init__(self, *args, **kwargs):
         self.fk_name = kwargs.pop('fk_name')

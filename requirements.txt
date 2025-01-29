@@ -1,4 +1,5 @@
 Django==4.2.5
+django-admin-inline-paginator-plus==0.1.1
 django_autocomplete_light
 django-admin-interface==0.28.6
 django_bootstrap5==24.2

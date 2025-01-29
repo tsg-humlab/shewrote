@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "admin_interface",
     "colorfield",
     "computedfields",
+    'django_admin_inline_paginator_plus',
 
     # Default django apps.
     'django.contrib.admin',
