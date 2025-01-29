@@ -88,10 +88,19 @@ class PersonPlaceOfDeathInline(TabularInlinePaginated, ReadOnlyInline):
     pagination_key = 'person_placeofdeath_inline'
 
 
+class PeriodsOfResidenceInline(TabularInlinePaginated, ReadOnlyInline):
+    model = PeriodOfResidence
+    fk_name = 'place'
+    fields = ['person', 'start_year', 'end_year']
+    verbose_name = 'Period of residence'
+    verbose_name_plural = 'Periods of residence'
+    pagination_key = 'periodofresidence_inline'
+
+
 @admin.register(Place)
 class PlaceAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     search_fields = ["name"]
-    inlines = [PersonPlaceOfBirthInline, PersonPlaceOfDeathInline]
+    inlines = [PersonPlaceOfBirthInline, PersonPlaceOfDeathInline, PeriodsOfResidenceInline]
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:

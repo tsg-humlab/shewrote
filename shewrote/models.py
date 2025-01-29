@@ -388,10 +388,10 @@ class AlternativeName(models.Model):
         return self.alternative_name
 
 
-class   PeriodOfResidence(models.Model):
+class PeriodOfResidence(models.Model):
     """Model linking Person to Place over a period of time."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    place = models.ForeignKey(Place, on_delete=models.CASCADE)
+    place = models.ForeignKey(Place, on_delete=models.PROTECT)
     start_year = models.IntegerField(blank=True, null=True)
     end_year = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=255, blank=True)
