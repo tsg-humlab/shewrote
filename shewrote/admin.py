@@ -34,15 +34,26 @@ class PrettyOriginalDataMixin:
 
 class NoDeleteRelatedMixin:
     """
-    Mixin to remove the delete button (red x) from a related (FK or M2M) form field
+    Mixin to remove the delete button (red x) from a related (FK or M2M) form field.
+    Can be used for both XxxAdmin and XxxInline classes.
     """
+    def _set_can_x_related(self, form, switches={}):
+        relation_fields = [f.name for f in self.model._meta.get_fields()
+                           if f.many_to_one or f.one_to_one or f.many_to_many]
+        for field_name in (relation_fields & form.base_fields.keys()):
+            for switch, value in switches.items():
+                if hasattr(form.base_fields[field_name].widget, switch):
+                    setattr(form.base_fields[field_name].widget, switch, value)
+
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        no_delete_fields = getattr(self, 'no_delete_fields', [f.name for f in self.model._meta.get_fields()
-                                                              if f.many_to_one or f.one_to_one or f.many_to_many])
-        for field_name in (no_delete_fields & form.base_fields.keys()):
-                form.base_fields[field_name].widget.can_delete_related = False
+        self._set_can_x_related(form, {'can_delete_related': False})
         return form
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+        self._set_can_x_related(formset.form, {'can_delete_related': False})
+        return formset
 
 
 class ReadOnlyInline(admin.TabularInline):
@@ -129,7 +140,7 @@ class AlternativeNameInline(admin.TabularInline):
     extra = 0
 
 
-class CollectivePlaceInline(admin.TabularInline):
+class CollectivePlaceInline(NoDeleteRelatedMixin, admin.TabularInline):
     model = CollectivePlace
     fields = ["collective", "place"]
     autocomplete_fields = ["collective", "place"]
@@ -154,7 +165,7 @@ class PersonPersonRelationInline(admin.TabularInline):
     verbose_name = "Relation"
 
 
-class PeriodsOfResidenceInline(admin.TabularInline):
+class PeriodsOfResidenceInline(NoDeleteRelatedMixin, admin.TabularInline):
     model = PeriodOfResidence
     fields = [
         "place",
@@ -168,7 +179,7 @@ class PeriodsOfResidenceInline(admin.TabularInline):
     verbose_name_plural = "Lived in"
 
 
-class PersonWorkInline(admin.TabularInline):
+class PersonWorkInline(NoDeleteRelatedMixin, admin.TabularInline):
     model = PersonWork
     fields = [
         "person",
@@ -190,7 +201,7 @@ class PersonWorkInlineFromWorks(PersonWorkInline):
     verbose_name = "Person"
 
 
-class PersonReceptionInline(admin.TabularInline):
+class PersonReceptionInline(NoDeleteRelatedMixin, admin.TabularInline):
     model = PersonReception
     fields = [
         "person",
@@ -209,21 +220,21 @@ class PersonReceptionInlineFromReception(PersonReceptionInline):
     verbose_name = "Person"
 
 
-class PersonProfessionInline(admin.TabularInline):
+class PersonProfessionInline(NoDeleteRelatedMixin, admin.TabularInline):
     model = PersonProfession
     fields = ["person", "profession", "start_year", "end_year", "notes"]
     extra = 0
     verbose_name = "Profession"
 
 
-class PersonEducationInline(admin.TabularInline):
+class PersonEducationInline(NoDeleteRelatedMixin, admin.TabularInline):
     model = PersonEducation
     fields = ["person", "education"]
     extra = 0
     verbose_name = "Education"
 
 
-class PersonReligionInline(admin.TabularInline):
+class PersonReligionInline(NoDeleteRelatedMixin, admin.TabularInline):
     model = PersonReligion
     fields = ["person", "religion", "start_year", "end_year", "notes"]
     extra = 0
@@ -422,7 +433,7 @@ class EditionInline(admin.StackedInline):
     autocomplete_fields = ['related_work', 'place_of_publication', 'genre']
 
 
-class WorkLanguageInline(admin.TabularInline):
+class WorkLanguageInline(NoDeleteRelatedMixin, admin.TabularInline):
     model = WorkLanguage
     extra = 0
     fields = ['work', 'language']
@@ -502,14 +513,14 @@ class ReceptionTypeAdmin(ShewroteModelAdmin):
     search_fields = ['type_of_reception']
 
 
-class ReceptionLanguageInline(admin.TabularInline):
+class ReceptionLanguageInline(NoDeleteRelatedMixin, admin.TabularInline):
     model = ReceptionLanguage
     fields = ["reception", "language"]
     extra = 0
     verbose_name = "Language"
 
 
-class ReceptionGenreInline(admin.TabularInline):
+class ReceptionGenreInline(NoDeleteRelatedMixin, admin.TabularInline):
     model = ReceptionGenre
     fields = ["reception", "genre"]
     extra = 0
