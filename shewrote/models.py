@@ -575,7 +575,7 @@ class PersonWork(models.Model):
 class WorkLanguage(models.Model):
     """Model linking an Edition to its Language(s)."""
     work = models.ForeignKey(Work, on_delete=models.CASCADE)
-    language = models.ForeignKey(Language, models.SET_NULL, null=True)
+    language = models.ForeignKey(Language, models.PROTECT, null=True)
 
 
 class Edition(EasyAuditMixin, models.Model):
