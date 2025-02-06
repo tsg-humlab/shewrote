@@ -450,7 +450,7 @@ class Collective(models.Model):
 
 class PersonCollective(models.Model):
     """Many-to-Many model connecting Person and Collective."""
-    collective = models.ForeignKey(Collective, on_delete=models.CASCADE)
+    collective = models.ForeignKey(Collective, on_delete=models.PROTECT)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
 
     def __str__(self):

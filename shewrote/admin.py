@@ -97,17 +97,19 @@ class PeriodsOfResidenceInline(TabularInlinePaginated, ReadOnlyInline):
     pagination_key = 'periodofresidence_inline'
 
 
-class CollectivePlaceInline(TabularInlinePaginated, ReadOnlyInline):
+class ReadOnlyCollectivePlaceInline(TabularInlinePaginated, ReadOnlyInline):
     model = CollectivePlace
     fk_name = 'place'
     fields = ['collective']
     pagination_key = 'collectiveplace_inline'
+    verbose_name = 'Collective'
 
 
 @admin.register(Place)
 class PlaceAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     search_fields = ["name"]
-    inlines = [PersonPlaceOfBirthInline, PersonPlaceOfDeathInline, PeriodsOfResidenceInline, CollectivePlaceInline]
+    inlines = [PersonPlaceOfBirthInline, PersonPlaceOfDeathInline, PeriodsOfResidenceInline,
+               ReadOnlyCollectivePlaceInline]
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
@@ -375,10 +377,17 @@ class PeriodOfResidenceAdmin(ShewroteModelAdmin):
 admin.site.register(CollectiveType)
 
 
+class PersonCollectiveInline(TabularInlinePaginated, ReadOnlyInline):
+    model = PersonCollective
+    fields = ['person']
+    pagination_key = 'person_collective_inline'
+    verbose_name = 'Person'
+
+
 @admin.register(Collective)
 class CollectiveAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     search_fields = ["name"]
-    inlines = [CollectivePlaceInline]
+    inlines = [CollectivePlaceInline, PersonCollectiveInline]
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
