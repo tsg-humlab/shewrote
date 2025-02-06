@@ -460,7 +460,7 @@ class PersonCollective(models.Model):
 class CollectivePlace(models.Model):
     """Many-to-Many model connecting a Collective to its Places."""
     collective = models.ForeignKey(Collective, on_delete=models.CASCADE)
-    place = models.ForeignKey(Place, on_delete=models.CASCADE)
+    place = models.ForeignKey(Place, on_delete=models.PROTECT)
 
 
 class Genre(models.Model):
