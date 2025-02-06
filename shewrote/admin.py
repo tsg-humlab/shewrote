@@ -401,7 +401,9 @@ class PersonCollectiveAdmin(ShewroteModelAdmin):
     autocomplete_fields = ['person', 'collective']
 
 
-admin.site.register(CollectivePlace)
+@admin.register(CollectivePlace)
+class CollectivePlaceAdmin(ShewroteModelAdmin):
+    pass
 
 
 @admin.register(Genre)
