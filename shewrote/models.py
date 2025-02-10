@@ -777,4 +777,4 @@ class ReceptionLanguage(models.Model):
 class ReceptionGenre(models.Model):
     """This model links a Reception to a Genre."""
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
-    genre = models.ForeignKey(Genre, models.SET_NULL, null=True)
+    genre = models.ForeignKey(Genre, models.PROTECT, null=True)
