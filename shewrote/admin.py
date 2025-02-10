@@ -449,7 +449,7 @@ class LanguageAdmin(ShewroteModelAdmin):
     inlines = [ReadOnlyWorkLanguageInline, ReadOnlyEditionLanguageInline, ReadOnlyReceptionLanguageInline]
 
 
-class EditionInline(admin.StackedInline):
+class EditionInline(NoDeleteRelatedMixin, admin.StackedInline):
     model = Edition
     extra = 0
     autocomplete_fields = ['related_work', 'place_of_publication', 'genre']
@@ -462,7 +462,7 @@ class WorkLanguageInline(NoDeleteRelatedMixin, admin.TabularInline):
     autocomplete_fields = ['language']
 
 
-class WorkReceptionInline(admin.TabularInline):
+class WorkReceptionInline(NoDeleteRelatedMixin, admin.TabularInline):
     model = WorkReception
     extra = 0
     fields = ['reception', 'type', 'work']
