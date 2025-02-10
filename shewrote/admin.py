@@ -502,10 +502,17 @@ class PersonWorkAdmin(ShewroteModelAdmin):
     autocomplete_fields = ['work', 'person']
 
 
+class PersonEditionInline(TabularInlinePaginated):
+    model = PersonEdition
+    fields = ['person', 'edition', 'role']
+    autocomplete_fields = ['person']
+
+
 @admin.register(Edition)
 class EditionAdmin(ShewroteModelAdmin):
     search_fields = ['related_work__title']
     autocomplete_fields = ['related_work', 'place_of_publication', 'genre']
+    inlines = [PersonEditionInline]
 
 
 admin.site.register(EditionLanguage)
