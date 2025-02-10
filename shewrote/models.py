@@ -581,7 +581,7 @@ class WorkLanguage(models.Model):
 class Edition(EasyAuditMixin, models.Model):
     """Represents an Edition of a Work published in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    related_work = models.ForeignKey(Work, on_delete=models.CASCADE)
+    related_work = models.ForeignKey(Work, on_delete=models.PROTECT)
     publication_year = models.IntegerField(blank=True, null=True)
     place_of_publication = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
     language = models.ManyToManyField(
