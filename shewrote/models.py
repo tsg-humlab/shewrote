@@ -705,10 +705,10 @@ class Reception(EasyAuditMixin, models.Model):
     is_same_as_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+", verbose_name="is same as work")
     part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+")
     reference = models.TextField(blank=True)
-    place_of_reception = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
+    place_of_reception = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)
     date_of_reception = models.IntegerField(blank=True, null=True)
     quotation_reception = models.TextField(blank=True)
-    document_type = models.ForeignKey(DocumentType, models.SET_NULL, null=True, blank=True)
+    document_type = models.ForeignKey(DocumentType, models.PROTECT, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
     language_of_reception = models.ManyToManyField(
         Language,
