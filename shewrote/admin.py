@@ -422,9 +422,31 @@ class GenreAdmin(ShewroteModelAdmin):
     search_fields = ['name']
 
 
+class ReadOnlyWorkLanguageInline(TabularInlinePaginated, ReadOnlyInline):
+    model = WorkLanguage
+    fields = ['work']
+    pagination_key = 'readonly_worklanguage_inline'
+    verbose_name = 'work'
+
+
+class ReadOnlyEditionLanguageInline(TabularInlinePaginated, ReadOnlyInline):
+    model = EditionLanguage
+    fields = ['edition']
+    pagination_key = 'readonly_editionlanguage_inline'
+    verbose_name = 'edition'
+
+
+class ReadOnlyReceptionLanguageInline(TabularInlinePaginated, ReadOnlyInline):
+    model = ReceptionLanguage
+    fields = ['reception']
+    pagination_key = 'readonly_receptionlanguage_inline'
+    verbose_name = 'reception'
+
+
 @admin.register(Language)
 class LanguageAdmin(ShewroteModelAdmin):
     search_fields = ['name']
+    inlines = [ReadOnlyWorkLanguageInline, ReadOnlyEditionLanguageInline, ReadOnlyReceptionLanguageInline]
 
 
 class EditionInline(admin.StackedInline):
