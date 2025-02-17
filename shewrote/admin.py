@@ -417,9 +417,17 @@ class CollectivePlaceAdmin(ShewroteModelAdmin):
     pass
 
 
+class ReadOnlyEditionGenreInline(TabularInlinePaginated, ReadOnlyInline):
+    model = Edition
+    fields = ['related_work', 'place_of_publication', 'publication_year']
+    pagination_key = 'readonly_editiongenre_inline'
+    verbose_name = 'edition'
+
+
 @admin.register(Genre)
 class GenreAdmin(ShewroteModelAdmin):
     search_fields = ['name']
+    inlines = [ReadOnlyEditionGenreInline]
 
 
 class ReadOnlyWorkLanguageInline(TabularInlinePaginated, ReadOnlyInline):
