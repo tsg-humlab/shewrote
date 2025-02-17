@@ -583,7 +583,7 @@ class Edition(EasyAuditMixin, models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     related_work = models.ForeignKey(Work, on_delete=models.PROTECT)
     publication_year = models.IntegerField(blank=True, null=True)
-    place_of_publication = models.ForeignKey(Place, models.SET_NULL, null=True, blank=True)
+    place_of_publication = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)
     language = models.ManyToManyField(
         Language,
         through="EditionLanguage",
@@ -597,7 +597,7 @@ class Edition(EasyAuditMixin, models.Model):
         through_fields=("edition", "person"),
         blank=True,
     )
-    genre = models.ForeignKey(Genre, models.SET_NULL, null=True, blank=True)
+    genre = models.ForeignKey(Genre, models.PROTECT, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
     notes = models.TextField(blank=True)
     original_data = models.JSONField(blank=True, null=True, editable=False)
