@@ -612,7 +612,7 @@ class Edition(EasyAuditMixin, models.Model):
 class EditionLanguage(models.Model):
     """Model linking an Edition to its Language(s)."""
     edition = models.ForeignKey(Edition, on_delete=models.CASCADE)
-    language = models.ForeignKey(Language, models.SET_NULL, null=True)
+    language = models.ForeignKey(Language, models.PROTECT, null=True)
 
 
 class PersonEdition(models.Model):
