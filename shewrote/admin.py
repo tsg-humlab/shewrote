@@ -566,9 +566,31 @@ class DocumentTypeAdmin(ShewroteModelAdmin):
     search_fields = ['type_of_document']
 
 
+class ReadOnlyPersonReceptionInline(TabularInlinePaginated, ReadOnlyInline):
+    model = PersonReception
+    fields = ['reception', 'person']
+    pagination_key = 'personreception_inline'
+    verbose_name = 'Person reception'
+
+
+class ReadOnlyWorkReceptionInline(TabularInlinePaginated, ReadOnlyInline):
+    model = WorkReception
+    fields = ['reception', 'work']
+    pagination_key = 'workreception_inline'
+    verbose_name = 'Work reception'
+
+
+class ReadOnlyEditionReceptionInline(TabularInlinePaginated, ReadOnlyInline):
+    model = EditionReception
+    fields = ['reception', 'edition']
+    pagination_key = 'editionreception_inline'
+    verbose_name = 'Edition reception'
+
+
 @admin.register(ReceptionType)
 class ReceptionTypeAdmin(ShewroteModelAdmin):
     search_fields = ['type_of_reception']
+    inlines = [ReadOnlyPersonReceptionInline, ReadOnlyWorkReceptionInline, ReadOnlyEditionReceptionInline]
 
 
 class ReceptionLanguageInline(NoDeleteRelatedMixin, admin.TabularInline):
