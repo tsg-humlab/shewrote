@@ -116,11 +116,17 @@ class ReadOnlyCollectivePlaceInline(TabularInlinePaginated, ReadOnlyInline):
     verbose_name = 'Collective'
 
 
+class ReadOnlyEditionPlaceInline(TabularInlinePaginated, ReadOnlyInline):
+    model = Edition
+    fields = ['related_work', 'place_of_publication', 'publication_year']
+    pagination_key = 'editionplace_inline'
+
+
 @admin.register(Place)
 class PlaceAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     search_fields = ["name"]
     inlines = [PersonPlaceOfBirthInline, PersonPlaceOfDeathInline, PeriodsOfResidenceInline,
-               ReadOnlyCollectivePlaceInline]
+               ReadOnlyCollectivePlaceInline, ReadOnlyEditionPlaceInline]
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
