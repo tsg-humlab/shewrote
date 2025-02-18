@@ -653,7 +653,7 @@ class PersonReceptionSource(models.Model):
     """Many-to-Many model connecting an Edition to related Persons."""
     reception_source = models.ForeignKey(ReceptionSource, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, models.SET_NULL, null=True, blank=True)
+    role = models.ForeignKey(Role, models.PROTECT, null=True, blank=True)
 
 
 class DocumentType(models.Model):
