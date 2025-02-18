@@ -771,7 +771,7 @@ class EditionReception(models.Model):
 class ReceptionLanguage(models.Model):
     """Model linking a Reception to the Language it was written in."""
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
-    language = models.ForeignKey(Language, models.SET_NULL, null=True)
+    language = models.ForeignKey(Language, models.PROTECT, null=True)
 
 
 class ReceptionGenre(models.Model):
