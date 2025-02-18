@@ -744,7 +744,7 @@ class PersonReception(models.Model):
     """Defines the Role of a Person related to a Reception."""
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
-    type = models.ForeignKey(ReceptionType, models.SET_NULL, null=True, blank=True)
+    type = models.ForeignKey(ReceptionType, models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         return f'{self.reception.title} {self.type or "receives"} {self.person.short_name}'
@@ -753,7 +753,7 @@ class PersonReception(models.Model):
 class WorkReception(models.Model):
     work = models.ForeignKey(Work, on_delete=models.CASCADE)
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
-    type = models.ForeignKey(ReceptionType, on_delete=models.SET_NULL, null=True)
+    type = models.ForeignKey(ReceptionType, on_delete=models.PROTECT, null=True)
 
     def __str__(self):
         return f'{self.reception} {self.type} {self.work}'
@@ -762,7 +762,7 @@ class WorkReception(models.Model):
 class EditionReception(models.Model):
     edition = models.ForeignKey(Edition, on_delete=models.CASCADE)
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
-    type = models.ForeignKey(ReceptionType, on_delete=models.SET_NULL, null=True)
+    type = models.ForeignKey(ReceptionType, on_delete=models.PROTECT, null=True)
 
     def __str__(self):
         return f'{self.reception} is reception of edition {self.edition}'
