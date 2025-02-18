@@ -340,9 +340,24 @@ class PersonEducationAdmin(ShewroteModelAdmin):
     autocomplete_fields = ['person']
 
 
+class ReadOnlyPersonWorkRoleInline(TabularInlinePaginated, ReadOnlyInline):
+    model = PersonWork
+    fields = ['person', 'work']
+    pagination_key = 'personworkrole_inline'
+    verbose_name = 'Person work'
+
+
+class ReadOnlyPersonEditionRoleInline(TabularInlinePaginated, ReadOnlyInline):
+    model = PersonEdition
+    fields = ['person', 'edition']
+    pagination_key = 'personedition_inline'
+    verbose_name = 'Person edition'
+
+
 @admin.register(Role)
 class RoleAdmin(ShewroteModelAdmin):
     search_fields = ['name']
+    inlines = [ReadOnlyPersonWorkRoleInline, ReadOnlyPersonEditionRoleInline]
 
 
 @admin.register(Profession)
