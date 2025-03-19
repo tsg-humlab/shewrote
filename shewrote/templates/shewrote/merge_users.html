@@ -1,0 +1,25 @@
+{% extends 'shewrote/base.html' %}
+{% load django_bootstrap5 %}
+{% load static %}
+
+{% block extra_head %}
+    <link href="{% static 'admin/css/vendor/select2/select2.css' %}" media="screen" rel="stylesheet">
+    {{ form.media.css }}
+{% endblock extra_head %}
+
+{% block page_header %}
+    <h2>Merge users</h2>
+{% endblock page_header %}
+
+{% block content %}
+    <div class="my-3">
+        Link old CRUD (Create, Read, Update, Delete) events of inactive users to an active user.
+    </div>
+    <form action="{% url 'shewrote:merge_users' %}" method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% bootstrap_button button_type="submit" content="Merge" %}
+    </form>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    {{ form.media.js }}
+{% endblock content %}

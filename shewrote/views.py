@@ -4,9 +4,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F, Q, OuterRef, Subquery, QuerySet, Count, Max, Min
 from django.conf import settings
+from django.contrib import messages
 from .models import (Person, Work, Reception, WorkReception, PersonReception, Collective, Country, Place,
                      PersonPersonRelation, Edition)
 from .forms import PersonForm, PersonSearchForm, ShortPersonForm, WorkForm, ChangesSearchForm
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.admin.views.decorators import staff_member_required
+from django.http import JsonResponse
+from .models import Person, Work, Reception, WorkReception
+from .forms import PersonForm, ShortPersonForm, WorkForm, MergeUsersForm
 
 from dal import autocomplete
 from django.http import JsonResponse, Http404
@@ -515,3 +521,27 @@ class WorkVIAFSuggest(autocomplete.Select2ListView):
         viaf_result = VIAFSuggest.find_viaf(self.q, json_output=False, cql_relation='local.uniformTitleWorks')
 
         return JsonResponse({'results': viaf_result})
+
+
+@staff_member_required
+@user_passes_test(lambda u: u.is_superuser)
+def merge_users(request):
+    template = 'shewrote/merge_users.html'
+
+    if request.method != 'POST':
+        return render(request, template, {'form': MergeUsersForm()})
+
+    form = MergeUsersForm(request.POST)
+    if not form.is_valid():
+        return render(request, template, {'form': form})
+
+    active_user = form.cleaned_data['active_user']
+    inactive_users = form.cleaned_data['inactive_users']
+    update_count = 0
+    for inactive_user in inactive_users:
+        update_count += CRUDEvent.objects.filter(user=inactive_user).update(user_id=active_user.id)
+    message_level =  messages.SUCCESS if update_count else messages.INFO
+    messages.add_message(request, message_level,f"{update_count} CRUD events were re-linked to {active_user}.")
+
+    return render(request, template, {'form': MergeUsersForm()})
+

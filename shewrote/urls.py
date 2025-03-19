@@ -59,4 +59,6 @@ urlpatterns = [
     path('person_viaf_suggest', views.PersonVIAFSuggest.as_view(), name='person_viaf_suggest'),
     # VIAF API Works
     path('work_viaf_suggest', views.WorkVIAFSuggest.as_view(), name='work_viaf_suggest'),
+
+    path('merge_users', views.merge_users, name='merge_users'),
 ]
