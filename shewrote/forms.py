@@ -1,6 +1,7 @@
 from django import forms
 from django.urls import reverse_lazy
 from django.apps import apps
+from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django_select2.forms import (ModelSelect2Widget, ModelSelect2MultipleWidget, Select2MultipleWidget,
                                   HeavySelect2MultipleWidget)
@@ -10,6 +11,7 @@ from dal import autocomplete
 from easyaudit.models import CRUDEvent
 
 import functools
+from django.contrib.auth.models import User
 
 from .models import Person, Place, Education, PersonEducation, PeriodOfResidence, Work
 
@@ -307,3 +309,21 @@ class ChangesSearchForm(forms.ModelForm):
             'screen': ['css/select2-bootstrap-5-theme.min.css'],
         }
 
+
+class MergeUsersForm(forms.Form):
+    inactive_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(is_active=False).annotate(crudcount=Count('crudevent')).filter(crudcount__gt=0),
+        widget=ModelSelect2MultipleWidget(
+            queryset=User.objects.filter(is_active=False).annotate(crudcount=Count('crudevent')).filter(crudcount__gt=0),
+            search_fields=['username__icontains', 'first_name__icontains', 'last_name__icontains', 'email__icontains'],
+            attrs={'data-placeholder': "Select multiple inactive users"}
+        )
+    )
+    active_user = forms.ModelChoiceField(
+        queryset=User.objects.filter(is_active=True),
+        widget=ModelSelect2Widget(
+            queryset=User.objects.filter(is_active=True),
+            search_fields=['username__icontains', 'first_name__icontains', 'last_name__icontains', 'email__icontains'],
+            attrs={'data-placeholder': "Select an active user"},
+        ),
+    )
