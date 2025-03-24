@@ -628,8 +628,8 @@ class ReceptionAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
                 None,
                 {
                     "fields": [
+                        ("is_same_as_work", "source", "part_of_work"),
                         "title",
-                        ("source", "is_same_as_work", "part_of_work"),
                         "reference",
                         "document_type",
                         ("place_of_reception", "date_of_reception"),
