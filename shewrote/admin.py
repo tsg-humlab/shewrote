@@ -287,11 +287,12 @@ class PersonAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
 
     def get_inline_instances(self, request, obj=None):
         inline_instances = [inline(self.model, self.admin_site) for inline in self.inlines]
+        if not obj:
+            return inline_instances
         if obj.sex == Person.GenderChoices.FEMALE:
-            inline_instances.append(ChildrenOfInline(self.model, self.admin_site, fk_name='mother'))
-        elif obj.sex == Person.GenderChoices.MALE:
-            inline_instances.append(ChildrenOfInline(self.model, self.admin_site, fk_name='father'))
-        return inline_instances
+            return inline_instances + [ChildrenOfInline(self.model, self.admin_site, fk_name='mother')]
+        if obj.sex == Person.GenderChoices.MALE:
+            return inline_instances + [ChildrenOfInline(self.model, self.admin_site, fk_name='father')]
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = [
