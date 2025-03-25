@@ -270,7 +270,7 @@ class ChildrenOfInline(TabularInlinePaginated, ReadOnlyInline):
 @admin.register(Person)
 class PersonAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     list_display = ["short_name", "first_name", "birth_name", "sex", "date_of_birth", "place_of_birth",
-                    "date_of_death", "place_of_death", "notes", 'view_on_site_link']
+                    "date_of_death", "place_of_death", 'view_on_site_link']
     search_fields = ['short_name']
     ordering = ['short_name']
     list_filter = ["sex", "place_of_birth__modern_country__modern_country"]
