@@ -301,8 +301,8 @@ class PersonAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
                 {
                     "fields": [("short_name", "viaf_or_cerl"),
                                ("first_name", "birth_name",),
-                               ("date_of_birth", "place_of_birth"),
-                               ("date_of_death", "place_of_death"),
+                               ("date_of_birth", "alternative_birth_date", "place_of_birth"),
+                               ("date_of_death", "alternative_death_date", "place_of_death"),
                                "notes"],
                 },
             ),
