@@ -157,6 +157,8 @@ def person(request, person_id):
     context = {
         'person': person,
         'is_creator_of': person.get_works_for_role("is creator of").order_by('date_of_publication_start'),
+        'is_editor_of': person.get_works_for_role("is editor of").order_by('date_of_publication_start'),
+        'is_copyist_of': person.get_works_for_role("is copyist of").order_by('date_of_publication_start'),
         'has_biography': person.get_works_for_role("has biography"),
         'is_commented_on_in': person.get_works_for_role("is commented on in"),
         'is_mentioned_in': person.get_works_for_role("is mentioned in"),
