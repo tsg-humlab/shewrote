@@ -34,6 +34,9 @@ urlpatterns = [
     path('new_work/', views.new_work, name='new_work'),
     # Page for editing an existing work
     path('edit_work/<uuid:work_id>/', views.edit_work, name='edit_work'),
+    # AJAX to get title and date of work
+    path('work_info/<uuid:work_id>/', views.work_info, name='work_info'),
+
 
     # Receptions
     path('receptions/', views.receptions, name='receptions'),

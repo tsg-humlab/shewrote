@@ -367,6 +367,12 @@ def work(request, work_id):
 
 
 @login_required
+def work_info(request, work_id):
+    work = get_object_or_404(Work, id=work_id)
+    return JsonResponse({'title': work.title, 'date_of_publication': work.date_of_publication_start})
+
+
+@login_required
 def new_work(request):
     """Add a new work."""
     if request.method != 'POST':

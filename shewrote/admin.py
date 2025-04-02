@@ -622,6 +622,9 @@ class ReceptionAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     inlines = [PersonReceptionInlineFromReception, WorkReceptionInlineFromReception, ReceptionLanguageInline,
                ReceptionGenreInline]
 
+    class Media:
+        js = ["js/fill_reception.js"]
+
     def get_fieldsets(self, request, obj=None):
         fieldsets = [
             (
