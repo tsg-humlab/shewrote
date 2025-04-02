@@ -4,7 +4,9 @@
 {% block extrahead %}
 {{ block.super }}
 <script>
-    var uuid_dummy = '00000000-0000-0000-0000-000000000000';
-    var work_info_url = "{% url 'shewrote:work_info' '00000000-0000-0000-0000-000000000000' %}";
+    {% with uuid_dummy='00000000-0000-0000-0000-000000000000' %}
+        var uuid_dummy = '{{ uuid_dummy }}';
+        var work_info_url = "{% url 'shewrote:work_info' uuid_dummy %}";
+    {% endwith %}
 </script>
 {% endblock %}
