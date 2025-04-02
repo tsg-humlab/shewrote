@@ -739,6 +739,13 @@ class Reception(EasyAuditMixin, models.Model):
         """Returns the title of the Reception."""
         return self.title
 
+    def save(self, **kwargs):
+        adding = True if self._state.adding else False
+        super().save(**kwargs)
+        if adding:
+            work = self.is_same_as_work
+            self.language_of_reception.add(*work.languages.all())
+
 
 class PersonReception(models.Model):
     """Defines the Role of a Person related to a Reception."""
