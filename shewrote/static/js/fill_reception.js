@@ -2,8 +2,7 @@
  * When the 'is_same_as_work` select is changed, the info of the selected Work is retrieved
  * to fill the `title` and `date_of_reception` fields.
  */
-
-document.addEventListener("DOMContentLoaded", function() {
+(function() {
     is_same_as_work_select = django.jQuery('#id_is_same_as_work');
     title_field = django.jQuery('#id_title');
     date_of_reception_field = django.jQuery('#id_date_of_reception');
@@ -30,4 +29,4 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
     });
-});
+})();
