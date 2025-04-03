@@ -1,6 +1,9 @@
 import json
 from django.contrib import admin
 from django.utils.safestring import mark_safe
+from django.utils.html import html_safe
+from django.conf import settings
+from django.urls import reverse
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import HtmlFormatter
@@ -608,6 +611,20 @@ class ReceptionGenreInline(NoDeleteRelatedMixin, admin.TabularInline):
     verbose_name = "Genre"
 
 
+@html_safe
+class FillReceptionJSPath:
+    def __str__(self):
+        uuid_dummy = '00000000-0000-0000-0000-000000000000'
+        work_info_url = reverse('shewrote:work_info', args=[uuid_dummy])
+        return f"""
+        <script>
+            var uuid_dummy = '{uuid_dummy}';
+            var work_info_url = "{work_info_url}";
+        </script>
+        <script src="{settings.STATIC_URL}js/fill_reception.js" defer></script>
+        """
+
+
 @admin.register(Reception)
 class ReceptionAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     list_display = ['title', 'reference']
@@ -623,14 +640,17 @@ class ReceptionAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     inlines = [PersonReceptionInlineFromReception, WorkReceptionInlineFromReception, ReceptionLanguageInline,
                ReceptionGenreInline]
 
+    class Media:
+        js = [FillReceptionJSPath()]
+
     def get_fieldsets(self, request, obj=None):
         fieldsets = [
             (
                 None,
                 {
                     "fields": [
+                        ("is_same_as_work", "source", "part_of_work"),
                         "title",
-                        ("source", "is_same_as_work", "part_of_work"),
                         "reference",
                         "document_type",
                         ("place_of_reception", "date_of_reception"),
