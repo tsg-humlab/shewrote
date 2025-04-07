@@ -109,7 +109,14 @@ def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearc
 
 def persons(request):
     """Show all persons."""
-    persons = Person.objects.order_by('short_name')
+    persons = Person.objects.all()
+
+    order_by_options = OrderedDict([
+        ('short_name', 'Short name'),
+        ('-reception_count', ('Reception count', {'reception_count': Count('personreception')})),
+    ])
+    persons, order_by_context = order_queryset(persons, request.GET.dict(), order_by_options, 'short_name')
+
     short_name_filter = request.GET.get("short_name", '')
     if short_name_filter:
         persons = persons.filter(
@@ -139,7 +146,7 @@ def persons(request):
     context = {'persons': paginated_persons, 'count': paginator.count, 'short_name': short_name_filter,
                'birth_year_slider_info': birth_year_slider_info,
                'death_year_slider_info': death_year_slider_info,
-               'search_form': search_form}
+               'search_form': search_form} | order_by_context
     return render(request, 'shewrote/persons.html', context)
 
 
@@ -267,11 +274,26 @@ def order_queryset(qs: QuerySet, get_params: dict, order_by_options: OrderedDict
     :return: ordered QuerySet and a dict with context variables
     """
     order_by: str = get_params.pop('order_by', default_option)
-    qs: QuerySet = qs.order_by(F(order_by).asc(nulls_last=True))
-    current_order_by_label: str = order_by_options[order_by]
-    get_params_str: str = '&'.join(
-        f'{key}={value}' for key, value in get_params.items()
-    )
+    order_by_option = order_by_options[order_by]
+
+    # Extract Queryset annotate dict if there is one
+    if isinstance(order_by_option, tuple):
+        current_order_by_label: str = order_by_option[0]
+        qs = qs.annotate(**order_by_option[1])
+    else:
+        current_order_by_label: str = order_by_option
+
+    for option, label in order_by_options.items():
+        if isinstance(label, tuple):
+            label = label[0]
+            order_by_options[option] = label
+
+    if order_by.startswith('-'):
+        qs: QuerySet = qs.order_by(F(order_by[1:]).desc(nulls_last=True))
+    else:
+        qs: QuerySet = qs.order_by(F(order_by).asc(nulls_last=True))
+
+    get_params_str: str = '&'.join( f'{key}={value}' for key, value in get_params.items())
     return qs, {'order_by': order_by, 'order_by_options': order_by_options,
                 'current_order_by_label': current_order_by_label, 'get_params': get_params_str}
 
