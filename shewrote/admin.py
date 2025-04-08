@@ -296,6 +296,7 @@ class PersonAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
             return inline_instances + [ChildrenOfInline(self.model, self.admin_site, fk_name='mother')]
         if obj.sex == Person.GenderChoices.MALE:
             return inline_instances + [ChildrenOfInline(self.model, self.admin_site, fk_name='father')]
+        return inline_instances
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = [
@@ -304,6 +305,7 @@ class PersonAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
                 {
                     "fields": [("short_name", "viaf_or_cerl"),
                                ("first_name", "birth_name",),
+                               "sex",
                                ("date_of_birth", "alternative_birth_date", "place_of_birth"),
                                ("date_of_death", "alternative_death_date", "place_of_death"),
                                "notes"],
