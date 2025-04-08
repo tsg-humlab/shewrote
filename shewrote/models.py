@@ -742,8 +742,7 @@ class Reception(EasyAuditMixin, models.Model):
     def save(self, **kwargs):
         adding = True if self._state.adding else False
         super().save(**kwargs)
-        if adding:
-            work = self.is_same_as_work
+        if adding and (work := self.is_same_as_work):
             self.language_of_reception.add(*work.languages.all())
 
 
