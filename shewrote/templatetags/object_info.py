@@ -9,3 +9,8 @@ def content_type(obj):
     if not obj:
         return False
     return ContentType.objects.get_for_model(obj)
+
+
+@register.simple_tag
+def getattribute(obj, attr_name, default):
+    return getattr(obj, attr_name, default)

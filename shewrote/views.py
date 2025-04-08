@@ -278,10 +278,12 @@ def order_queryset(qs: QuerySet, get_params: dict, order_by_options: OrderedDict
 
     # Extract Queryset annotate dict if there is one
     if isinstance(order_by_option, tuple):
-        current_order_by_label: str = order_by_option[0]
-        qs = qs.annotate(**order_by_option[1])
+        current_order_by_label, qs_annotate = order_by_option
+        qs = qs.annotate(**qs_annotate)
+        order_by_annotate_field = list(qs_annotate.keys())[0]
     else:
         current_order_by_label: str = order_by_option
+        order_by_annotate_field = None
 
     for option, label in order_by_options.items():
         if isinstance(label, tuple):
@@ -295,7 +297,8 @@ def order_queryset(qs: QuerySet, get_params: dict, order_by_options: OrderedDict
 
     get_params_str: str = '&'.join( f'{key}={value}' for key, value in get_params.items())
     return qs, {'order_by': order_by, 'order_by_options': order_by_options,
-                'current_order_by_label': current_order_by_label, 'get_params': get_params_str}
+                'current_order_by_label': current_order_by_label, 'get_params': get_params_str,
+                'order_by_annotate_field': order_by_annotate_field}
 
 
 def receptions(request):

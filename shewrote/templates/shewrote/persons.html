@@ -1,6 +1,7 @@
 {% extends 'shewrote/base.html' %}
 {% load static %}
 {% load django_bootstrap5 %}
+{% load object_info %}
 
 {% block extra_head %}
     <link href="{% static 'admin/css/vendor/select2/select2.css' %}" media="screen" rel="stylesheet">
@@ -46,6 +47,7 @@
           {% endfor %}
       </ul>
     </div>
+    <hr/>
     <div>
         <form action="" method="get">
             <button type="submit" class="btn btn-secondary btn-sm my-1 text-nowrap w-100">
@@ -215,6 +217,12 @@
                                             </td>
                                     {% endif %}
                                 {% endwith %}
+                                {% if order_by_annotate_field %}
+                                    <tr>
+                                        <td class="text-secondary">{{ current_order_by_label }}:</td>
+                                        <td>{% getattribute person order_by_annotate_field '-' %}</td>
+                                    </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>
