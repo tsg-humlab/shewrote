@@ -107,13 +107,24 @@ def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearc
     return persons
 
 
+def reception_count_annotate(qs):
+    return qs.annotate(reception_count=Count('personreception', distinct=True))
+
+
+def reception_count_including_works_annotate(qs):
+    return (qs.annotate(reception_count=Count('personreception', distinct=True),
+                        work_count=Count('personwork__work__workreception__reception', distinct=True))
+            .annotate(reception_count_incl_works=F('reception_count') + F('work_count')))
+
+
 def persons(request):
     """Show all persons."""
     persons = Person.objects.all()
 
     order_by_options = OrderedDict([
         ('short_name', 'Short name'),
-        ('-reception_count', ('Reception count', {'reception_count': Count('personreception')})),
+        ('-reception_count', ('Reception count (person)', reception_count_annotate)),
+        ('-reception_count_incl_works', ('Reception count (person and works)', reception_count_including_works_annotate)),
     ])
     persons, order_by_context = order_queryset(persons, request.GET.dict(), order_by_options, 'short_name')
 
@@ -274,13 +285,15 @@ def order_queryset(qs: QuerySet, get_params: dict, order_by_options: OrderedDict
     :return: ordered QuerySet and a dict with context variables
     """
     order_by: str = get_params.pop('order_by', default_option)
+    if order_by not in order_by_options.keys():
+        order_by = default_option
     order_by_option = order_by_options[order_by]
 
-    # Extract Queryset annotate dict if there is one
+    # Get Queryset annotate function if there is one
     if isinstance(order_by_option, tuple):
         current_order_by_label, qs_annotate = order_by_option
-        qs = qs.annotate(**qs_annotate)
-        order_by_annotate_field = list(qs_annotate.keys())[0]
+        qs = qs_annotate(qs)
+        order_by_annotate_field = order_by[1:] if order_by.startswith('-') else order_by
     else:
         current_order_by_label: str = order_by_option
         order_by_annotate_field = None
@@ -347,6 +360,10 @@ def reception(request, reception_id):
     return render(request, 'shewrote/reception_details.html', context)
 
 
+def work_reception_count_annotate(qs):
+    return qs.annotate(reception_count=Count('workreception__reception', distinct=True))
+
+
 def works_list(request, base_qs, extra_context={}):
     """Show all works."""
     works = base_qs.prefetch_related("personwork_set__person", "personwork_set__role")
@@ -354,6 +371,7 @@ def works_list(request, base_qs, extra_context={}):
     order_by_options = OrderedDict([
         ('title', 'Title'),
         ('date_of_publication_start', 'Publication date'),
+        ('-reception_count', ('Reception count', work_reception_count_annotate)),
     ])
     works, ordering_context = order_queryset(works, request.GET.dict(), order_by_options, 'date_of_publication_start')
 
