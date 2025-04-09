@@ -1,5 +1,6 @@
 {% extends 'shewrote/base.html' %}
 {% load django_bootstrap5 %}
+{% load object_info %}
 
 {% block page_header %}
     <div class="hstack gap-3 pb-2 mb-2 border-bottom">
@@ -85,6 +86,12 @@
                                     <td class="text-secondary me-2">Full title:&nbsp;</td>
                                     <td style="padding-left:8px">{{ work.title }} </td>
                                 </tr>
+                                {% if order_by_annotate_field %}
+                                    <tr>
+                                        <td class="text-secondary me-2">{{ current_order_by_label }}:</td>
+                                        <td style="padding-left:8px">{% getattribute work order_by_annotate_field '-' %}</td>
+                                    </tr>
+                                {% endif %}
                                 <tr>
                                     <td class="text-secondary">Name</td>
                                     <td class="text-secondary" style="padding-left:8px">Role</td>

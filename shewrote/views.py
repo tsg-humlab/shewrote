@@ -360,6 +360,10 @@ def reception(request, reception_id):
     return render(request, 'shewrote/reception_details.html', context)
 
 
+def work_reception_count_annotate(qs):
+    return qs.annotate(reception_count=Count('workreception__reception', distinct=True))
+
+
 def works_list(request, base_qs, extra_context={}):
     """Show all works."""
     works = base_qs.prefetch_related("personwork_set__person", "personwork_set__role")
@@ -367,6 +371,7 @@ def works_list(request, base_qs, extra_context={}):
     order_by_options = OrderedDict([
         ('title', 'Title'),
         ('date_of_publication_start', 'Publication date'),
+        ('-reception_count', ('Reception count', work_reception_count_annotate)),
     ])
     works, ordering_context = order_queryset(works, request.GET.dict(), order_by_options, 'date_of_publication_start')
 
