@@ -145,8 +145,9 @@ def persons(request):
     persons, death_year_slider_info = get_int_slider_info(request, persons, 'normalised_date_of_death',
                                                            ['death_year_start', 'death_year_end'])
 
-    receptions = Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False)\
-        .exclude(image='').values('image')
+    receptions = (Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False,
+                                           personreception__type__type_of_reception=settings.PORTRAIT_TYPE)
+                  .exclude(image='').values('image'))
     persons = persons.annotate(image=Subquery(receptions[:1]))
 
     persons = persons.prefetch_related('alternativename_set', 'place_of_birth', 'place_of_death')
@@ -166,9 +167,10 @@ def person(request, person_id):
     person = Person.objects.get(id=person_id)
     person_receptions = (PersonReception.objects.filter(person=person)
                          .prefetch_related('type', 'reception__is_same_as_work__personwork_set'))
-    person_receptions_with_image = person_receptions.filter(reception__image__isnull=False).exclude(reception__image="")
+    person_receptions_with_image = (person_receptions.filter(reception__image__isnull=False,
+                                                             type__type_of_reception=settings.PORTRAIT_TYPE)
+                                    .exclude(reception__image=""))
     reception_with_image = person_receptions_with_image.first().reception if person_receptions_with_image else None
-    image = person_receptions.first().reception.image if person_receptions else None
 
     relations = PersonPersonRelation.objects.filter(from_person=person)
 
