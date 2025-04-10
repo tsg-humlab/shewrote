@@ -330,19 +330,9 @@
         {% slot contents %}
                                 <table class="table">
                                     <tbody>
-                                        <tr>
-                                            <th scope="row" class="w-25">Author of</th>
-                                            <td>
-                                                <ul>
-                                                    {% for work in is_creator_of %}
-                                                        <li>
-                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
-                                                            ({{ work.date_of_publication_text }})
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </td>
-                                        </tr>
+                                        {% include 'shewrote/components/person_works.html' with works=is_creator_of title="Author of" %}
+                                        {% include 'shewrote/components/person_works.html' with works=is_editor_of title="Editor of" %}
+                                        {% include 'shewrote/components/person_works.html' with works=is_copyiist_of title="Copyist of" %}
                                     </tbody>
                                 </table>
         {% endslot %}

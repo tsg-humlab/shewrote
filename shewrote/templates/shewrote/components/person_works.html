@@ -1,0 +1,19 @@
+                                        <tr>
+                                            <th scope="row" class="w-25">{{ title }}</th>
+                                            <td>
+                                                {% if works %}
+                                                <ul>
+                                                    {% for work in works %}
+                                                        <li>
+                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
+                                                            {% if work.date_of_publication_text %}
+                                                                ({{ work.date_of_publication_text }})
+                                                            {% endif %}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                                {% else %}
+                                                -
+                                                {% endif %}
+                                            </td>
+                                        </tr>
