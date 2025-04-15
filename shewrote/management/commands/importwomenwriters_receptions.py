@@ -2,8 +2,7 @@ import json
 import re
 from django.core.management.base import BaseCommand
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from shewrote.models import ReceptionType, Reception, ReceptionSource, Work, Place, Person, \
-    PersonReception, PersonReceptionSource, WorkReception, DocumentType
+from shewrote.models import ReceptionType, Reception, Work, Place, WorkReception, DocumentType
 
 
 def get_obj_or_none(klass, **kwargs):

@@ -12,7 +12,7 @@ from django_admin_inline_paginator_plus.admin import TabularInlinePaginated
 from .models import (Country, Place, Person, Education, PersonEducation, Role, Profession, PersonProfession, Religion,
                      PersonReligion, Marriage, AlternativeName, PeriodOfResidence, CollectiveType, Collective,
                      PersonCollective, CollectivePlace, Genre, Language, Work, PersonWork, Edition, EditionLanguage,
-                     PersonEdition, ReceptionSource, PersonReceptionSource, DocumentType, ReceptionType,
+                     PersonEdition, DocumentType, ReceptionType,
                      Reception, PersonReception, ReceptionLanguage, ReceptionGenre,
                      WorkReception, EditionReception, PersonPersonRelation, RelationType, WorkLanguage)
 
@@ -558,15 +558,6 @@ class PersonEditionAdmin(ShewroteModelAdmin):
     autocomplete_fields = ['person', 'edition', 'role']
 
 
-@admin.register(ReceptionSource)
-class ReceptionSourceAdmin(ShewroteModelAdmin):
-    search_fields = ['title_work']
-    autocomplete_fields = ['work', 'part_of']
-
-
-admin.site.register(PersonReceptionSource)
-
-
 @admin.register(DocumentType)
 class DocumentTypeAdmin(ShewroteModelAdmin):
     search_fields = ['type_of_document']
@@ -633,7 +624,6 @@ class ReceptionAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     list_display_links = ['title', 'reference']
     search_fields = ['title', 'reference']
     autocomplete_fields = [
-        'source',
         'is_same_as_work',
         'part_of_work',
         'place_of_reception',
@@ -651,7 +641,7 @@ class ReceptionAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
                 None,
                 {
                     "fields": [
-                        ("is_same_as_work", "source", "part_of_work"),
+                        ("is_same_as_work", "part_of_work"),
                         "title",
                         "reference",
                         "document_type",

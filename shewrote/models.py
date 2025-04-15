@@ -622,40 +622,6 @@ class PersonEdition(models.Model):
     role = models.ForeignKey(Role, models.PROTECT, null=True, blank=True)
 
 
-class ReceptionSource(models.Model):
-    """Defines the Source of a Reception."""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    work = models.ForeignKey(Work, models.SET_NULL, blank=True, null=True, related_name="+")
-    part_of = models.ForeignKey(Work, models.SET_NULL, blank=True, null=True, related_name="+")
-    title_work = models.CharField(max_length=255, blank=True)
-    related_persons = models.ManyToManyField(
-        Person,
-        through="PersonReceptionSource",
-        through_fields=("reception_source", "person"),
-        blank=True,
-    )
-    shelfmark = models.CharField(max_length=255, blank=True)
-    reference = models.TextField(blank=True)
-    date = models.DateField(blank=True, null=True)
-    url = models.URLField(max_length=255, blank=True)
-    notes = models.TextField(blank=True)
-    original_Data = models.JSONField(blank=True, null=True, editable=False)
-
-    class Meta:
-        ordering = ['title_work']
-
-    def __str__(self):
-        """Returns the title of the Reception Source."""
-        return self.title_work
-
-
-class PersonReceptionSource(models.Model):
-    """Many-to-Many model connecting an Edition to related Persons."""
-    reception_source = models.ForeignKey(ReceptionSource, on_delete=models.CASCADE)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, models.PROTECT, null=True, blank=True)
-
-
 class DocumentType(models.Model):
     """Defines the Type of document that can exist for a Reception."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -700,7 +666,6 @@ class Reception(EasyAuditMixin, models.Model):
         through="EditionReception",
         through_fields=("reception", "edition"),
     )
-    source = models.ForeignKey(ReceptionSource, models.SET_NULL, null=True, blank=True)
     title = models.TextField(blank=True)
     is_same_as_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+", verbose_name="is same as work")
     part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+")
