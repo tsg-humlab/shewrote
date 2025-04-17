@@ -9,14 +9,21 @@
                                                             {% if work.date_of_publication_text %}
                                                                 ({{ work.date_of_publication_text }})
                                                             {% endif %}
+                                                            
                                                             {% if work.is_same_as_reception.count %}
-                                                                <br/>
-                                                                <small>
-                                                                    is also a
-                                                                    {% for reception in work.is_same_as_reception.all %}
-                                                                        <a href="{% url 'shewrote:reception' reception.id %}">reception</a>
-                                                                    {% endfor %}
-                                                                </small>
+                                                                {% for reception in work.is_same_as_reception.all %}
+                                                                    <br/>
+                                                                    <small>
+                                                                        is also a
+                                                                            <a href="{% url 'shewrote:reception' reception.id %}">reception</a>:
+                                                                            {% for workreception in reception.workreception_set.all %}
+                                                                                {{ workreception.type }}
+                                                                                <a href="{% url 'shewrote:work' workreception.work_id %}">
+                                                                                    {{ workreception.work }}
+                                                                                </a>{% if not forloop.last %}, {% endif %}
+                                                                            {% endfor %}
+                                                                    </small>
+                                                                {% endfor %}
                                                             {% endif %}
                                                         </li>
                                                     {% endfor %}
