@@ -164,7 +164,8 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
         return Collective.objects.filter(personcollective__person=self)
 
     def get_works_for_role(self, role_name):
-        return Work.objects.filter(personwork__person=self, personwork__role__name=role_name)
+        return (Work.objects.filter(personwork__person=self, personwork__role__name=role_name)
+                .prefetch_related('is_same_as_reception'))
 
     def get_education(self):
         return Education.objects.filter(personeducation__person=self)
@@ -667,7 +668,8 @@ class Reception(EasyAuditMixin, models.Model):
         through_fields=("reception", "edition"),
     )
     title = models.TextField(blank=True)
-    is_same_as_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+", verbose_name="is same as work")
+    is_same_as_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="is_same_as_reception",
+                                        verbose_name="is same as work")
     part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+")
     reference = models.TextField(blank=True)
     place_of_reception = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)

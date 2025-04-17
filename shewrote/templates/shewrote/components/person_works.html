@@ -9,6 +9,15 @@
                                                             {% if work.date_of_publication_text %}
                                                                 ({{ work.date_of_publication_text }})
                                                             {% endif %}
+                                                            {% if work.is_same_as_reception.count %}
+                                                                <br/>
+                                                                <small>
+                                                                    is also a
+                                                                    {% for reception in work.is_same_as_reception.all %}
+                                                                        <a href="{% url 'shewrote:reception' reception.id %}">reception</a>
+                                                                    {% endfor %}
+                                                                </small>
+                                                            {% endif %}
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
