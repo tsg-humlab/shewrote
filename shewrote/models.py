@@ -649,27 +649,10 @@ class ReceptionType(models.Model):
         return self.type_of_reception
 
 
-class Reception(EasyAuditMixin, models.Model):
+class AbstractReception(EasyAuditMixin, models.Model):
     """Model defining a Reception of a Work by a Source in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    received_persons = models.ManyToManyField(
-        Person,
-        through="PersonReception",
-        through_fields=("reception", "person"),
-    )
-    received_works = models.ManyToManyField(
-        Work,
-        through="WorkReception",
-        through_fields=("reception", "work"),
-    )
-    received_editions = models.ManyToManyField(
-        Edition,
-        through="EditionReception",
-        through_fields=("reception", "edition"),
-    )
     title = models.TextField(blank=True)
-    is_same_as_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="is_same_as_reception",
-                                        verbose_name="is same as work")
     part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+")
     reference = models.TextField(blank=True)
     place_of_reception = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)
@@ -677,18 +660,6 @@ class Reception(EasyAuditMixin, models.Model):
     quotation_reception = models.TextField(blank=True)
     document_type = models.ForeignKey(DocumentType, models.PROTECT, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
-    language_of_reception = models.ManyToManyField(
-        Language,
-        through="ReceptionLanguage",
-        through_fields=("reception", "language"),
-        blank=True,
-    )
-    reception_genre = models.ManyToManyField(
-        Genre,
-        through="ReceptionGenre",
-        through_fields=("reception", "genre"),
-        blank=True,
-    )
     viaf_work = models.URLField(max_length=255, blank=True)
     image = models.ImageField
     notes = models.TextField(blank=True)
@@ -696,6 +667,7 @@ class Reception(EasyAuditMixin, models.Model):
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
     class Meta:
+        abstract = True
         indexes = [
             models.Index(fields=["title"]),
             models.Index(fields=["date_of_reception"])
@@ -711,6 +683,38 @@ class Reception(EasyAuditMixin, models.Model):
         super().save(**kwargs)
         if adding and (work := self.is_same_as_work):
             self.language_of_reception.add(*work.languages.all())
+
+
+class Reception(AbstractReception):
+    is_same_as_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="is_same_as_reception",
+                                        verbose_name="is same as work")
+    received_persons = models.ManyToManyField(
+        Person,
+        through="PersonReception",
+        through_fields=("reception", "person"),
+    )
+    received_works = models.ManyToManyField(
+        Work,
+        through="WorkReception",
+        through_fields=("reception", "work"),
+    )
+    received_editions = models.ManyToManyField(
+        Edition,
+        through="EditionReception",
+        through_fields=("reception", "edition"),
+    )
+    language_of_reception = models.ManyToManyField(
+        Language,
+        through="ReceptionLanguage",
+        through_fields=("reception", "language"),
+        blank=True,
+    )
+    reception_genre = models.ManyToManyField(
+        Genre,
+        through="ReceptionGenre",
+        through_fields=("reception", "genre"),
+        blank=True,
+    )
 
 
 class PersonReception(models.Model):
