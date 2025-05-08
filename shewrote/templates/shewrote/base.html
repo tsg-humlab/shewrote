@@ -70,7 +70,7 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-md mb-4 border">
+    <nav class="navbar navbar-expand-md mb-2 border">
         <div class="container">
             <a href="https://www.ru.nl" class="d-none d-sm-block">
                 <img src="https://cls.ru.nl/RU_logo.svg" class="navbar-brand" style="height: 3rem"/>
@@ -145,7 +145,28 @@
         </div>
     </nav>
 
-    <main class="container mb-5">
+    <div class="container">
+        <div class="row">
+            <div class="alert alert-warning">
+                <div class="d-flex">
+                    <div class="pe-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+                          <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/>
+                          <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+                        </svg>
+                    </div>
+                    <div class="small">
+                        Please note that <b>the data in this database is not exhaustive, and coverage per region and period is
+                        partial</b>, as the tool is intended primarily as a research instrument fed by the data and research questions
+                        of individual contributors. Should you wish to contribute to the database, please contact
+                        <a href="mailto:alicia.montoya@ru.nl">alicia.montoya@ru.nl</a> for inlog codes.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container mb-5 mt-3">
         {% if messages %}
         <div class="row">
             <div class="col-xs-6 col-xs-offset-3 text-center">
