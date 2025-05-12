@@ -678,12 +678,6 @@ class AbstractReception(EasyAuditMixin, models.Model):
         """Returns the title of the Reception."""
         return self.title
 
-    def save(self, **kwargs):
-        adding = True if self._state.adding else False
-        super().save(**kwargs)
-        if adding and (work := self.is_same_as_work):
-            self.language_of_reception.add(*work.languages.all())
-
 
 class Reception(AbstractReception):
     is_same_as_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="is_same_as_reception",
@@ -715,6 +709,12 @@ class Reception(AbstractReception):
         through_fields=("reception", "genre"),
         blank=True,
     )
+
+    def save(self, **kwargs):
+        adding = True if self._state.adding else False
+        super().save(**kwargs)
+        if adding and (work := self.is_same_as_work):
+            self.language_of_reception.add(*work.languages.all())
 
 
 class PersonReception(models.Model):
@@ -755,3 +755,50 @@ class ReceptionGenre(models.Model):
     """This model links a Reception to a Genre."""
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, models.PROTECT, null=True)
+
+
+class Circulation(AbstractReception):
+    shelf_mark = models.TextField(blank=True)
+    received_persons = models.ManyToManyField(
+        Person,
+        through="PersonCirculation",
+        through_fields=("circulation", "person"),
+    )
+    received_works = models.ManyToManyField(
+        Work,
+        through="WorkCirculation",
+        through_fields=("circulation", "work"),
+    )
+    received_editions = models.ManyToManyField(
+        Edition,
+        through="EditionCirculation",
+        through_fields=("circulation", "edition"),
+    )
+
+
+class PersonCirculation(models.Model):
+    """Defines the Role of a Person related to a Circulation."""
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    circulation = models.ForeignKey(Circulation, on_delete=models.CASCADE)
+    type = models.ForeignKey(ReceptionType, models.PROTECT, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.circulation.title} {self.type or "receives"} {self.person.short_name}'
+
+
+class WorkCirculation(models.Model):
+    work = models.ForeignKey(Work, on_delete=models.CASCADE)
+    circulation = models.ForeignKey(Circulation, on_delete=models.CASCADE)
+    type = models.ForeignKey(ReceptionType, on_delete=models.PROTECT, null=True)
+
+    def __str__(self):
+        return f'{self.circulation} {self.type} {self.work}'
+
+
+class EditionCirculation(models.Model):
+    edition = models.ForeignKey(Edition, on_delete=models.CASCADE)
+    circulation = models.ForeignKey(Circulation, on_delete=models.CASCADE)
+    type = models.ForeignKey(ReceptionType, on_delete=models.PROTECT, null=True)
+
+    def __str__(self):
+        return f'{self.circulation} is circulation of edition {self.edition}'
