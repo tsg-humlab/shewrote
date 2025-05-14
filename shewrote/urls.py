@@ -37,18 +37,18 @@ urlpatterns = [
     # AJAX to get title and date of work
     path('work_info/<uuid:work_id>/', views.work_info, name='work_info'),
 
-
     # Receptions
     path('receptions/', views.receptions, name='receptions'),
     path('reception/<uuid:reception_id>/', views.reception, name='reception'),
+    
+    # Circulations
+    path('circulations/', views.circulations, name='circulations'),
+    path('circulation/<uuid:circulation_id>/', views.circulation, name='circulation'),
 
     # Editions
     path('editions/', views.editions, name='editions'),
     path('work_edition/<uuid:work_id>/', views.work_edition, name='work_edition'),
     path('editions/<uuid:edition_id>/', views.edition, name='edition'),
-
-    # Editions
-    path('circulation/', views.circulation, name='circulation'),
 
     # AutoResponse
     path(r'countryplaceautoresponse/', views.CountryAndPlaceAutocompleteView.as_view(), name='countryplaceautoresponse'),

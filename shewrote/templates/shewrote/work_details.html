@@ -18,6 +18,7 @@
     {% include 'shewrote/components/details_section_button.html' with section_name='basic' section_title='Basic Info' active='active' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='persons' section_title='Persons' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='receivedworks' section_title='Receptions' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='receivedworks_circulation' section_title='Circulations' %}
 {% endblock %}
 
 {% block sections %}
@@ -146,6 +147,38 @@
                                     {% else %}
                                         <p>
                                             <i class="text-muted">No receptions found</i>
+                                        </p>
+                                    {% endif %}
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='receivedworks_circulation' section_title='Circulation' %}
+        {% slot contents %}
+                                    {% if workcirculations %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for workcirculation in workcirculations %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:circulation' workcirculation.circulation_id %}">
+                                                                {{ workcirculation.circulation }}
+                                                            </a>
+                                                        </td>
+                                                        <td>
+                                                            {{ workcirculation.circulation.place_of_reception|default:"" }}
+                                                        </td>
+                                                        <td>
+                                                            {{ workcirculation.circulation.date_of_reception }}
+                                                        </td>
+                                                        <td>
+                                                            {{ workcirculation.type }}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No circulations found</i>
                                         </p>
                                     {% endif %}
         {% endslot %}

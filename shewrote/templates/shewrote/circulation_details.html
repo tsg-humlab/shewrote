@@ -1,0 +1,190 @@
+{% extends 'shewrote/generic_details.html' %}
+
+{% load embed %}
+
+{% block heading %}
+    {{ circulation.title }}
+    <small class="text-muted fs-4 ms-3">
+        {{ circulation.document_type }}
+    </small>
+    <small class="text-muted fs-4 ms-3">
+        {{ circulation.place_of_circulation|default:'' }}
+    </small>
+{% endblock %}
+
+{% block edit_button %}
+    {% include 'shewrote/components/details_edit_button.html' with object=circulation url_name='admin:shewrote_circulation_change' %}
+{% endblock %}
+
+{% block last_edit_info %}
+    {% include 'shewrote/components/last_edit_info.html' with object=circulation %}
+{% endblock %}
+
+{% block section_buttons %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='basic' section_title='Basic Info' active='active' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='receivedworks' section_title='Received works' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='receivedpersons' section_title='Persons received' %}
+{% endblock %}
+
+{% block sections %}
+    {% embed 'shewrote/components/details_section.html' with section_name='basic' section_title='Basic Info' %}
+        {% slot contents %}
+                                <div class="{% if circulation.image %}w-75{% else %}flex-fill{% endif %}">
+                                    <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Title</th>
+                                            <td>{{ circulation.title }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Is same as work</th>
+                                            <td>
+                                                {% if circulation.is_same_as_work %}
+                                                    <a href="{% url 'shewrote:work' circulation.is_same_as_work_id %}">
+                                                        {{ circulation.is_same_as_work }}
+                                                    </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Part of work</th>
+                                            <td>
+                                                {% if circulation.part_of_work %}
+                                                    <a href="{% url 'shewrote:work' circulation.part_of_work_id %}">
+                                                        {{ circulation.part_of_work }}
+                                                    </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Author</th>
+                                            <td>
+                                                {% for person in circulation.is_same_as_work.get_creators %}
+                                                    <a href="{% url 'shewrote:person' person.id %}">{{ person }}</a>
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Reference</th>
+                                            <td>{{ circulation.reference }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Place</th>
+                                            <td>{{ circulation.place_of_circulation|default:'' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Date</th>
+                                            <td>{{ circulation.date_of_circulation }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Quotation</th>
+                                            <td>{{ circulation.quotation_circulation }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Type</th>
+                                            <td>{{ circulation.document_type }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">VIAF</th>
+                                            <td>
+                                                <a href="{{ circulation.viaf_work }}">
+                                                    {{ circulation.viaf_work }}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">Notes</th>
+                                            <td>
+                                                {{ circulation.notes }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                </div>
+                                {% if circulation.image %}
+                                    <div class="w-25 ms-3">
+                                        <a href="{{ circulation.image.url }}">
+                                            <img src="{{ circulation.image.url }}" class="img-fluid"/>
+                                        </a>
+                                    </div>
+                                {% endif %}
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='receivedworks' section_title='Received works' %}
+        {% slot contents %}
+                                    {% if workcirculations %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for workcirculation in workcirculations %}
+                                                    <tr>
+                                                        <th scope="row" class="w-25">{{ workcirculation.type }}</th>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:work' workcirculation.work_id %}">
+                                                                {{ workcirculation.work }}
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No works found</i>
+                                        </p>
+                                    {% endif %}
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='receivedpersons' section_title='Persons received' %}
+        {% slot contents %}
+                            <div class="w-100">
+                                <h6>In this circulation</h6>
+                                    {% if personcirculations %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for personcirculation in circulation.personcirculation_set.all %}
+                                                    <tr>
+                                                        <td scope="row" class="w-25">
+                                                            {{ personcirculation.type|default:"-" }}
+                                                        </td>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:person' personcirculation.person_id %}">{{ personcirculation.person }}</a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No persons found</i>
+                                        </p>
+                                    {% endif %}
+                                <h6>Via received works</h6>
+                                    {% if workcirculations %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for workcirculation in workcirculations %}
+                                                    <tr>
+                                                        <td scope="row" class="w-25">
+                                                            {{ workcirculation.work }}
+                                                        </td>
+                                                        <td>
+                                                            {% for person in workcirculation.work.related_persons.all %}
+                                                                <a href="{% url 'shewrote:person' person.id %}">{{ person }}</a>
+                                                                {% if not forloop.last %}, {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No persons found</i>
+                                        </p>
+                                    {% endif %}
+                            </div>
+        {% endslot %}
+    {% endembed %}
+
+{% endblock %}

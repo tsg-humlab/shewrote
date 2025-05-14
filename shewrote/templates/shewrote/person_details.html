@@ -358,6 +358,39 @@
     {% endembed %}
     {% embed 'shewrote/components/details_section.html' with section_name='circulation' section_title='Circulation' %}
         {% slot contents %}
+                            <div class="vstack gap-3">
+                                <h6>
+                                    Circulations of {{ person }}, the person
+                                    (for circulations of {% if person.sex == 'F' %}her{% else %}his{% endif %} works,
+                                    see under each individual Work)
+                                </h6>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <td>Title</td>
+                                            <td>Date</td>
+                                            <td>Type</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for person_circulation in person_circulations %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{% url 'shewrote:circulation' person_circulation.circulation_id %}">
+                                                        {{ person_circulation.circulation }}
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    {{ person_circulation.circulation.date_of_reception }}
+                                                </td>
+                                                <td>
+                                                    {{ person_circulation.type|default:"-" }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
         {% endslot %}
     {% endembed %}
     {% embed 'shewrote/components/details_section.html' with section_name='reception' section_title='Receptions' %}
@@ -395,7 +428,7 @@
                                                     {{ person_reception.reception.date_of_reception }}
                                                 </td>
                                                 <td>
-                                                    {{ person_reception.type}}
+                                                    {{ person_reception.type|default:"-" }}
                                                 </td>
                                             </tr>
                                         {% endfor %}
