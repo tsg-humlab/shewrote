@@ -15,7 +15,8 @@ from .models import (Country, Place, Person, Education, PersonEducation, Role, P
                      PersonEdition, DocumentType, ReceptionType,
                      Reception, PersonReception, ReceptionLanguage, ReceptionGenre,
                      WorkReception, EditionReception, PersonPersonRelation, RelationType, WorkLanguage, Circulation,
-                     PersonCirculation, WorkCirculation, EditionCirculation)
+                     PersonCirculation, WorkCirculation, EditionCirculation, CirculationSource, CirculationSourceType,
+                     PersonCirculationSource, PersonCirculationSourceRole)
 
 
 def pretty_json(self, instance, field_name):
@@ -711,6 +712,31 @@ admin.site.register(ReceptionLanguage)
 admin.site.register(ReceptionGenre)
 
 
+@admin.register(CirculationSourceType)
+class CirculationSourceTypeAdmin(ShewroteModelAdmin):
+    search_fields = ["name"]
+
+
+@admin.register(PersonCirculationSourceRole)
+class PersonCirculationSourceRoleAdmin(ShewroteModelAdmin):
+    search_fields = ["name"]
+
+
+class PersonCirculationSourceInline(admin.TabularInline):
+    model = PersonCirculationSource
+    fields = ["person", "circulation_source", "role"]
+    autocomplete_fields = ["person", "role"]
+    extra = 0
+    verbose_name = "Person"
+
+
+@admin.register(CirculationSource)
+class CirculationSourceAdmin(ShewroteModelAdmin):
+    search_fields = ["full_title"]
+    autocomplete_fields = ["type", "country_of_publication"]
+    inlines = [PersonCirculationSourceInline]
+
+
 @admin.register(Circulation)
 class CirculationAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     list_display = ['title', 'reference']
@@ -720,6 +746,7 @@ class CirculationAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
         'part_of_work',
         'place_of_reception',
         'document_type',
+        'source',
     ]
     inlines = [PersonCirculationInlineFromCirculation, WorkCirculationInlineFromCirculation]
 
@@ -737,6 +764,7 @@ class CirculationAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
                         ("place_of_reception", "date_of_reception"),
                         ("quotation_reception", "url", "viaf_work"),
                         "image",
+                        "source",
                         "notes",
                     ],
                 },

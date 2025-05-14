@@ -774,6 +774,8 @@ class Circulation(AbstractReception):
         through="EditionCirculation",
         through_fields=("circulation", "edition"),
     )
+    source = models.ForeignKey("CirculationSource", null=True, blank=True, on_delete=models.SET_NULL)
+
 
 
 class PersonCirculation(models.Model):
@@ -802,3 +804,34 @@ class EditionCirculation(models.Model):
 
     def __str__(self):
         return f'{self.circulation} is circulation of edition {self.edition}'
+
+
+class CirculationSourceType(models.Model):
+    name = models.CharField(_("Name"), max_length=128, null=True)
+
+
+class PersonCirculationSourceRole(models.Model):
+    name = models.CharField(_("Name"), max_length=128, null=True)
+
+
+class CirculationSource(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    full_title = models.TextField()
+    type = models.ForeignKey(CirculationSourceType, on_delete=models.PROTECT)
+    year_of_publication = models.CharField(max_length=50)
+    related_persons = models.ManyToManyField(
+        Person,
+        through="PersonCirculationSource",
+        through_fields=("circulation_source", "person"),
+    )
+    shelf_mark = models.CharField(max_length=128, blank=True)
+    url = models.URLField(blank=True)
+    country_of_publication = models.ForeignKey(Country, null=True, blank=True, on_delete=models.PROTECT)
+
+
+class PersonCirculationSource(models.Model):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    circulation_source = models.ForeignKey(CirculationSource, on_delete=models.CASCADE)
+    role = models.ForeignKey(PersonCirculationSourceRole, on_delete=models.PROTECT, null=True)
+
+
