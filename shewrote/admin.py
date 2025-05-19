@@ -684,7 +684,7 @@ class ReceptionAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
                         "reference",
                         "document_type",
                         ("place_of_reception", "date_of_reception"),
-                        ("quotation_reception", "url", "viaf_work"),
+                        ("quotation", "url", "viaf_work"),
                         "image",
                         "notes",
                     ],
@@ -743,7 +743,6 @@ class CirculationAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     list_display_links = ['title', 'reference']
     search_fields = ['title', 'reference']
     autocomplete_fields = [
-        'part_of_work',
         'place_of_reception',
         'document_type',
         'source',
@@ -756,13 +755,12 @@ class CirculationAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
                 None,
                 {
                     "fields": [
-                        "part_of_work",
                         "title",
                         "shelf_mark",
                         "reference",
                         "document_type",
                         ("place_of_reception", "date_of_reception"),
-                        ("quotation_reception", "url", "viaf_work"),
+                        ("quotation", "url", "viaf_work"),
                         "image",
                         "source",
                         "notes",

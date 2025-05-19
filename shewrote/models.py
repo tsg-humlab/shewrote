@@ -653,11 +653,10 @@ class AbstractReception(EasyAuditMixin, models.Model):
     """Model defining a Reception of a Work by a Source in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.TextField(blank=True)
-    part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+")
     reference = models.TextField(blank=True)
     place_of_reception = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)
     date_of_reception = models.IntegerField(blank=True, null=True)
-    quotation_reception = models.TextField(blank=True)
+    quotation = models.TextField(blank=True)
     document_type = models.ForeignKey(DocumentType, models.PROTECT, null=True, blank=True)
     url = models.URLField(max_length=255, blank=True)
     viaf_work = models.URLField(max_length=255, blank=True)
@@ -682,6 +681,7 @@ class AbstractReception(EasyAuditMixin, models.Model):
 class Reception(AbstractReception):
     is_same_as_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="is_same_as_reception",
                                         verbose_name="is same as work")
+    part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+")
     received_persons = models.ManyToManyField(
         Person,
         through="PersonReception",
