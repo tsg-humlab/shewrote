@@ -212,7 +212,7 @@
                                             <td>
                                                 {% for alternative_name in alternative_names %}
                                                     {{ alternative_name }}
-                                                    {% if not forloop.last %}, {% endif %}
+                                                    {% if not forloop.last %}&mdash;{% endif %}
                                                 {% endfor %}
                                             </td>
                                     {% endif %}

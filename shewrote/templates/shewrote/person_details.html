@@ -81,7 +81,7 @@
                                                         {% if alternative_name.start_year or alternative_name.end_year %}
                                                             ({{ alternative_name.start_year|default:"?" }} - {{ alternative_name.end_year|default:"?" }})
                                                         {% endif %}
-                                                        {% if not forloop.last %},{% endif %}
+                                                        {% if not forloop.last %}&mdash;{% endif %}
                                                     {% endfor %}
                                                 </td>
                                             </tr>
