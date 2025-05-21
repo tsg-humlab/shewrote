@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from .models import Person, Work, Reception, WorkReception
-from .forms import PersonForm, ShortPersonForm, WorkForm, MergeUsersForm, WorkSearchForm
+from .forms import PersonForm, ShortPersonForm, WorkForm, MergeUsersForm, WorkSearchForm, ReceptionSearchForm
 
 from dal import autocomplete
 from django.http import JsonResponse, Http404
@@ -323,6 +323,49 @@ def order_queryset(qs: QuerySet, get_params: dict, order_by_options: OrderedDict
                 'order_by_annotate_field': order_by_annotate_field}
 
 
+def filter_receptions_with_form(receptions: QuerySet[Work], search_form: WorkSearchForm) -> QuerySet[Work]:
+    if title_filter := search_form.cleaned_data['title']:
+        receptions = receptions.filter(title__icontains=title_filter)
+
+    if received_persons_filter := search_form.cleaned_data['received_persons']:
+        receptions = receptions.filter(received_persons__in=received_persons_filter)
+
+    if persons_receiving_filter := search_form.cleaned_data['persons_receiving']:
+        receptions = receptions.filter(is_same_as_work__personwork__role__name='is creator of',
+                                       is_same_as_work__related_persons__in=persons_receiving_filter)
+
+    if receiving_persons_gender_filter := search_form.cleaned_data['receiving_persons_gender']:
+        receptions = receptions.filter(is_same_as_work__personwork__role__name='is creator of',
+                                       is_same_as_work__related_persons__sex__in=receiving_persons_gender_filter)
+
+    if type_filter := search_form.cleaned_data['type']:
+        receptions = receptions.filter(personreception__type__in=type_filter)
+
+    if country_or_place_of_original_publication_filter := search_form.cleaned_data['country_or_place_of_original_publication']:
+        country_or_place_of_original_publication_q = get_country_or_place_q(
+            country_or_place_of_original_publication_filter,
+            'workreception__work__edition__place_of_publication'
+        )
+        receptions = receptions.filter(country_or_place_of_original_publication_q)
+
+    if country_or_place_of_reception_filter := search_form.cleaned_data['country_or_place_of_reception']:
+        country_or_place_of_reception_q = get_country_or_place_q(
+            country_or_place_of_reception_filter,
+            'place_of_reception'
+        )
+        receptions = receptions.filter(country_or_place_of_reception_q)
+
+    if language_filter := search_form.cleaned_data['language']:
+        receptions = receptions.filter(language_of_reception__in=language_filter)
+
+    if genre_filter := search_form.cleaned_data['genre']:
+        receptions = receptions.filter(reception_genre__in=genre_filter)
+
+    if notes_filter := search_form.cleaned_data['notes']:
+        receptions = receptions.filter(notes__icontains=notes_filter)
+    return receptions
+
+
 def receptions(request):
     receptions = Reception.objects.prefetch_related(
         'place_of_reception',
@@ -333,9 +376,6 @@ def receptions(request):
         'is_same_as_work',
         'personreception_set'
     )
-    title_filter = request.GET.get('title', '')
-    if title_filter:
-        receptions = receptions.filter(title__icontains=title_filter)
 
     order_by_options = OrderedDict([
         ('title', 'Title'),
@@ -343,10 +383,22 @@ def receptions(request):
     ])
     receptions, ordering_context = order_queryset(receptions, request.GET.dict(), order_by_options, 'date_of_reception')
 
+    search_form = ReceptionSearchForm(request.GET)
+    if search_form.is_valid():
+        receptions = filter_receptions_with_form(receptions, search_form)
+
+    receptions, date_of_reception_slider_info = get_int_slider_info(request, receptions, 'date_of_reception',
+                                                              ['date_of_reception_start',
+                                                               'date_of_reception_end'])
+
     paginator = Paginator(receptions, 25)
     page_number = request.GET.get('page')
     paginated_receptions = paginator.get_page(page_number)
-    context = {'receptions': paginated_receptions, 'count': paginator.count, 'title': title_filter} | ordering_context
+    context = {'receptions': paginated_receptions,
+               'count': paginator.count,
+               'search_form': search_form,
+               'date_of_reception_slider_info': date_of_reception_slider_info
+               } | ordering_context
     return render(request, 'shewrote/receptions.html', context)
 
 
