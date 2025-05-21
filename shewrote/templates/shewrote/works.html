@@ -1,6 +1,18 @@
 {% extends 'shewrote/base.html' %}
+{% load static %}
 {% load django_bootstrap5 %}
 {% load object_info %}
+
+{% block extra_head %}
+    <link href="{% static 'admin/css/vendor/select2/select2.css' %}" media="screen" rel="stylesheet">
+    <script></script>
+    {{ search_form.media.css }}
+    <script></script>
+
+    <link rel="stylesheet" href="{% static 'css/nouislider.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nouislider-custom.css' %}">
+    <script src="{% static 'js/nouislider.min.js' %}"></script>
+{% endblock extra_head %}
 
 {% block page_header %}
     <div class="hstack gap-3 pb-2 mb-2 border-bottom">
@@ -21,36 +33,132 @@
 {% endblock page_header %}
 
 {% block content %}
-    <form action="" method="get">
-        <div class="hstack gap-3">
-            <input type="text" id="title" name="title" value="{{ title }}"
-                   size=30 placeholder="Enter (part of) a title" class="form-control form-control-sm"/>
-            <button type="submit" class="btn btn-secondary btn-sm mt-1 mb-1 text-nowrap">
+<div class="col-md-4">
+    <div class="dropdown mb-3">
+      <button class="btn btn-secondary btn-sm dropdown-toggle w-100" type="button" data-bs-toggle="dropdown"
+              aria-expanded="false" title="Order by">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sort-down" viewBox="0 0 16 16">
+              <path d="M3.5 2.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 11.293zm3.5 1a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5M7.5 6a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1z"/>
+          </svg>
+          {{ current_order_by_label }}
+      </button>
+      <ul class="dropdown-menu w-100">
+          <li><h6 class="dropdown-header">Order by</h6></li>
+          {% for order_by_value, order_by_label in order_by_options.items %}
+            <li><a class="dropdown-item" href=".?order_by={{ order_by_value }}&{{ get_params }}">
+                {{ order_by_label }}
+            </a></li>
+          {% endfor %}
+      </ul>
+    </div>
+    <hr/>
+    <div>
+        <form action="" method="get">
+            <button type="submit" class="btn btn-secondary btn-sm my-1 text-nowrap w-100">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
                   <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
                 </svg>
-                Filter
+                Apply filters
             </button>
-            <div class="vr"></div>
-            <div class="dropdown">
-              <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                      aria-expanded="false" title="Order by">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sort-down" viewBox="0 0 16 16">
-                      <path d="M3.5 2.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 11.293zm3.5 1a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5M7.5 6a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1z"/>
-                  </svg>
-                  {{ current_order_by_label }}
-              </button>
-              <ul class="dropdown-menu">
-                  <li><h6 class="dropdown-header">Order by</h6></li>
-                  {% for order_by_value, order_by_label in order_by_options.items %}
-                    <li><a class="dropdown-item" href=".?order_by={{ order_by_value }}&{{ get_params }}">
-                        {{ order_by_label }}
-                    </a></li>
-                  {% endfor %}
-              </ul>
+            <div class="py-2 vstack gap-1">
+                <strong>Title</strong>
+                {{ search_form.title }}
             </div>
-        </div>
-    </form>
+            <div class="py-2 vstack gap-1">
+                <strong>Author name</strong>
+                {{ search_form.author_name }}
+            </div>
+
+            <div class="py-2 vstack gap-1 border-top">
+                <strong>Author gender</strong>
+                {{ search_form.author_gender }}
+            </div>
+
+            <div class="py-2 vstack gap-2">
+                <div>
+                    <input type="checkbox" name="date_of_publication_start_checkbox"
+                           id="date_of_publication_start_checkbox" class="form-check-input ms-0 position-relative"
+                           {% if publication_year_slider_info.is_checked %}checked{% endif %}
+                    />
+                    <strong>Year of publication</strong>
+                </div>
+                {% include 'shewrote/components/int_range_slider.html' with prefix='date_of_publication_start' slider_info=publication_year_slider_info %}
+            </div>
+
+            <div class="py-2 vstack gap-1 border-top">
+                <strong>Country/place of publication</strong>
+                {{ search_form.country_or_place_of_publication }}
+                <small class="text-danger">{{ search_form.country_or_place_of_publication.errors }}</small>
+            </div>
+
+            <div class="py-2 vstack gap-1 border-top">
+                <strong>Language</strong>
+                {{ search_form.language }}
+                <small class="text-danger">{{ search_form.language.errors }}</small>
+            </div>
+
+            <div class="py-2 vstack gap-1 border-top">
+                <strong>Genre</strong>
+                {{ search_form.genre }}
+                <small class="text-danger">{{ search_form.genre.errors }}</small>
+            </div>
+
+            <div class="py-2 vstack gap-1 border-top">
+                <strong>Notes</strong>
+                {{ search_form.notes }}
+                <small class="text-danger">{{ search_form.notes.errors }}</small>
+            </div>
+        </form>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        {{ search_form.media.js }}
+        <script>
+            (function() {
+                getSliderElements = function(prefix) {
+                    return [
+                        document.getElementById(prefix + "_slider"),
+                        document.getElementById(prefix + "_start"),
+                        document.getElementById(prefix + "_end")
+                    ];
+                };
+
+                enableSlider = function(prefix) {
+                    const [slider, start_input, end_input] = getSliderElements(prefix);
+                    slider.noUiSlider.enable();
+                    start_input.disabled = false;
+                    end_input.disabled = false;
+                };
+
+                disableSlider = function(prefix) {
+                    const [slider, start_input, end_input] = getSliderElements(prefix);
+                    slider.noUiSlider.disable();
+                    start_input.disabled = true;
+                    end_input.disabled = true;
+                };
+
+                setSliderVisibility = function(checkbox, prefix) {
+                    if (checkbox.checked == true) {
+                        enableSlider(prefix);
+                    } else {
+                        disableSlider(prefix);
+                    }
+                };
+
+                addChangeListener = function(checkbox, prefix) {
+                    checkbox.addEventListener('change', function() {
+                        setSliderVisibility(checkbox, prefix);
+                    });
+                };
+
+                ['date_of_publication_start'].forEach(function(prefix) {
+                    checkbox = document.querySelector("#"+prefix+"_checkbox");
+                    addChangeListener(checkbox, prefix);
+                    setSliderVisibility(checkbox, prefix);
+                });
+            })();
+        </script>
+    </div>
+</div>
+<div class="col-md-8">
 
     <div class="pt-2 hstack gap-3 border-bottom">
         <div class="pagination me-auto">

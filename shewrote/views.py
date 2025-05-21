@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from .models import Person, Work, Reception, WorkReception
-from .forms import PersonForm, ShortPersonForm, WorkForm, MergeUsersForm
+from .forms import PersonForm, ShortPersonForm, WorkForm, MergeUsersForm, WorkSearchForm
 
 from dal import autocomplete
 from django.http import JsonResponse, Http404
@@ -43,6 +43,8 @@ def get_int_slider_info(request, qs, field_name, search_field_names):
 
     start = request.GET.get(search_field_names[0], '') or min
     end = request.GET.get(search_field_names[1], '') or max
+
+    print(start, end)
 
     is_checked = request.GET.get(field_name+'_checkbox', 'off') == 'on'
     if is_checked:
@@ -82,6 +84,14 @@ class CountryAndPlaceAutocompleteView(AutoResponseView):
         })
 
 
+def get_country_or_place_q(filter, qs_filter_prefix: str) -> Q:
+    if not filter:
+        return Q()
+    countries = [obj for obj in filter if isinstance(obj, Country)]
+    places = [obj for obj in filter if isinstance(obj, Place)]
+    return Q(**{qs_filter_prefix + '__in':places}) | Q(**{qs_filter_prefix+'__modern_country__in':countries})
+
+
 def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearchForm) -> QuerySet[Person]:
     """
     Filter Person objects using a valid instance of PersonSearchForm
@@ -92,16 +102,9 @@ def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearc
     if sex_filter := search_form.cleaned_data['sex']:
         persons = persons.filter(sex__in=sex_filter)
 
-    def get_country_or_place_q(field_name: str, qs_filter_prefix: str) -> Q:
-        if not (filter := search_form.cleaned_data[field_name]):
-            return Q()
-        countries = [obj for obj in filter if isinstance(obj, Country)]
-        places = [obj for obj in filter if isinstance(obj, Place)]
-        return Q(**{qs_filter_prefix + '__in':places}) | Q(**{qs_filter_prefix+'__modern_country__in':countries})
-
-    country_or_place_of_birth_q = get_country_or_place_q('country_or_place_of_birth', 'place_of_birth')
-    country_or_place_of_death_q = get_country_or_place_q('country_or_place_of_death', 'place_of_death')
-    country_or_place_of_residence_q = get_country_or_place_q('country_or_place_of_residence', 'periodofresidence__place')
+    country_or_place_of_birth_q = get_country_or_place_q(search_form.cleaned_data['country_or_place_of_birth'], 'place_of_birth')
+    country_or_place_of_death_q = get_country_or_place_q(search_form.cleaned_data['country_or_place_of_death'], 'place_of_death')
+    country_or_place_of_residence_q = get_country_or_place_q(search_form.cleaned_data['country_or_place_of_residence'], 'periodofresidence__place')
     persons = persons.filter(country_or_place_of_birth_q | country_or_place_of_death_q | country_or_place_of_residence_q)
         
     return persons
@@ -370,6 +373,38 @@ def work_reception_count_annotate(qs):
     return qs.annotate(reception_count=Count('workreception__reception', distinct=True))
 
 
+def filter_works_with_form(works: QuerySet[Work], search_form: WorkSearchForm) -> QuerySet[Work]:
+    if title_filter := search_form.cleaned_data['title']:
+        works = works.filter(title__icontains=title_filter)
+
+    if author_name_filter := search_form.cleaned_data['author_name']:
+        works = works.filter(
+            Q(personwork__role__name='is creator of', related_persons__short_name__icontains=author_name_filter)
+            | Q(personwork__role__name='is creator of', related_persons__first_name__icontains=author_name_filter)
+            | Q(personwork__role__name='is creator of', related_persons__birth_name__icontains=author_name_filter)
+        )
+
+    if author_gender_filter := search_form.cleaned_data['author_gender']:
+        works = works.filter(personwork__role__name='is creator of', related_persons__sex__in=author_gender_filter)
+
+    if country_or_place_of_publication_filter := search_form.cleaned_data['country_or_place_of_publication']:
+        country_or_place_of_publication_q = get_country_or_place_q(
+            country_or_place_of_publication_filter,
+            'edition__place_of_publication'
+        )
+        works = works.filter(country_or_place_of_publication_q)
+
+    if language_filter := search_form.cleaned_data['language']:
+        works = works.filter(languages__in=language_filter)
+
+    if genre_filter := search_form.cleaned_data['genre']:
+        works = works.filter(edition__genre__in=genre_filter)
+
+    if notes_filter := search_form.cleaned_data['notes']:
+        works = works.filter(notes__icontains=notes_filter)
+    return works
+
+
 def works_list(request, base_qs, extra_context={}):
     """Show all works."""
     works = base_qs.prefetch_related("personwork_set__person", "personwork_set__role")
@@ -381,15 +416,22 @@ def works_list(request, base_qs, extra_context={}):
     ])
     works, ordering_context = order_queryset(works, request.GET.dict(), order_by_options, 'date_of_publication_start')
 
-    title_filter = request.GET.get("title", '')
-    if title_filter:
-        works = works.filter(title__icontains=title_filter)
+    search_form = WorkSearchForm(request.GET)
+    if search_form.is_valid():
+        works = filter_works_with_form(works, search_form)
+
+    works, publication_year_slider_info = get_int_slider_info(request, works, 'date_of_publication_start',
+                                                              ['date_of_publication_start_start', 'date_of_publication_start_end'])
 
     paginator = Paginator(works, 25)
     page_number = request.GET.get("page")
     paginated_works = paginator.get_page(page_number)
 
-    context = {'works': paginated_works, 'count': paginator.count, 'title': title_filter} | ordering_context | extra_context
+    context = {'works': paginated_works,
+               'count': paginator.count,
+               'search_form': search_form,
+               'publication_year_slider_info': publication_year_slider_info
+              } | ordering_context | extra_context
 
     return render(request, 'shewrote/works.html', context)
 

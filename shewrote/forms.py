@@ -13,7 +13,7 @@ from easyaudit.models import CRUDEvent
 import functools
 from django.contrib.auth.models import User
 
-from .models import Person, Place, Education, PersonEducation, PeriodOfResidence, Work
+from .models import Person, Place, Education, PersonEducation, PeriodOfResidence, Work, Language, Genre
 
 
 class AddAnotherWidget(ModelSelect2Widget):
@@ -288,6 +288,61 @@ class WorkForm(forms.ModelForm):
             ),
             'notes': forms.Textarea(attrs={'cols': 80}),
         }
+
+
+class WorkSearchForm(forms.Form):
+    title = forms.CharField(max_length=1024, required=False,
+                            widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
+    author_name = forms.CharField(max_length=1024, required=False,
+                            widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
+    author_gender = forms.MultipleChoiceField(
+        widget=Select2MultipleWidget(choices=Person.GenderChoices.choices,
+                                     attrs={'data-placeholder': "Select one or more genders",'style': "width: 100%"}),
+        choices=Person.GenderChoices.choices,
+        required=False
+    )
+
+    country_or_place_of_publication = CountryOrPlaceField(
+        widget=HeavySelect2MultipleWidget(
+            attrs={'data-placeholder': "Select multiple"},
+            data_view='shewrote:countryplaceautoresponse'
+        ),
+        required=False
+    )
+
+    language = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Language, search_fields=['name__icontains']),
+        queryset=Language.objects.all(),
+        required=False
+    )
+
+    genre = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Genre, search_fields=['name'], attrs={
+                "data-minimum-input-length": 0,
+                "data-placeholder": "Select an genre"}),
+        queryset=Genre.objects.all(),
+        required=False
+    )
+
+    notes = forms.CharField(max_length=1024, required=False,
+                            widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name in ['country_or_place_of_publication']:
+            field = self.fields[field_name]
+            field.choices = []
+            for country_or_place_string in self.data.getlist(field_name):
+                try:
+                    obj = CountryOrPlaceField.get_country_or_place_instance(country_or_place_string)
+                except ValidationError as e:
+                    # Errors are handled in an is_valid() call
+                    pass
+                else:
+                    field.choices.append((f'{obj.__class__.__name__.lower()}|{obj.pk}',
+                                          f'{obj} ({obj.__class__.__name__.lower()})'))
+
 
 
 class ChangesSearchForm(forms.ModelForm):
