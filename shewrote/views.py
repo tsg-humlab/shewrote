@@ -123,10 +123,10 @@ def persons(request):
 
     order_by_options = OrderedDict([
         ('short_name', 'Short name'),
-        ('-reception_count', ('Reception count (person)', reception_count_annotate)),
-        ('-reception_count_incl_works', ('Reception count (person and works)', reception_count_including_works_annotate)),
+        ('-reception_count', ('Reception count (persons)', reception_count_annotate)),
+        ('-reception_count_incl_works', ('Reception count (persons and works)', reception_count_including_works_annotate)),
     ])
-    persons, order_by_context = order_queryset(persons, request.GET.dict(), order_by_options, 'short_name')
+    persons, order_by_context = order_queryset(persons, request.GET.dict(), order_by_options, '-reception_count_incl_works')
 
     short_name_filter = request.GET.get("short_name", '')
     if short_name_filter:
@@ -379,7 +379,7 @@ def works_list(request, base_qs, extra_context={}):
         ('date_of_publication_start', 'Publication date'),
         ('-reception_count', ('Reception count', work_reception_count_annotate)),
     ])
-    works, ordering_context = order_queryset(works, request.GET.dict(), order_by_options, 'date_of_publication_start')
+    works, ordering_context = order_queryset(works, request.GET.dict(), order_by_options, '-reception_count')
 
     title_filter = request.GET.get("title", '')
     if title_filter:
