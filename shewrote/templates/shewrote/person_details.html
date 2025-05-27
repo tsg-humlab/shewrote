@@ -362,19 +362,19 @@
     {% endembed %}
     {% embed 'shewrote/components/details_section.html' with section_name='reception' section_title='Receptions' %}
         {% slot contents %}
-                            <div class="vstack gap-3">
+                            <div class="vstack gap-1">
                                 <h6>
-                                    Receptions of {{ person }}, the person
-                                    (for receptions of {% if person.sex == 'F' %}her{% else %}his{% endif %} works,
-                                    see under each individual Work)
+                                    <p class="mb-1">Receptions of <i>{{ person }}</i>, the person</p>
+                                    <p class="small text-muted">For receptions of {% if person.sex == 'F' %}her{% else %}his{% endif %} works,
+                                        see under each individual Work.</p>
                                 </h6>
                                 <table class="table">
                                     <thead>
                                         <tr>
-                                            <td>Title</td>
-                                            <td>Author</td>
-                                            <td>Date</td>
-                                            <td>Type</td>
+                                            <th>Title</th>
+                                            <th>Author</th>
+                                            <th>Date</th>
+                                            <th>Type</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -407,13 +407,17 @@
 
     {% embed 'shewrote/components/details_section.html' with section_name='bibliography' section_title='Bibliography' %}
         {% slot contents %}
-                                {{ person.bibliography|default:"-" }}
+                                <div>
+                                    {{ person.bibliography|linebreaks|default:"-" }}
+                                </div>
         {% endslot %}
     {% endembed %}
 
     {% embed 'shewrote/components/details_section.html' with section_name='provisional_notes' section_title='Provisional notes' %}
         {% slot contents %}
-                                {{ person.notes|default:"-" }}
+                                <div>
+                                    {{ person.notes|linebreaks|default:"-" }}
+                                </div>
         {% endslot %}
     {% endembed %}
 
