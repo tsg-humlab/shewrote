@@ -14,7 +14,9 @@ from .models import (Country, Place, Person, Education, PersonEducation, Role, P
                      PersonCollective, CollectivePlace, Genre, Language, Work, PersonWork, Edition, EditionLanguage,
                      PersonEdition, DocumentType, ReceptionType,
                      Reception, PersonReception, ReceptionLanguage, ReceptionGenre,
-                     WorkReception, EditionReception, PersonPersonRelation, RelationType, WorkLanguage)
+                     WorkReception, EditionReception, PersonPersonRelation, RelationType, WorkLanguage, Circulation,
+                     PersonCirculation, WorkCirculation, EditionCirculation, CirculationSource, CirculationSourceType,
+                     PersonCirculationSource, PersonCirculationSourceRole)
 
 
 def pretty_json(self, instance, field_name):
@@ -229,6 +231,25 @@ class PersonReceptionInlineFromReception(PersonReceptionInline):
     verbose_name = "Person"
 
 
+class PersonCirculationInline(NoDeleteRelatedMixin, admin.TabularInline):
+    model = PersonCirculation
+    fields = [
+        "person",
+        "type",
+        "circulation",
+    ]
+    autocomplete_fields = ['person', 'circulation', 'type']
+    extra = 0
+
+
+class PersonCirculationInlineFromPerson(PersonCirculationInline):
+    verbose_name = "Circulation"
+
+
+class PersonCirculationInlineFromCirculation(PersonCirculationInline):
+    verbose_name = "Person"
+
+
 class PersonProfessionInline(NoDeleteRelatedMixin, admin.TabularInline):
     model = PersonProfession
     fields = ["person", "profession", "start_year", "end_year", "notes"]
@@ -286,7 +307,8 @@ class PersonAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     inlines = [MarriageInline, PersonPersonRelationInline,
                PersonEducationInline, PersonProfessionInline, PersonReligionInline,
                AlternativeNameInline, PeriodsOfResidenceInline,
-               PersonWorkInlineFromPersons, PersonCollectiveInline, PersonReceptionInlineFromPerson]
+               PersonWorkInlineFromPersons, PersonCollectiveInline,
+               PersonReceptionInlineFromPerson, PersonCirculationInlineFromPerson]
 
     def get_inline_instances(self, request, obj=None):
         inline_instances = [inline(self.model, self.admin_site) for inline in self.inlines]
@@ -512,12 +534,28 @@ class WorkReceptionInlineFromReception(WorkReceptionInline):
     verbose_name = 'Received work'
 
 
+class WorkCirculationInline(NoDeleteRelatedMixin, admin.TabularInline):
+    model = WorkCirculation
+    extra = 0
+    fields = ['circulation', 'type', 'work']
+    autocomplete_fields = ['work', 'circulation']
+
+
+class WorkCirculationInlineFromWork(WorkCirculationInline):
+    verbose_name = 'Circulation'
+
+
+class WorkCirculationInlineFromCirculation(WorkCirculationInline):
+    verbose_name = 'Received work'
+
+
 @admin.register(Work)
 class WorkAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
     list_display = ['title', 'viaf_link']
     search_fields = ['title']
 
-    inlines = [WorkLanguageInline, PersonWorkInlineFromWorks, EditionInline, WorkReceptionInlineFromWork]
+    inlines = [WorkLanguageInline, PersonWorkInlineFromWorks, EditionInline,
+               WorkReceptionInlineFromWork, WorkCirculationInlineFromWork]
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
@@ -646,7 +684,7 @@ class ReceptionAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
                         "reference",
                         "document_type",
                         ("place_of_reception", "date_of_reception"),
-                        ("quotation_reception", "url", "viaf_work"),
+                        ("quotation", "url", "viaf_work"),
                         "image",
                         "notes",
                     ],
@@ -672,3 +710,71 @@ class PersonReception(ShewroteModelAdmin):
 
 admin.site.register(ReceptionLanguage)
 admin.site.register(ReceptionGenre)
+
+
+@admin.register(CirculationSourceType)
+class CirculationSourceTypeAdmin(ShewroteModelAdmin):
+    search_fields = ["name"]
+
+
+@admin.register(PersonCirculationSourceRole)
+class PersonCirculationSourceRoleAdmin(ShewroteModelAdmin):
+    search_fields = ["name"]
+
+
+class PersonCirculationSourceInline(admin.TabularInline):
+    model = PersonCirculationSource
+    fields = ["person", "circulation_source", "role"]
+    autocomplete_fields = ["person", "role"]
+    extra = 0
+    verbose_name = "Person"
+
+
+@admin.register(CirculationSource)
+class CirculationSourceAdmin(ShewroteModelAdmin):
+    search_fields = ["full_title"]
+    autocomplete_fields = ["type", "country_of_publication"]
+    inlines = [PersonCirculationSourceInline]
+
+
+@admin.register(Circulation)
+class CirculationAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
+    list_display = ['title', 'reference']
+    list_display_links = ['title', 'reference']
+    search_fields = ['title', 'reference']
+    autocomplete_fields = [
+        'place_of_reception',
+        'document_type',
+        'source',
+    ]
+    inlines = [PersonCirculationInlineFromCirculation, WorkCirculationInlineFromCirculation]
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = [
+            (
+                None,
+                {
+                    "fields": [
+                        "title",
+                        "shelf_mark",
+                        "reference",
+                        "document_type",
+                        ("place_of_reception", "date_of_reception"),
+                        ("quotation", "url", "viaf_work"),
+                        "image",
+                        "source",
+                        "notes",
+                    ],
+                },
+            ),
+        ]
+        if request.user.is_superuser:
+            fieldsets[0][1]['fields'].append('pretty_original_data')
+        return fieldsets
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ('pretty_original_data',)
+        else:
+            return ()
+

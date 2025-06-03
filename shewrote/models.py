@@ -649,9 +649,39 @@ class ReceptionType(models.Model):
         return self.type_of_reception
 
 
-class Reception(EasyAuditMixin, models.Model):
+class AbstractReception(EasyAuditMixin, models.Model):
     """Model defining a Reception of a Work by a Source in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.TextField(blank=True)
+    reference = models.TextField(blank=True)
+    place_of_reception = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)
+    date_of_reception = models.IntegerField(blank=True, null=True)
+    quotation = models.TextField(blank=True)
+    document_type = models.ForeignKey(DocumentType, models.PROTECT, null=True, blank=True)
+    url = models.URLField(max_length=255, blank=True)
+    viaf_work = models.URLField(max_length=255, blank=True)
+    image = models.ImageField
+    notes = models.TextField(blank=True)
+    image = models.ImageField(upload_to="reception", null=True, blank=True)
+    original_data = models.JSONField(blank=True, null=True, editable=False)
+
+    class Meta:
+        abstract = True
+        indexes = [
+            models.Index(fields=["title"]),
+            models.Index(fields=["date_of_reception"])
+        ]
+        ordering = ['title']
+
+    def __str__(self):
+        """Returns the title of the Reception."""
+        return self.title
+
+
+class Reception(AbstractReception):
+    is_same_as_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="is_same_as_reception",
+                                        verbose_name="is same as work")
+    part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+")
     received_persons = models.ManyToManyField(
         Person,
         through="PersonReception",
@@ -667,16 +697,6 @@ class Reception(EasyAuditMixin, models.Model):
         through="EditionReception",
         through_fields=("reception", "edition"),
     )
-    title = models.TextField(blank=True)
-    is_same_as_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="is_same_as_reception",
-                                        verbose_name="is same as work")
-    part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="contained_receptions")
-    reference = models.TextField(blank=True)
-    place_of_reception = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)
-    date_of_reception = models.IntegerField(blank=True, null=True)
-    quotation_reception = models.TextField(blank=True)
-    document_type = models.ForeignKey(DocumentType, models.PROTECT, null=True, blank=True)
-    url = models.URLField(max_length=255, blank=True)
     language_of_reception = models.ManyToManyField(
         Language,
         through="ReceptionLanguage",
@@ -689,22 +709,6 @@ class Reception(EasyAuditMixin, models.Model):
         through_fields=("reception", "genre"),
         blank=True,
     )
-    viaf_work = models.URLField(max_length=255, blank=True)
-    image = models.ImageField
-    notes = models.TextField(blank=True)
-    image = models.ImageField(upload_to="reception", null=True, blank=True)
-    original_data = models.JSONField(blank=True, null=True, editable=False)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=["title"]),
-            models.Index(fields=["date_of_reception"])
-        ]
-        ordering = ['title']
-
-    def __str__(self):
-        """Returns the title of the Reception."""
-        return self.title
 
     def save(self, **kwargs):
         adding = True if self._state.adding else False
@@ -751,3 +755,89 @@ class ReceptionGenre(models.Model):
     """This model links a Reception to a Genre."""
     reception = models.ForeignKey(Reception, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, models.PROTECT, null=True)
+
+
+class Circulation(AbstractReception):
+    shelf_mark = models.TextField(blank=True)
+    received_persons = models.ManyToManyField(
+        Person,
+        through="PersonCirculation",
+        through_fields=("circulation", "person"),
+    )
+    received_works = models.ManyToManyField(
+        Work,
+        through="WorkCirculation",
+        through_fields=("circulation", "work"),
+    )
+    received_editions = models.ManyToManyField(
+        Edition,
+        through="EditionCirculation",
+        through_fields=("circulation", "edition"),
+    )
+    source = models.ForeignKey("CirculationSource", null=True, blank=True, on_delete=models.SET_NULL)
+
+
+
+class PersonCirculation(models.Model):
+    """Defines the Role of a Person related to a Circulation."""
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    circulation = models.ForeignKey(Circulation, on_delete=models.CASCADE)
+    type = models.ForeignKey(ReceptionType, models.PROTECT, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.circulation.title} {self.type or "receives"} {self.person.short_name}'
+
+
+class WorkCirculation(models.Model):
+    work = models.ForeignKey(Work, on_delete=models.CASCADE)
+    circulation = models.ForeignKey(Circulation, on_delete=models.CASCADE)
+    type = models.ForeignKey(ReceptionType, on_delete=models.PROTECT, null=True)
+
+    def __str__(self):
+        return f'{self.circulation} {self.type} {self.work}'
+
+
+class EditionCirculation(models.Model):
+    edition = models.ForeignKey(Edition, on_delete=models.CASCADE)
+    circulation = models.ForeignKey(Circulation, on_delete=models.CASCADE)
+    type = models.ForeignKey(ReceptionType, on_delete=models.PROTECT, null=True)
+
+    def __str__(self):
+        return f'{self.circulation} is circulation of edition {self.edition}'
+
+
+class CirculationSourceType(models.Model):
+    name = models.CharField(_("Name"), max_length=128, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class PersonCirculationSourceRole(models.Model):
+    name = models.CharField(_("Name"), max_length=128, null=True)
+
+
+class CirculationSource(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    full_title = models.TextField()
+    type = models.ForeignKey(CirculationSourceType, on_delete=models.PROTECT)
+    year_of_publication = models.CharField(max_length=50)
+    related_persons = models.ManyToManyField(
+        Person,
+        through="PersonCirculationSource",
+        through_fields=("circulation_source", "person"),
+    )
+    shelf_mark = models.CharField(max_length=128, blank=True)
+    url = models.URLField(blank=True)
+    country_of_publication = models.ForeignKey(Country, null=True, blank=True, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f'{self.full_title}, {self.type} ({self.year_of_publication})'
+
+
+class PersonCirculationSource(models.Model):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    circulation_source = models.ForeignKey(CirculationSource, on_delete=models.CASCADE)
+    role = models.ForeignKey(PersonCirculationSourceRole, on_delete=models.PROTECT, null=True)
+
+

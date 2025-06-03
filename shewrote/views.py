@@ -6,12 +6,12 @@ from django.db.models import F, Q, OuterRef, Subquery, QuerySet, Count, Max, Min
 from django.conf import settings
 from django.contrib import messages
 from .models import (Person, Work, Reception, WorkReception, PersonReception, Collective, Country, Place,
-                     PersonPersonRelation, Edition)
+                     PersonPersonRelation, Edition, PersonCirculation)
 from .forms import PersonForm, PersonSearchForm, ShortPersonForm, WorkForm, ChangesSearchForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
-from .models import Person, Work, Reception, WorkReception
+from .models import Person, Work, Reception, WorkReception, Circulation, WorkCirculation
 from .forms import PersonForm, ShortPersonForm, WorkForm, MergeUsersForm
 
 from dal import autocomplete
@@ -171,7 +171,8 @@ def person(request, person_id):
                                                              type__type_of_reception=settings.PORTRAIT_TYPE)
                                     .exclude(reception__image=""))
     reception_with_image = person_receptions_with_image.first().reception if person_receptions_with_image else None
-
+    
+    person_circulations = (PersonCirculation.objects.filter(person=person).prefetch_related('type'))
     relations = PersonPersonRelation.objects.filter(from_person=person)
 
     context = {
@@ -187,7 +188,8 @@ def person(request, person_id):
         'is_referenced_in': person.get_works_for_role("is referenced in"),
         'reception_with_image': reception_with_image,
         'relations': relations,
-        'person_receptions': person_receptions.order_by('reception__date_of_reception')
+        'person_receptions': person_receptions.order_by('reception__date_of_reception'),
+        'person_circulations': person_circulations.order_by('circulation__date_of_reception')
     }
     return render(request, 'shewrote/person_details.html', context)
 
@@ -370,6 +372,51 @@ def work_reception_count_annotate(qs):
     return qs.annotate(reception_count=Count('workreception__reception', distinct=True))
 
 
+def circulations(request):
+    circulations = Circulation.objects.prefetch_related(
+        'place_of_reception',
+        'workcirculation_set',
+        'workcirculation_set__work',
+        'workcirculation_set__work__related_persons',
+        'workcirculation_set__type',
+        'personcirculation_set'
+    )
+    title_filter = request.GET.get('title', '')
+    if title_filter:
+        circulations = circulations.filter(title__icontains=title_filter)
+
+    order_by_options = OrderedDict([
+        ('title', 'Title'),
+        ('date_of_reception', 'Date of reception'),
+    ])
+    circulations, ordering_context = order_queryset(circulations, request.GET.dict(), order_by_options, 'date_of_reception')
+
+    paginator = Paginator(circulations, 25)
+    page_number = request.GET.get('page')
+    paginated_circulations = paginator.get_page(page_number)
+    context = {'circulations': paginated_circulations, 'count': paginator.count, 'title': title_filter} | ordering_context
+    return render(request, 'shewrote/circulations.html', context)
+
+
+def circulation(request, circulation_id):
+    circulation = get_object_or_404(Circulation.objects.select_related('document_type'), id=circulation_id)
+
+    work_circulations = WorkCirculation.objects.filter(circulation=circulation).prefetch_related(
+        'work',
+        'work__related_persons',
+        'type'
+    )
+    person_circulations = circulation.personcirculation_set.all()
+
+    context = {
+        'circulation': circulation,
+        'personcirculations': person_circulations,
+        'workcirculations': work_circulations,
+    }
+
+    return render(request, 'shewrote/circulation_details.html', context)
+
+
 def works_list(request, base_qs, extra_context={}):
     """Show all works."""
     works = base_qs.prefetch_related("personwork_set__person", "personwork_set__role")
@@ -408,9 +455,12 @@ def work(request, work_id):
     work = Work.objects.prefetch_related("personwork_set__person", "personwork_set__role").get(id=work_id)
     work_receptions = WorkReception.objects.filter(work=work).prefetch_related('reception', 'type')\
         .order_by('reception__date_of_reception')
+    work_circulations = WorkCirculation.objects.filter(work=work).prefetch_related('circulation', 'type')\
+        .order_by('circulation__date_of_reception')
     context = {
         'work': work,
         'workreceptions': work_receptions,
+        'workcirculations': work_circulations,
     }
     return render(request, 'shewrote/work_details.html', context)
 
@@ -493,10 +543,6 @@ def edition(request, edition_id):
         'edition': edition
     }
     return render(request, 'shewrote/edition_details.html', context)
-
-
-def circulation(request):
-    return render(request, 'shewrote/circulation.html', {})
 
 
 @login_required
