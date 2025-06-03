@@ -809,6 +809,9 @@ class EditionCirculation(models.Model):
 class CirculationSourceType(models.Model):
     name = models.CharField(_("Name"), max_length=128, null=True)
 
+    def __str__(self):
+        return self.name
+
 
 class PersonCirculationSourceRole(models.Model):
     name = models.CharField(_("Name"), max_length=128, null=True)
@@ -827,6 +830,9 @@ class CirculationSource(models.Model):
     shelf_mark = models.CharField(max_length=128, blank=True)
     url = models.URLField(blank=True)
     country_of_publication = models.ForeignKey(Country, null=True, blank=True, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f'{self.full_title}, {self.type} ({self.year_of_publication})'
 
 
 class PersonCirculationSource(models.Model):
