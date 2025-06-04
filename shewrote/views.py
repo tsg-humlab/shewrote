@@ -67,8 +67,9 @@ class CountryAndPlaceAutocompleteView(AutoResponseView):
 
         countries = ('country', self.country_qs.filter(modern_country__icontains=term).distinct()
                      .order_by('modern_country')[begin:end])
-        places = ('place', self.place_qs.filter(name__icontains=term).distinct()
-                     .order_by('name')[begin:end])
+        places = ('place', self.place_qs.exclude(is_country=True, modern_country__isnull=False)
+                  .filter(name__icontains=term).distinct()
+                  .order_by('name')[begin:end])
 
         results: list = []
         for name, qs in [countries, places]:
