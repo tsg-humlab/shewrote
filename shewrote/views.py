@@ -429,13 +429,6 @@ def filter_works_with_form(works: QuerySet[Work], search_form: WorkSearchForm) -
     if title_filter := search_form.cleaned_data['title']:
         works = works.filter(title__icontains=title_filter)
 
-    if author_name_filter := search_form.cleaned_data['author_name']:
-        works = works.filter(
-            Q(personwork__role__name='is creator of', related_persons__short_name__icontains=author_name_filter)
-            | Q(personwork__role__name='is creator of', related_persons__first_name__icontains=author_name_filter)
-            | Q(personwork__role__name='is creator of', related_persons__birth_name__icontains=author_name_filter)
-        )
-
     if author_filter := search_form.cleaned_data['author']:
         works = works.filter(personwork__role__name='is creator of', related_persons__in=author_filter)
 

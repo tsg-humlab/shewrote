@@ -298,8 +298,6 @@ class WorkForm(forms.ModelForm):
 class WorkSearchForm(FillCountryOrPlaceMixin, forms.Form):
     title = forms.CharField(max_length=1024, required=False,
                             widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
-    author_name = forms.CharField(max_length=1024, required=False,
-                            widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
     author = forms.ModelMultipleChoiceField(
         widget=ModelSelect2MultipleWidget(model=Person, search_fields=['short_name__icontains',
                                                                        'first_name__icontains',
