@@ -212,8 +212,9 @@ class FillCountryOrPlaceMixin():
                     # Errors are handled in an is_valid() call
                     pass
                 else:
-                    field.choices.append((f'{obj.__class__.__name__.lower()}|{obj.pk}',
-                                          f'{obj} ({obj.__class__.__name__.lower()})'))
+                    name = obj.__class__.__name__.lower()
+                    field.choices.append((f'{name}|{obj.pk}',
+                                          f"{obj} {' ('+name+')' if name != 'place' else ''}"))
 
 
 class PersonSearchForm(FillCountryOrPlaceMixin, forms.Form):
@@ -316,7 +317,7 @@ class WorkSearchForm(FillCountryOrPlaceMixin, forms.Form):
     country_or_place_of_publication = CountryOrPlaceField(
         widget=HeavySelect2MultipleWidget(
             attrs={'data-placeholder': "Select multiple"},
-            data_view='shewrote:countryplaceautoresponse'
+            data_view='shewrote:countryplaceautoresponseforworks'
         ),
         required=False
     )

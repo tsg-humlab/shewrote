@@ -52,6 +52,7 @@ urlpatterns = [
 
     # AutoResponse
     path(r'countryplaceautoresponse/', views.CountryAndPlaceAutocompleteView.as_view(), name='countryplaceautoresponse'),
+    path(r'countryplaceautoresponseforworks/', views.CountryAndPlaceAutocompleteViewForWorks.as_view(), name='countryplaceautoresponseforworks'),
 
     # List of changes
     path('list_of_changes/<int:content_type_id>/<uuid:object_id>/', views.list_of_changes, name='list_of_changes'),

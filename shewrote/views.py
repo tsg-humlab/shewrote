@@ -56,21 +56,24 @@ def get_int_slider_info(request, qs, field_name, search_field_names):
 class CountryAndPlaceAutocompleteView(AutoResponseView):
     page_size = 10
 
+    country_qs = Country.objects.all()
+    place_qs = Place.objects.all()
+
     def get(self, request, *args, **kwargs):
         term = request.GET.get('term', '')
         page = int(request.GET.get('page', 1))
         begin = (page - 1) * self.page_size / 2
         end = page * self.page_size / 2
 
-        countries = ('country', Country.objects.filter(modern_country__icontains=term).distinct()
+        countries = ('country', self.country_qs.filter(modern_country__icontains=term).distinct()
                      .order_by('modern_country')[begin:end])
-        places = ('place', Place.objects.filter(name__icontains=term).distinct()
+        places = ('place', self.place_qs.filter(name__icontains=term).distinct()
                      .order_by('name')[begin:end])
 
         results: list = []
         for name, qs in [countries, places]:
             results.extend([
-                {'id': f"{name}|{obj.pk}", 'text': f"{obj} ({name})" }
+                {'id': f"{name}|{obj.pk}", 'text': f"{obj}{' ('+name+')' if name != 'place' else ''}" }
                 for obj in qs
             ])
 
@@ -82,6 +85,13 @@ class CountryAndPlaceAutocompleteView(AutoResponseView):
             'results': results,
             'more': more
         })
+
+
+class CountryAndPlaceAutocompleteViewForWorks(CountryAndPlaceAutocompleteView):
+    page_size = 10
+
+    country_qs = Country.objects.annotate(edition_count=Count('places__edition')).filter(edition_count__gt=0)
+    place_qs = Place.objects.annotate(edition_count=Count('edition')).filter(edition_count__gt=0)
 
 
 def get_country_or_place_q(filter, qs_filter_prefix: str) -> Q:
