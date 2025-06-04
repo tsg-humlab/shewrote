@@ -171,10 +171,8 @@
                             {{ reception.title|truncatewords:20 }}
                         </a>
                     </div>
-                    <div class="col-1">
+                    <div class="col-2">
                         {{ reception.place_of_reception|default:"" }}
-                    </div>
-                    <div class="col-1">
                         {{ reception.date_of_reception|default_if_none:"" }}
                     </div>
                     <div class="col-2">
