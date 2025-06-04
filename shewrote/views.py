@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from .models import Person, Work, Reception, WorkReception, Circulation, WorkCirculation
-from .forms import PersonForm, ShortPersonForm, WorkForm, MergeUsersForm
+from .forms import PersonForm, ShortPersonForm, WorkForm, MergeUsersForm, WorkSearchForm, ReceptionSearchForm
 
 from dal import autocomplete
 from django.http import JsonResponse, Http404
@@ -44,6 +44,8 @@ def get_int_slider_info(request, qs, field_name, search_field_names):
     start = request.GET.get(search_field_names[0], '') or min
     end = request.GET.get(search_field_names[1], '') or max
 
+    print(start, end)
+
     is_checked = request.GET.get(field_name+'_checkbox', 'off') == 'on'
     if is_checked:
         qs = qs.filter(**{field_name+'__gte': start, field_name+'__lte': end})
@@ -54,21 +56,25 @@ def get_int_slider_info(request, qs, field_name, search_field_names):
 class CountryAndPlaceAutocompleteView(AutoResponseView):
     page_size = 10
 
+    country_qs = Country.objects.all()
+    place_qs = Place.objects.all()
+
     def get(self, request, *args, **kwargs):
         term = request.GET.get('term', '')
         page = int(request.GET.get('page', 1))
         begin = (page - 1) * self.page_size / 2
         end = page * self.page_size / 2
 
-        countries = ('country', Country.objects.filter(modern_country__icontains=term).distinct()
+        countries = ('country', self.country_qs.filter(modern_country__icontains=term).distinct()
                      .order_by('modern_country')[begin:end])
-        places = ('place', Place.objects.filter(name__icontains=term).distinct()
-                     .order_by('name')[begin:end])
+        places = ('place', self.place_qs.exclude(is_country=True, modern_country__isnull=False)
+                  .filter(name__icontains=term).distinct()
+                  .order_by('name')[begin:end])
 
         results: list = []
         for name, qs in [countries, places]:
             results.extend([
-                {'id': f"{name}|{obj.pk}", 'text': f"{obj} ({name})" }
+                {'id': f"{name}|{obj.pk}", 'text': f"{obj}{' ('+name+')' if name != 'place' else ''}" }
                 for obj in qs
             ])
 
@@ -82,6 +88,21 @@ class CountryAndPlaceAutocompleteView(AutoResponseView):
         })
 
 
+class CountryAndPlaceAutocompleteViewForWorks(CountryAndPlaceAutocompleteView):
+    page_size = 10
+
+    country_qs = Country.objects.annotate(edition_count=Count('places__edition')).filter(edition_count__gt=0)
+    place_qs = Place.objects.annotate(edition_count=Count('edition')).filter(edition_count__gt=0)
+
+
+def get_country_or_place_q(filter, qs_filter_prefix: str) -> Q:
+    if not filter:
+        return Q()
+    countries = [obj for obj in filter if isinstance(obj, Country)]
+    places = [obj for obj in filter if isinstance(obj, Place)]
+    return Q(**{qs_filter_prefix + '__in':places}) | Q(**{qs_filter_prefix+'__modern_country__in':countries})
+
+
 def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearchForm) -> QuerySet[Person]:
     """
     Filter Person objects using a valid instance of PersonSearchForm
@@ -92,16 +113,9 @@ def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearc
     if sex_filter := search_form.cleaned_data['sex']:
         persons = persons.filter(sex__in=sex_filter)
 
-    def get_country_or_place_q(field_name: str, qs_filter_prefix: str) -> Q:
-        if not (filter := search_form.cleaned_data[field_name]):
-            return Q()
-        countries = [obj for obj in filter if isinstance(obj, Country)]
-        places = [obj for obj in filter if isinstance(obj, Place)]
-        return Q(**{qs_filter_prefix + '__in':places}) | Q(**{qs_filter_prefix+'__modern_country__in':countries})
-
-    country_or_place_of_birth_q = get_country_or_place_q('country_or_place_of_birth', 'place_of_birth')
-    country_or_place_of_death_q = get_country_or_place_q('country_or_place_of_death', 'place_of_death')
-    country_or_place_of_residence_q = get_country_or_place_q('country_or_place_of_residence', 'periodofresidence__place')
+    country_or_place_of_birth_q = get_country_or_place_q(search_form.cleaned_data['country_or_place_of_birth'], 'place_of_birth')
+    country_or_place_of_death_q = get_country_or_place_q(search_form.cleaned_data['country_or_place_of_death'], 'place_of_death')
+    country_or_place_of_residence_q = get_country_or_place_q(search_form.cleaned_data['country_or_place_of_residence'], 'periodofresidence__place')
     persons = persons.filter(country_or_place_of_birth_q | country_or_place_of_death_q | country_or_place_of_residence_q)
         
     return persons
@@ -322,6 +336,49 @@ def order_queryset(qs: QuerySet, get_params: dict, order_by_options: OrderedDict
                 'order_by_annotate_field': order_by_annotate_field}
 
 
+def filter_receptions_with_form(receptions: QuerySet[Work], search_form: WorkSearchForm) -> QuerySet[Work]:
+    if title_filter := search_form.cleaned_data['title']:
+        receptions = receptions.filter(title__icontains=title_filter)
+
+    if received_persons_filter := search_form.cleaned_data['received_persons']:
+        receptions = receptions.filter(received_persons__in=received_persons_filter)
+
+    if persons_receiving_filter := search_form.cleaned_data['persons_receiving']:
+        receptions = receptions.filter(is_same_as_work__personwork__role__name='is creator of',
+                                       is_same_as_work__related_persons__in=persons_receiving_filter)
+
+    if receiving_persons_gender_filter := search_form.cleaned_data['receiving_persons_gender']:
+        receptions = receptions.filter(is_same_as_work__personwork__role__name='is creator of',
+                                       is_same_as_work__related_persons__sex__in=receiving_persons_gender_filter)
+
+    if type_filter := search_form.cleaned_data['type']:
+        receptions = receptions.filter(personreception__type__in=type_filter)
+
+    if country_or_place_of_original_publication_filter := search_form.cleaned_data['country_or_place_of_original_publication']:
+        country_or_place_of_original_publication_q = get_country_or_place_q(
+            country_or_place_of_original_publication_filter,
+            'workreception__work__edition__place_of_publication'
+        )
+        receptions = receptions.filter(country_or_place_of_original_publication_q)
+
+    if country_or_place_of_reception_filter := search_form.cleaned_data['country_or_place_of_reception']:
+        country_or_place_of_reception_q = get_country_or_place_q(
+            country_or_place_of_reception_filter,
+            'place_of_reception'
+        )
+        receptions = receptions.filter(country_or_place_of_reception_q)
+
+    if language_filter := search_form.cleaned_data['language']:
+        receptions = receptions.filter(language_of_reception__in=language_filter)
+
+    if genre_filter := search_form.cleaned_data['genre']:
+        receptions = receptions.filter(reception_genre__in=genre_filter)
+
+    if notes_filter := search_form.cleaned_data['notes']:
+        receptions = receptions.filter(notes__icontains=notes_filter)
+    return receptions
+
+
 def receptions(request):
     receptions = Reception.objects.prefetch_related(
         'place_of_reception',
@@ -332,9 +389,6 @@ def receptions(request):
         'is_same_as_work',
         'personreception_set'
     )
-    title_filter = request.GET.get('title', '')
-    if title_filter:
-        receptions = receptions.filter(title__icontains=title_filter)
 
     order_by_options = OrderedDict([
         ('title', 'Title'),
@@ -342,10 +396,22 @@ def receptions(request):
     ])
     receptions, ordering_context = order_queryset(receptions, request.GET.dict(), order_by_options, 'date_of_reception')
 
+    search_form = ReceptionSearchForm(request.GET)
+    if search_form.is_valid():
+        receptions = filter_receptions_with_form(receptions, search_form)
+
+    receptions, date_of_reception_slider_info = get_int_slider_info(request, receptions, 'date_of_reception',
+                                                              ['date_of_reception_start',
+                                                               'date_of_reception_end'])
+
     paginator = Paginator(receptions, 25)
     page_number = request.GET.get('page')
     paginated_receptions = paginator.get_page(page_number)
-    context = {'receptions': paginated_receptions, 'count': paginator.count, 'title': title_filter} | ordering_context
+    context = {'receptions': paginated_receptions,
+               'count': paginator.count,
+               'search_form': search_form,
+               'date_of_reception_slider_info': date_of_reception_slider_info
+               } | ordering_context
     return render(request, 'shewrote/receptions.html', context)
 
 
@@ -417,6 +483,34 @@ def circulation(request, circulation_id):
     return render(request, 'shewrote/circulation_details.html', context)
 
 
+def filter_works_with_form(works: QuerySet[Work], search_form: WorkSearchForm) -> QuerySet[Work]:
+    if title_filter := search_form.cleaned_data['title']:
+        works = works.filter(title__icontains=title_filter)
+
+    if author_filter := search_form.cleaned_data['author']:
+        works = works.filter(personwork__role__name='is creator of', related_persons__in=author_filter)
+
+    if author_gender_filter := search_form.cleaned_data['author_gender']:
+        works = works.filter(personwork__role__name='is creator of', related_persons__sex__in=author_gender_filter)
+
+    if country_or_place_of_publication_filter := search_form.cleaned_data['country_or_place_of_publication']:
+        country_or_place_of_publication_q = get_country_or_place_q(
+            country_or_place_of_publication_filter,
+            'edition__place_of_publication'
+        )
+        works = works.filter(country_or_place_of_publication_q)
+
+    if language_filter := search_form.cleaned_data['language']:
+        works = works.filter(languages__in=language_filter)
+
+    if genre_filter := search_form.cleaned_data['genre']:
+        works = works.filter(edition__genre__in=genre_filter)
+
+    if notes_filter := search_form.cleaned_data['notes']:
+        works = works.filter(notes__icontains=notes_filter)
+    return works
+
+
 def works_list(request, base_qs, extra_context={}):
     """Show all works."""
     works = base_qs.prefetch_related("personwork_set__person", "personwork_set__role")
@@ -428,15 +522,22 @@ def works_list(request, base_qs, extra_context={}):
     ])
     works, ordering_context = order_queryset(works, request.GET.dict(), order_by_options, '-reception_count')
 
-    title_filter = request.GET.get("title", '')
-    if title_filter:
-        works = works.filter(title__icontains=title_filter)
+    search_form = WorkSearchForm(request.GET)
+    if search_form.is_valid():
+        works = filter_works_with_form(works, search_form)
+
+    works, publication_year_slider_info = get_int_slider_info(request, works, 'date_of_publication_start',
+                                                              ['date_of_publication_start_start', 'date_of_publication_start_end'])
 
     paginator = Paginator(works, 25)
     page_number = request.GET.get("page")
     paginated_works = paginator.get_page(page_number)
 
-    context = {'works': paginated_works, 'count': paginator.count, 'title': title_filter} | ordering_context | extra_context
+    context = {'works': paginated_works,
+               'count': paginator.count,
+               'search_form': search_form,
+               'publication_year_slider_info': publication_year_slider_info
+              } | ordering_context | extra_context
 
     return render(request, 'shewrote/works.html', context)
 

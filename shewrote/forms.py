@@ -13,7 +13,7 @@ from easyaudit.models import CRUDEvent
 import functools
 from django.contrib.auth.models import User
 
-from .models import Person, Place, Education, PersonEducation, PeriodOfResidence, Work
+from .models import Person, Place, Education, PersonEducation, PeriodOfResidence, Work, Language, Genre, ReceptionType
 
 
 class AddAnotherWidget(ModelSelect2Widget):
@@ -200,7 +200,24 @@ class CountryOrPlaceField(forms.MultipleChoiceField):
         pass
 
 
-class PersonSearchForm(forms.Form):
+class FillCountryOrPlaceMixin():
+    def fill_country_or_place_field(self, field_names: list[str]) -> None:
+        for field_name in field_names:
+            field = self.fields[field_name]
+            field.choices = []
+            for country_or_place_string in self.data.getlist(field_name):
+                try:
+                    obj = CountryOrPlaceField.get_country_or_place_instance(country_or_place_string)
+                except ValidationError as e:
+                    # Errors are handled in an is_valid() call
+                    pass
+                else:
+                    name = obj.__class__.__name__.lower()
+                    field.choices.append((f'{name}|{obj.pk}',
+                                          f"{obj} {' ('+name+')' if name != 'place' else ''}"))
+
+
+class PersonSearchForm(FillCountryOrPlaceMixin, forms.Form):
     sex = forms.MultipleChoiceField(widget=Select2MultipleWidget(choices=Person.GenderChoices.choices,
                                                                  attrs={'data-placeholder': "Select one or more genders",
                                                                         'style': "width: 100%"}),
@@ -233,19 +250,8 @@ class PersonSearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        for field_name in ['country_or_place_of_birth', 'country_or_place_of_death', 'country_or_place_of_residence']:
-            field = self.fields[field_name]
-            field.choices = []
-            for country_or_place_string in self.data.getlist(field_name):
-                try:
-                    obj = CountryOrPlaceField.get_country_or_place_instance(country_or_place_string)
-                except ValidationError as e:
-                    # Errors are handled in an is_valid() call
-                    pass
-                else:
-                    field.choices.append((f'{obj.__class__.__name__.lower()}|{obj.pk}',
-                                          f'{obj} ({obj.__class__.__name__.lower()})'))
+        self.fill_country_or_place_field(['country_or_place_of_birth', 'country_or_place_of_death',
+                                          'country_or_place_of_residence'])
 
 
 class ShortPersonForm(forms.ModelForm):
@@ -288,6 +294,125 @@ class WorkForm(forms.ModelForm):
             ),
             'notes': forms.Textarea(attrs={'cols': 80}),
         }
+
+
+class WorkSearchForm(FillCountryOrPlaceMixin, forms.Form):
+    title = forms.CharField(max_length=1024, required=False,
+                            widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
+    author = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Person, search_fields=['short_name__icontains',
+                                                                       'first_name__icontains',
+                                                                       'first_name__icontains'],
+                                          attrs={'data-placeholder': "Select one or more authors",'style': "width: 100%"}),
+        queryset=Person.objects.all(),
+        required=False,
+    )
+    author_gender = forms.MultipleChoiceField(
+        widget=Select2MultipleWidget(choices=Person.GenderChoices.choices,
+                                     attrs={'data-placeholder': "Select one or more genders",'style': "width: 100%"}),
+        choices=Person.GenderChoices.choices,
+        required=False
+    )
+
+    country_or_place_of_publication = CountryOrPlaceField(
+        widget=HeavySelect2MultipleWidget(
+            attrs={'data-placeholder': "Select multiple"},
+            data_view='shewrote:countryplaceautoresponseforworks'
+        ),
+        required=False
+    )
+
+    language = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Language, search_fields=['name__icontains']),
+        queryset=Language.objects.all(),
+        required=False
+    )
+
+    genre = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Genre, search_fields=['name'], attrs={
+                "data-minimum-input-length": 0,
+                "data-placeholder": "Select an genre"}),
+        queryset=Genre.objects.all(),
+        required=False
+    )
+
+    notes = forms.CharField(max_length=1024, required=False,
+                            widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fill_country_or_place_field(['country_or_place_of_publication'])
+
+
+class ReceptionSearchForm(FillCountryOrPlaceMixin, forms.Form):
+    title = forms.CharField(max_length=1024, required=False,
+                            widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
+
+    received_persons = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Person, search_fields=['short_name__icontains',
+                                                                       'first_name__icontains',
+                                                                       'birth_name__icontains']),
+        queryset=Person.objects.all(),
+        required=False
+    )
+
+    persons_receiving = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Person, search_fields=['short_name__icontains',
+                                                                       'first_name__icontains',
+                                                                       'birth_name__icontains']),
+        queryset=Person.objects.all(),
+        required=False
+    )
+
+    receiving_persons_gender = forms.MultipleChoiceField(
+        widget=Select2MultipleWidget(choices=Person.GenderChoices.choices,
+                                     attrs={'data-placeholder': "Select one or more genders",'style': "width: 100%"}),
+        choices=Person.GenderChoices.choices,
+        required=False
+    )
+
+    type = forms.ModelMultipleChoiceField(
+        queryset=ReceptionType.objects.all(),
+        widget=ModelSelect2MultipleWidget(model=ReceptionType, search_fields=['type_of_reception__icontains']),
+        required=False
+    )
+
+    country_or_place_of_original_publication = CountryOrPlaceField(
+        widget=HeavySelect2MultipleWidget(
+            attrs={'data-placeholder': "Select multiple"},
+            data_view='shewrote:countryplaceautoresponse'
+        ),
+        required=False
+    )
+
+    country_or_place_of_reception = CountryOrPlaceField(
+        widget=HeavySelect2MultipleWidget(
+            attrs={'data-placeholder': "Select multiple"},
+            data_view='shewrote:countryplaceautoresponse'
+        ),
+        required=False
+    )
+
+    language = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Language, search_fields=['name__icontains']),
+        queryset=Language.objects.all(),
+        required=False
+    )
+
+    genre = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Genre, search_fields=['name'], attrs={
+                "data-minimum-input-length": 0,
+                "data-placeholder": "Select an genre"}),
+        queryset=Genre.objects.all(),
+        required=False
+    )
+
+    notes = forms.CharField(max_length=1024, required=False,
+                            widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fill_country_or_place_field(['country_or_place_of_reception', 'country_or_place_of_original_publication'])
 
 
 class ChangesSearchForm(forms.ModelForm):
