@@ -70,17 +70,22 @@
                 {{ search_form.title }}
             </div>
 
-            <div class="py-2 vstack gap-1">
+            <div class="py-2 vstack gap-1 border-top">
                 <strong>Author name</strong>
                 {{ search_form.author_name }}
             </div>
 
-            <div class="py-2 vstack gap-1 border-top">
+            <div class="py-2 vstack gap-1">
+                <strong>Author</strong>
+                {{ search_form.author }}
+            </div>
+
+            <div class="py-2 vstack gap-1">
                 <strong>Author gender</strong>
                 {{ search_form.author_gender }}
             </div>
 
-            <div class="py-2 vstack gap-2">
+            <div class="py-2 vstack gap-2 border-top">
                 <div>
                     <input type="checkbox" name="date_of_publication_start_checkbox"
                            id="date_of_publication_start_checkbox" class="form-check-input ms-0 position-relative"
@@ -94,7 +99,7 @@
                 </script>
             </div>
 
-            <div class="py-2 vstack gap-1 border-top">
+            <div class="py-2 vstack gap-1">
                 <strong>Country/place of publication</strong>
                 {{ search_form.country_or_place_of_publication }}
                 <small class="text-danger">{{ search_form.country_or_place_of_publication.errors }}</small>
@@ -106,7 +111,7 @@
                 <small class="text-danger">{{ search_form.language.errors }}</small>
             </div>
 
-            <div class="py-2 vstack gap-1 border-top">
+            <div class="py-2 vstack gap-1">
                 <strong>Genre</strong>
                 {{ search_form.genre }}
                 <small class="text-danger">{{ search_form.genre.errors }}</small>

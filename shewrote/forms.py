@@ -300,6 +300,14 @@ class WorkSearchForm(FillCountryOrPlaceMixin, forms.Form):
                             widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
     author_name = forms.CharField(max_length=1024, required=False,
                             widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
+    author = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Person, search_fields=['short_name__icontains',
+                                                                       'first_name__icontains',
+                                                                       'first_name__icontains'],
+                                          attrs={'data-placeholder': "Select one or more authors",'style': "width: 100%"}),
+        queryset=Person.objects.all(),
+        required=False,
+    )
     author_gender = forms.MultipleChoiceField(
         widget=Select2MultipleWidget(choices=Person.GenderChoices.choices,
                                      attrs={'data-placeholder': "Select one or more genders",'style': "width: 100%"}),

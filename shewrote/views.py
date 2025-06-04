@@ -436,6 +436,9 @@ def filter_works_with_form(works: QuerySet[Work], search_form: WorkSearchForm) -
             | Q(personwork__role__name='is creator of', related_persons__birth_name__icontains=author_name_filter)
         )
 
+    if author_filter := search_form.cleaned_data['author']:
+        works = works.filter(personwork__role__name='is creator of', related_persons__in=author_filter)
+
     if author_gender_filter := search_form.cleaned_data['author_gender']:
         works = works.filter(personwork__role__name='is creator of', related_persons__sex__in=author_gender_filter)
 
