@@ -121,7 +121,7 @@ class ReadOnlyCollectivePlaceInline(TabularInlinePaginated, ReadOnlyInline):
 
 class ReadOnlyEditionPlaceInline(TabularInlinePaginated, ReadOnlyInline):
     model = Edition
-    fields = ['related_work', 'place_of_publication', 'publication_year']
+    fields = ['related_work', 'place_of_publication', 'publication_year_start', 'publication_year_end']
     pagination_key = 'editionplace_inline'
 
 
@@ -446,7 +446,7 @@ class CollectivePlaceAdmin(ShewroteModelAdmin):
 
 class ReadOnlyEditionGenreInline(TabularInlinePaginated, ReadOnlyInline):
     model = Edition
-    fields = ['related_work', 'place_of_publication', 'publication_year']
+    fields = ['related_work', 'place_of_publication', 'publication_year_start', 'publication_year_end']
     pagination_key = 'readonly_editiongenre_inline'
     verbose_name = 'edition'
 
