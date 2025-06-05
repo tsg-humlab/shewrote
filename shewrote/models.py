@@ -584,7 +584,8 @@ class Edition(EasyAuditMixin, models.Model):
     """Represents an Edition of a Work published in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     related_work = models.ForeignKey(Work, on_delete=models.PROTECT)
-    publication_year = models.IntegerField(blank=True, null=True)
+    publication_year_start = models.IntegerField(blank=True, null=True)
+    publication_year_end = models.IntegerField(blank=True, null=True)
     place_of_publication = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)
     language = models.ManyToManyField(
         Language,
@@ -605,10 +606,12 @@ class Edition(EasyAuditMixin, models.Model):
     original_data = models.JSONField(blank=True, null=True, editable=False)
 
     def __str__(self):
-        place_of_publication = f' in {self.place_of_publication}' if self.publication_year else ''
+        place_of_publication = f' in {self.place_of_publication}' if self.place_of_publication else ''
         cerl_publisher = f' by {self.cerl_publisher}' if self.cerl_publisher else ''
-        publication_year = f' in {self.publication_year}' if self.publication_year else ''
-        return f'{self.related_work} is published {place_of_publication}{cerl_publisher }{publication_year}'
+        publication_year_start = f' in {self.publication_year_start}' if self.publication_year_start else ''
+        publication_year_end = f' - {self.publication_year_end}' if self.publication_year_end else ''
+        return (f'{self.related_work} is published {place_of_publication}{cerl_publisher }'
+                f'{publication_year_start}{publication_year_end}')
 
 
 class EditionLanguage(models.Model):

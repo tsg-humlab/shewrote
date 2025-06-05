@@ -29,7 +29,12 @@
                                             </tr>
                                             <tr>
                                                 <th scope="row" class="w-25">Publication year</th>
-                                                <td>{{ edition.publication_year }}</td>
+                                                <td>
+                                                    {{ edition.publication_year_start }}
+                                                    {% if edition.publication_year_end %}
+                                                        - {{ edition.publication_year_end }}
+                                                    {% endif %}
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <th scope="row" class="w-25">Place of publication</th>
