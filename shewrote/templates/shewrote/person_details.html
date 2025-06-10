@@ -328,15 +328,13 @@
     {% endembed %}
     {% embed 'shewrote/components/details_section.html' with section_name='work' section_title='Works' %}
         {% slot contents %}
-                                <table class="table">
-                                    <tbody>
+                                <div class="vstack">
                                         {% include 'shewrote/components/person_works.html' with works=is_creator_of title="Author of" %}
                                         {% include 'shewrote/components/person_works.html' with works=is_editor_of title="Editor of" %}
                                         {% include 'shewrote/components/person_works.html' with works=is_copyist_of title="Copyist of" %}
                                         {% include 'shewrote/components/person_works.html' with works=is_illustrator_of title="Illustrator of" %}
                                         {% include 'shewrote/components/person_works.html' with works=is_translator_of title="Translator of" %}
-                                    </tbody>
-                                </table>
+                                </div>
         {% endslot %}
     {% endembed %}
     {% embed 'shewrote/components/details_section.html' with section_name='edition' section_title='Editions' %}

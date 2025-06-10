@@ -1,26 +1,33 @@
-                                        <tr>
-                                            <th scope="row" class="w-25">{{ title }}</th>
-                                            <td>
-                                                {% if works %}
-                                                <ul>
-                                                    {% for work in works %}
-                                                        <li>
-                                                            <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
-                                                            {% if work.date_of_publication_text %}
-                                                                ({{ work.date_of_publication_text }})
-                                                            {% endif %}
-
-                                                            {% include 'shewrote/components/work_reception.html' with receptions=work.is_same_as_reception.all text="is also a" %}
-                                                            {% include 'shewrote/components/work_reception.html' with receptions=work.contained_receptions.all text="contains a" %}
+                                    <table class="table w-100">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ title }}</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        {% if works %}
+                                        <tbody>
+                                            {% for work in works %}
+                                                <tr>
+                                                    <td>
+                                                        <a href="{% url 'shewrote:work' work.id %}">{{ work.title }}</a>
+                                                        {% if work.date_of_publication_text %}
+                                                            ({{ work.date_of_publication_text }})
+                                                        {% endif %}
+                                                        {% include 'shewrote/components/work_reception.html' with receptions=work.is_same_as_reception.all text="is also a" %}
+                                                        {% include 'shewrote/components/work_reception.html' with receptions=work.contained_receptions.all text="contains a" %}
+                                                    </td>
+                                                    <td>
+                                                        <small>
+                                                            receptions:&nbsp;{{ work.workreception__reception__count }}
                                                             <br/>
-                                                            <small>
-                                                                <i>receptions: {{ work.workreception__reception__count }}</i>&nbsp;&nbsp;&nbsp;<i>circulations: {{ work.workcirculation__circulation__count }}</i>
-                                                            </small>
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                                {% else %}
-                                                -
-                                                {% endif %}
-                                            </td>
-                                        </tr>
+                                                            circulations:&nbsp;{{ work.workcirculation__circulation__count }}
+                                                        </small>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        {% else %}
+                                            <tbody><tr><td>-</td><td></td></tr></tbody>
+                                        {% endif %}
+                                    </table>
