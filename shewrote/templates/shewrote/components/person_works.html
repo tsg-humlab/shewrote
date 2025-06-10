@@ -12,6 +12,10 @@
 
                                                             {% include 'shewrote/components/work_reception.html' with receptions=work.is_same_as_reception.all text="is also a" %}
                                                             {% include 'shewrote/components/work_reception.html' with receptions=work.contained_receptions.all text="contains a" %}
+                                                            <br/>
+                                                            <small>
+                                                                <i>receptions: {{ work.workreception__reception__count }}</i>&nbsp;&nbsp;&nbsp;<i>circulations: {{ work.workcirculation__circulation__count }}</i>
+                                                            </small>
                                                         </li>
                                                     {% endfor %}
                                                 </ul>

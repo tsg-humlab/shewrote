@@ -164,9 +164,12 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
     def get_collectives(self):
         return Collective.objects.filter(personcollective__person=self)
 
-    def get_works_for_role(self, role_name):
-        return (Work.objects.filter(personwork__person=self, personwork__role__name=role_name)
+    def get_works_for_role(self, role_name, count_relations=[]):
+        works = (Work.objects.filter(personwork__person=self, personwork__role__name=role_name)
                 .prefetch_related('is_same_as_reception'))
+        for relation in count_relations:
+            works = works.annotate(models.Count(relation, distinct=True))
+        return works
 
     def get_education(self):
         return Education.objects.filter(personeducation__person=self)
