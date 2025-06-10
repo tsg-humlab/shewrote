@@ -108,28 +108,24 @@
                                 {% with circulation.workcirculation_set.all as workcirculations %}
                                     {% if workcirculations %}
                                         {% for workcirculation in workcirculations %}
-                                            {% for person in workcirculation.work.related_persons.all %}
-                                                <tr>
-                                                    <td class="text-secondary pe-1 w-25">
-                                                        receives person (via work)
-                                                    </td>
-                                                    <td>
-                                                        {{ person }}
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        {% endfor %}
-                                    {% endif %}
-                                {% endwith %}
-                                {% with circulation.workcirculation_set.all as workcirculations %}
-                                    {% if workcirculations %}
-                                        {% for workcirculation in workcirculations %}
                                         <tr>
-                                            <td class="text-secondary pe-1 w-25">
+                                            <td class="align-top text-secondary pe-1 w-25">
                                                 {{ workcirculation.type }}
                                             </td>
                                             <td>
-                                                <i>{{ workcirculation.work }}</i>
+                                                <span class="me-2">{{ workcirculation.work }}</span>
+                                                <br/>
+                                                <small>
+                                                    {% with workcirculation.work.related_persons.all as persons %}
+                                                        {% if persons %}<span class="text-secondary">received persons via this work:</span>
+                                                            {% for person in workcirculation.work.related_persons.all %}
+                                                                {{ person }}{% if not forloop.last %}; {% endif %}
+                                                            {% empty %}
+                                                                -
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                </small>
                                             </td>
                                         </tr>
                                         {% endfor %}
