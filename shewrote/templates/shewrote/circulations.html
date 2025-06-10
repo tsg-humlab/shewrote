@@ -56,9 +56,9 @@
 
     <ul class="list-group list-group-flush pb-2 mb-4">
         {% for circulation in circulations %}
-            <li class="list-group-item px-0 container">
+            <li class="list-group-item container">
                 <div class="row">
-                    <div class="col-12 ps-0">
+                    <div class="col-12">
                         {% if user.is_authenticated and user.is_staff %}
                             <a href="{% url 'admin:shewrote_circulation_change' circulation.id %}" title="Edit" class="ms-2 float-end">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
@@ -69,16 +69,16 @@
                     </div>
                 </div>
                 <div class="row">
+                    <div class="col-8">
+                        <a href="{% url 'shewrote:circulation' circulation.id %}" title="Circulation details">
+                            {{ circulation.title|truncatewords:20 }}
+                        </a>
+                    </div>
                     <div class="col-2">
                         {% for author in circulation.is_same_as_work.get_creators %}
                             {{ author }}
                             {% if not forloop.last %}, {% endif %}
                         {% endfor %}
-                    </div>
-                    <div class="col-3">
-                        <a href="{% url 'shewrote:circulation' circulation.id %}" title="Circulation details">
-                            {{ circulation.title|truncatewords:20 }}
-                        </a>
                     </div>
                     <div class="col-1">
                         {{ circulation.place_of_reception|default:"" }}
@@ -86,15 +86,17 @@
                     <div class="col-1">
                         {{ circulation.date_of_reception|default_if_none:"" }}
                     </div>
-                    <div class="col-2">
-                        <table>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <table class="w-100">
                             <tbody>
                                 {% with circulation.personcirculation_set.all as personcirculations %}
                                     {% if personcirculations %}
                                         {% for personcirculation in personcirculations %}
                                         <tr>
-                                            <td class="text-secondary pe-1">
-                                                {{ personcirculation.type }}
+                                            <td class="text-secondary pe-1 w-25">
+                                                {{ personcirculation.type|default:"receives person" }}
                                             </td>
                                             <td>
                                                 {{ personcirculation.person }}
@@ -108,8 +110,8 @@
                                         {% for workcirculation in workcirculations %}
                                             {% for person in workcirculation.work.related_persons.all %}
                                                 <tr>
-                                                    <td class="text-secondary pe-1">
-
+                                                    <td class="text-secondary pe-1 w-25">
+                                                        receives person (via work)
                                                     </td>
                                                     <td>
                                                         {{ person }}
@@ -119,17 +121,11 @@
                                         {% endfor %}
                                     {% endif %}
                                 {% endwith %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="col-3">
-                        <table>
-                            <tbody>
                                 {% with circulation.workcirculation_set.all as workcirculations %}
                                     {% if workcirculations %}
                                         {% for workcirculation in workcirculations %}
                                         <tr>
-                                            <td class="text-secondary pe-1">
+                                            <td class="text-secondary pe-1 w-25">
                                                 {{ workcirculation.type }}
                                             </td>
                                             <td>
