@@ -166,7 +166,7 @@ class Person(EasyAuditMixin, ComputedFieldsModel):
 
     def get_works_for_role(self, role_name, count_relations=[]):
         works = (Work.objects.filter(personwork__person=self, personwork__role__name=role_name)
-                .prefetch_related('is_same_as_reception'))
+                .prefetch_related('is_same_as_reception').prefetch_related('contained_receptions'))
         for relation in count_relations:
             works = works.annotate(models.Count(relation, distinct=True))
         return works
@@ -688,7 +688,7 @@ class AbstractReception(EasyAuditMixin, models.Model):
 class Reception(AbstractReception):
     is_same_as_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="is_same_as_reception",
                                         verbose_name="is same as work")
-    part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="+")
+    part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="contained_receptions")
     received_persons = models.ManyToManyField(
         Person,
         through="PersonReception",
