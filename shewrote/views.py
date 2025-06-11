@@ -631,10 +631,16 @@ def editions(request):
     if title_filter:
         works = works.filter(title__icontains=title_filter)
 
+    order_by_options = OrderedDict([
+        ('-edition_count', 'Edition count'),
+        ('date_of_publication_start', 'Date'),
+    ])
+    works, ordering_context = order_queryset(works, request.GET.dict(), order_by_options, '-edition_count')
+
     paginator = Paginator(works, 25)
     page_number = request.GET.get('page')
     paginated_works = paginator.get_page(page_number)
-    context = {'works': paginated_works, 'count': paginator.count, 'title': title_filter}
+    context = {'works': paginated_works, 'count': paginator.count, 'title': title_filter} | ordering_context
     return render(request, 'shewrote/editions.html', context)
 
 
