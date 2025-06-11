@@ -116,7 +116,7 @@
                                                 {% with workcirculation.work.related_persons.all as persons %}
                                                     {% if persons %}
                                                         {% for person in workcirculation.work.get_creators %}
-                                                            {{ person }}{% if not forloop.last %}; {% else %}: {% endif %}
+                                                            {{ person }},
                                                         {% empty %}
                                                             -
                                                         {% endfor %}
