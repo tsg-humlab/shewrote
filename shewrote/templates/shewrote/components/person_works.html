@@ -1,11 +1,13 @@
+                                <h5>{{ title }}</h5>
+                                        {% if works %}
                                     <table class="table w-100">
                                         <thead>
                                             <tr>
-                                                <th>{{ title }}</th>
                                                 <th></th>
+                                                <th>receptions</th>
+                                                <th>circulations</th>
                                             </tr>
                                         </thead>
-                                        {% if works %}
                                         <tbody>
                                             {% for work in works %}
                                                 <tr>
@@ -17,17 +19,17 @@
                                                         {% include 'shewrote/components/work_reception.html' with receptions=work.is_same_as_reception.all text="is also a" %}
                                                         {% include 'shewrote/components/work_reception.html' with receptions=work.contained_receptions.all text="contains a" %}
                                                     </td>
-                                                    <td>
-                                                        <small>
-                                                            receptions:&nbsp;{{ work.workreception__reception__count }}
-                                                            <br/>
-                                                            circulations:&nbsp;{{ work.workcirculation__circulation__count }}
-                                                        </small>
+                                                    <td class="text-end">
+                                                        {{ work.workreception__reception__count }}
+                                                    </td>
+                                                    <td class="text-end">
+                                                        {{ work.workcirculation__circulation__count }}
                                                     </td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>
-                                        {% else %}
-                                            <tbody><tr><td>-</td><td></td></tr></tbody>
-                                        {% endif %}
                                     </table>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                    <hr/>
