@@ -113,19 +113,16 @@
                                                 {{ workcirculation.type }}
                                             </td>
                                             <td>
-                                                <span class="me-2">{{ workcirculation.work }}</span>
-                                                <br/>
-                                                <small>
-                                                    {% with workcirculation.work.related_persons.all as persons %}
-                                                        {% if persons %}<span class="text-secondary">received persons via this work:</span>
-                                                            {% for person in workcirculation.work.related_persons.all %}
-                                                                {{ person }}{% if not forloop.last %}; {% endif %}
-                                                            {% empty %}
-                                                                -
-                                                            {% endfor %}
-                                                        {% endif %}
-                                                    {% endwith %}
-                                                </small>
+                                                {% with workcirculation.work.related_persons.all as persons %}
+                                                    {% if persons %}
+                                                        {% for person in workcirculation.work.get_creators %}
+                                                            {{ person }}{% if not forloop.last %}; {% else %}: {% endif %}
+                                                        {% empty %}
+                                                            -
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                {% endwith %}
+                                                <i>{{ workcirculation.work }}</i>
                                             </td>
                                         </tr>
                                         {% endfor %}
