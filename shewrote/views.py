@@ -566,11 +566,14 @@ def work(request, work_id):
     work = Work.objects.prefetch_related("personwork_set__person", "personwork_set__role").get(id=work_id)
     work_receptions = WorkReception.objects.filter(work=work).prefetch_related('reception', 'type')\
         .order_by('reception__date_of_reception')
+    receptions_in_work = (Reception.objects.filter(Q(is_same_as_work=work) | Q(part_of_work=work))
+                          .order_by('date_of_reception'))
     work_circulations = WorkCirculation.objects.filter(work=work).prefetch_related('circulation', 'type')\
         .order_by('circulation__date_of_reception')
     context = {
         'work': work,
         'workreceptions': work_receptions,
+        'receptions_in_work': receptions_in_work,
         'workcirculations': work_circulations,
     }
     return render(request, 'shewrote/work_details.html', context)

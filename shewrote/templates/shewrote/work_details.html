@@ -121,6 +121,8 @@
     {% endembed %}
     {% embed 'shewrote/components/details_section.html' with section_name='receivedworks' section_title='Receptions' %}
         {% slot contents %}
+                                <div class="vstack">
+                                    <h5>Later receptions</h5>
                                     {% if workreceptions %}
                                         <table class="table">
                                             <tbody>
@@ -146,9 +148,37 @@
                                         </table>
                                     {% else %}
                                         <p>
-                                            <i class="text-muted">No receptions found</i>
+                                            <i class="text-muted">No later receptions found</i>
                                         </p>
                                     {% endif %}
+
+                                    <h5>Reception of a previous work</h5>
+                                    {% if receptions_in_work %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for reception in receptions_in_work %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:reception' reception.id %}">
+                                                                {{ reception }}
+                                                            </a>
+                                                        </td>
+                                                        <td>
+                                                            {{ reception.place_of_reception|default:"" }}
+                                                        </td>
+                                                        <td>
+                                                            {{ reception.date_of_reception }}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No receptions of a previous work found</i>
+                                        </p>
+                                    {% endif %}
+                                </div>
         {% endslot %}
     {% endembed %}
     {% embed 'shewrote/components/details_section.html' with section_name='receivedworks_circulation' section_title='Circulation' %}
