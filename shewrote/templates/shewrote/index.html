@@ -31,10 +31,9 @@
 
 {% block page_header %}
     <div class="p-3 mb-4 bg-light border rounded-0">
-        <div class="container-fluid py-4">
-            <h1 class="display-3 mb-5 display-4">Studying Historical Early Women’s Reception: Oeuvres, Texts, Engagements (SHEWROTE)</h1>
-        </div>
-        <div class="container-fluid py-4 intro">
+        <div class="container-fluid pt-4">
+            <img src="{% static 'img/Homepage.jpg' %}" class="float-end ps-3 d-none d-md-block"/>
+            <h1 class="display-3 mb-2 display-4">Studying Historical Early Women’s Reception: Oeuvres, Texts, Engagements (SHEWROTE)</h1>
             <p class="lead" style="">
                 The SHEWROTE database, created in 2023, allows users to stock, share and analyze historical data
                 documenting the international reception of works by women writers before c. 1940. The data includes
@@ -48,14 +47,12 @@
                 For the affiliated Huizinga Institute research network, see
                 <a href="https://www.huizingainstituut.nl/working-group/womens-writing-history/">Women's Writing in History</a>.
             </p>
-                <img src="{% static 'img/Homepage.jpg' %}" height="500"/>
         </div>
-
 
         <div class="container-fluid pt-5 text-center">
             <h2>Database aims</h2>
         </div>
-        <div  class="container-fluid py-4 intro">
+        <div  class="container-fluid py-4 ">
             <p>
                 The SHEWROTE database is a new iteration of the database formerly known as Women Writers, first
                 conceived by Suzan van Dijk and hosted by Utrecht University between 2001 and 2014
@@ -104,7 +101,7 @@
         <div class="container-fluid pt-5 text-center">
             <h2>Database scope</h2>
         </div>
-        <div  class="container-fluid py-4 intro">
+        <div  class="container-fluid py-4 ">
             <p>
                 The SHEWROTE database records receptions of works by women authors. This means that it includes Person
                 and Work records only when there is an accompanying Reception, or a relation to another author.
@@ -123,7 +120,7 @@
         <div class="container-fluid pt-5 text-center">
             <h2>How to cite the database</h2>
         </div>
-        <div  class="container-fluid py-4 intro">
+        <div  class="container-fluid py-4 ">
             <p>
                 If you want to cite the database as a whole in your own work, please use the format:
             </p>
@@ -138,7 +135,7 @@
                 the editor who has the largest number of edits</b>, and then listing the other editors alphabetically.
             </p>
             <p>To cite a Person record:</p>
-            <p class="citation mb-5">
+            <p class="citation">
                 Wijk, Tessa van, Marleen Dek, Suzan van Dijk, Janouk de Groot, Astrid Kulsdom, Alicia Montoya,
                 Edward Tobon, Floor Toebes, and Marie Sorbo, ‘Genlis, Stéphanie Félicité de (1746 - 1830)’,
                 in SHEWROTE database (Studying Historical Early Women’s Reception: Oeuvres, Texts, Engagement),
@@ -175,7 +172,7 @@
         <div class="container-fluid pt-5 text-center">
             <h2>Creative Commons Licence</h2>
         </div>
-        <div  class="container-fluid py-4 intro">
+        <div  class="container-fluid py-4 ">
             <p>SHEWROTE operates under a cc by-nc 4.0 license, or Creative Commons Attribution-Non Commercial 4.0
                 International License. This license enables reusers to distribute, remix, adapt, and build upon our
                 material in any medium or format <b>for noncommercial purposes only, and only so long as attribution is
@@ -189,7 +186,7 @@
             </p>
         </div>
 
-        <div  class="container-fluid py-4 intro">
+        <div  class="container-fluid py-4 ">
 
             <a class="btn btn-primary btn-lg mt-1 ms-auto" href="{% url 'shewrote:persons' %}">
                 Get started
