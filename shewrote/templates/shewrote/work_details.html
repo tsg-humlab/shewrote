@@ -128,19 +128,27 @@
                                         <table class="table">
                                             <tbody>
                                                 {% for reception in receptions_in_work %}
-                                                    <tr>
-                                                        <td>
-                                                            <a href="{% url 'shewrote:reception' reception.id %}">
-                                                                {{ reception }}
-                                                            </a>
-                                                        </td>
-                                                        <td>
-                                                            {{ reception.place_of_reception|default:"" }}
-                                                        </td>
-                                                        <td>
-                                                            {{ reception.date_of_reception }}
-                                                        </td>
-                                                    </tr>
+                                                    {% for work in reception.received_works.all %}
+                                                        <tr>
+                                                            <td>
+                                                                <a href="{% url 'shewrote:work' work.id %}">
+                                                                    {{ work }}
+                                                                </a>
+                                                            </td>
+                                                            <td>
+                                                                {{ work.date_of_publication_text }}
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                    {% for person in reception.received_persons.all %}
+                                                        <tr>
+                                                            <td>
+                                                                <a href="{% url 'shewrote:person' person.id %}">
+                                                                    {{ person }}
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
                                                 {% endfor %}
                                             </tbody>
                                         </table>
