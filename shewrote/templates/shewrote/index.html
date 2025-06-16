@@ -1,15 +1,17 @@
 {% extends 'shewrote/base.html' %}
 
+{% load static %}
+
 {% block extrahead %}
     <style>
-        .intro p {
+        .intro {
             column-count: 2;
             column-rule: 1px solid lightgrey;
             column-gap: 40px;
-            text-align: justify;
+            text-align: left;
         }
         @media only screen and (max-width: 768px) {
-          .intro p {
+          .intro {
             column-count: 1;
             text-align: left;
             font-size: smaller;
@@ -18,27 +20,177 @@
             font-size: 150%;
           }
         }
+        .citation {
+            padding-left: 1rem !important;
+            margin-left: 1rem !important;
+            border-left: 3px solid lightgrey;
+        }
     </style>
 
 {% endblock extrahead %}
 
 {% block page_header %}
     <div class="p-3 mb-4 bg-light border rounded-0">
+        <div class="container-fluid py-4">
+            <h1 class="display-3 mb-5 display-4">Studying Historical Early Women’s Reception: Oeuvres, Texts, Engagements (SHEWROTE)</h1>
+        </div>
         <div class="container-fluid py-4 intro">
-            <h1 class="display-3 mb-5">Studying Historical Early Women’s Reception: Oeuvres, Texts, Engagements (SHEWROTE)</h1>
             <p class="lead" style="">
-                The SHEWROTE database allows users to stock, share and analyze historical data documenting
-                the international reception of works by women writers before c. 1940. The data includes evidence of book
-                ownership, readership, re-editions, translations, intertextual references and commentary on (works by)
-                women writers. The database is coordinated by members of the international NEWW Network (New approaches
-                to European Women’s Writing, created in 2005) and the DARIAH-EU working group ‘Women Writers in
-                History’. For more information on this working group, please see
+                The SHEWROTE database, created in 2023, allows users to stock, share and analyze historical data
+                documenting the international reception of works by women writers before c. 1940. The data includes
+                evidence of book ownership, readership, re-editions, translations, intertextual references and
+                commentary on (works by) women writers. The database is coordinated by members of the international
+                NEWW Network (New approaches to European Women’s Writing, created in 2005) and the DARIAH-EU working
+                group ‘Women Writers in History’. For more information on this working group, please see
                 <a href="https://www.dariah.eu/activities/working-groups/women-writers-in-history/">DARIAH.EU</a>.
                 For more information on the Radboud University team, see
                 <a href="https://www.ru.nl/en/research/research-projects/shewrote">SHEWROTE research project</a>.
                 For the affiliated Huizinga Institute research network, see
                 <a href="https://www.huizingainstituut.nl/working-group/womens-writing-history/">Women's Writing in History</a>.
             </p>
+                <img src="{% static 'img/Homepage.jpg' %}" height="500"/>
+        </div>
+
+
+        <div class="container-fluid pt-5 text-center">
+            <h2>Database aims</h2>
+        </div>
+        <div  class="container-fluid py-4 intro">
+            <p>
+                The SHEWROTE database is a new iteration of the database formerly known as Women Writers, first
+                conceived by Suzan van Dijk and hosted by Utrecht University between 2001 and 2014
+                (<a href="http://neww.huygens.knaw.nl/">http://neww.huygens.knaw.nl/</a>)
+                and redeveloped by the Huygens Institute between 2014 and 2023 (for an archived version, without the
+                accompanying text, see:
+                <a href="https://womenwriters.rich.ru.nl/womenwriters/vre/persons">https://womenwriters.rich.ru.nl/womenwriters/vre/persons</a>).
+                The SHEWROTE database has three principal objectives, and also targets three categories of users. It
+                aims to:
+            </p>
+            <ol>
+                <li>
+                    Provide <b>students and the general public</b> with basic information about
+                    <a href="/persons/?sex=F">women authors</a>, their
+                    <a href="/works/?author_gender=F">works</a>
+                    and their
+                    <a href="/receptions/">reception</a>, including also
+                    <a href="/editions/">editions</a> and
+                    <a href="/circulations/">circulations</a>, from a transnational
+                    perspective,
+                    during the long period roughly from Sappho to Virginia Woolf. Rather than providing narrative
+                    closure, it demonstrates that large numbers of women were historically active in the literary
+                    field, and had an impact on other writers and readers – thereby inviting casual users to look
+                    further into specific cases.
+                </li>
+                <li>
+                    Provide <b>literary scholars</b> with a research tool allowing them to make informed transnational
+                    comparisons across countries and language areas, some of which they may be unable to access
+                    directly themselves, regarding the (international) impact of women writers before circa 1940,
+                    or the second feminist wave. The database serves both as research tool and research output, as
+                    records created by contributors are clearly credited to them and can be cited in publications
+                    and research overviews.
+                </li>
+                <li>
+                    Provide <b>readers</b> with a discovery tool pointing toward other resources in the field of women’s
+                    literary history, including reliable online editions of texts by and about women. It does so both
+                    through references provided in individual Person, Work, Edition and Reception records, and through
+                    its
+                    <a href="/p/digital_databases">union catalogue of databases on women’s writing</a>,
+                    which is regularly updated.
+                </li>
+            </ol>
+        </div>
+
+
+        <div class="container-fluid pt-5 text-center">
+            <h2>Database scope</h2>
+        </div>
+        <div  class="container-fluid py-4 intro">
+            <p>
+                The SHEWROTE database records receptions of works by women authors. This means that it includes Person
+                and Work records only when there is an accompanying Reception, or a relation to another author.
+            </p>
+            <p>
+                The database was from its inception intended primarily as a research instrument, which has since then
+                been fed, and continues to be fed by specific research questions of individual users and the data
+                generated by them. This means that <b>the data is not exhaustive, and coverage per region and period is
+                partial</b>. It is therefore up to individual users to enrich the data where and as necessary for their own
+                research purposes. Should you wish to contribute to the database, please contact
+                <a href="mailto:alicia.montoya@ru.nl">alicia.montoya@ru.nl</a> for inlog codes.
+            </p>
+        </div>
+
+
+        <div class="container-fluid pt-5 text-center">
+            <h2>How to cite the database</h2>
+        </div>
+        <div  class="container-fluid py-4 intro">
+            <p>
+                If you want to cite the database as a whole in your own work, please use the format:
+            </p>
+            <p class="citation">
+                Montoya, Alicia C. (ed.), SHEWROTE database (Studying Historical Early Women’s Reception: Oeuvres,
+                Texts, Engagement), 2023 – ongoing,
+                <a href="https://shewrote.rich.ru.nl/">https://shewrote.rich.ru.nl/</a> [accessed on June 25, 2025].
+            </p>
+            <p>
+                If you want to cite an individual record, please open the tab ‘view all record editors’ in the record
+                and include the names of all the editors in your reference, <b>starting with the creator (if known), then
+                the editor who has the largest number of edits</b>, and then listing the other editors alphabetically.
+            </p>
+            <p>To cite a Person record:</p>
+            <p class="citation mb-5">
+                Wijk, Tessa van, Marleen Dek, Suzan van Dijk, Janouk de Groot, Astrid Kulsdom, Alicia Montoya,
+                Edward Tobon, Floor Toebes, and Marie Sorbo, ‘Genlis, Stéphanie Félicité de (1746 - 1830)’,
+                in SHEWROTE database (Studying Historical Early Women’s Reception: Oeuvres, Texts, Engagement),
+                2023 – ongoing,
+                <a href="https://shewrote.rich.ru.nl/persons/a61f6245-7bfd-4af1-a2dc-113072426ef8/">https://shewrote.rich.ru.nl/persons/a61f6245-7bfd-4af1-a2dc-113072426ef8/</a>
+                [accessed on June 25, 2025].
+            </p>
+            <p>To cite a Work record:</p>
+            <p class="citation">
+                Mihurko, Katja, Alicia Montoya and Jasmine Westerlund, ‘Uncle Tom's cabin, or Life among the lowly’,
+                in SHEWROTE database (Studying Historical Early Women’s Reception: Oeuvres, Texts, Engagement),
+                2023 – ongoing,
+                <a href="https://shewrote.rich.ru.nl/works/69523c56-3d80-4020-b348-74cc16eff43a/">https://shewrote.rich.ru.nl/works/69523c56-3d80-4020-b348-74cc16eff43a/</a>
+                [accessed on June 25, 2025].
+            </p>
+            <p>To cite an Edition record:</p>
+            <p class="citation">
+                Toebes, Floor, ‘The Little Karoo’, in SHEWROTE database (Studying Historical Early Women’s Reception:
+                Oeuvres, Texts, Engagement), 2023 – ongoing,
+                <a href="https://shewrote.rich.ru.nl/work_edition/045a340e-53ea-4a27-aa3b-05583fbd5e7b/">https://shewrote.rich.ru.nl/work_edition/045a340e-53ea-4a27-aa3b-05583fbd5e7b/</a>
+                [accessed on June 25, 2025].
+            </p>
+            <p>To cite a Circulation record:</p>
+            <p class="citation">
+                Schaft, Pia van de, ‘Bibliotheca Waeyeniana, Seu Catalogus, Insignium, ac rarissimorum Librorum In
+                quacunque Lingua, Facultate, Arte & Scientia …’, in SHEWROTE database (Studying Historical Early
+                Women’s Reception: Oeuvres, Texts, Engagement), 2023 – ongoing,
+                <a href="https://shewrote.rich.ru.nl/circulation/bdf046c7-fbe3-49e4-821d-b5b7df255d3e/">https://shewrote.rich.ru.nl/circulation/bdf046c7-fbe3-49e4-821d-b5b7df255d3e/</a>
+                [accessed on June 25, 2025].
+            </p>
+        </div>
+
+
+        <div class="container-fluid pt-5 text-center">
+            <h2>Creative Commons Licence</h2>
+        </div>
+        <div  class="container-fluid py-4 intro">
+            <p>SHEWROTE operates under a cc by-nc 4.0 license, or Creative Commons Attribution-Non Commercial 4.0
+                International License. This license enables reusers to distribute, remix, adapt, and build upon our
+                material in any medium or format <b>for noncommercial purposes only, and only so long as attribution is
+                    given to the creators</b>. CC BY-NC includes the following elements:
+            </p>
+            <p>
+                <img src="{% static 'img/Cc-by_new_white.svg' %}" width="50"> BY: credit must be given to the creator.
+            </p>
+            <p>
+                <img src="{% static 'img/Cc-nc_white.svg' %}" width="50"> NC: Only noncommercial uses of the work are permitted.
+            </p>
+        </div>
+
+        <div  class="container-fluid py-4 intro">
+
             <a class="btn btn-primary btn-lg mt-1 ms-auto" href="{% url 'shewrote:persons' %}">
                 Get started
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
