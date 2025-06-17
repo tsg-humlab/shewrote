@@ -6,6 +6,7 @@
                                                                 <small>
                                                                     {{ text }}
                                                                     {% with reception.workreception_set.all as workreceptions %}
+                                                                    {% with reception.personeception_set.all as personreceptions %}
                                                                     <a href="{% url 'shewrote:reception' reception.id %}">reception</a>{% if workreceptions %}:
                                                                             {% for workreception in workreceptions %}
                                                                                 {{ workreception.type }}
@@ -13,7 +14,14 @@
                                                                                     {{ workreception.work }}
                                                                                 </a>{% if not forloop.last %}, {% endif %}
                                                                             {% endfor %}
+                                                                            {% for personreception in personreceptions %}
+                                                                                {{ personreception.type }}
+                                                                                <a href="{% url 'shewrote:person' personreception.person_id %}">
+                                                                                    {{ personreception.person }}
+                                                                                </a>{% if not forloop.last %}, {% endif %}
+                                                                            {% endfor %}
                                                                         {% endif %}
+                                                                    {% endwith %}
                                                                     {% endwith %}
                                                                 </small>
                                                             {% endfor %}
