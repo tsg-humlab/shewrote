@@ -348,6 +348,12 @@ class ReceptionSearchForm(FillCountryOrPlaceMixin, forms.Form):
     title = forms.CharField(max_length=1024, required=False,
                             widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
 
+    received_works = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Work,search_fields=['title__icontains']),
+        queryset=Work.objects.filter(reception__isnull=False).distinct(),
+        required=False
+    )
+
     received_persons = forms.ModelMultipleChoiceField(
         widget=ModelSelect2MultipleWidget(model=Person, search_fields=['short_name__icontains',
                                                                        'first_name__icontains',

@@ -350,6 +350,9 @@ def filter_receptions_with_form(receptions: QuerySet[Work], search_form: WorkSea
     if title_filter := search_form.cleaned_data['title']:
         receptions = receptions.filter(title__icontains=title_filter)
 
+    if received_works_filter := search_form.cleaned_data['received_works']:
+        receptions = receptions.filter(received_works__in=received_works_filter)
+
     if received_persons_filter := search_form.cleaned_data['received_persons']:
         receptions = receptions.filter(received_persons__in=received_persons_filter)
 

@@ -72,25 +72,31 @@
                 <small class="text-danger">{{ search_form.received_persons.errors }}</small>
             </div>
 
-            <div class="py-2 vstack gap-1 border-top">
+            <div class="py-2 vstack gap-1">
                 <strong>Persons receiving</strong>
                 {{ search_form.persons_receiving }}
                 <small class="text-danger">{{ search_form.persons_receiving.errors }}</small>
             </div>
 
-            <div class="py-2 vstack gap-1 border-top">
+            <div class="py-2 vstack gap-1">
                 <strong>Receiving person's gender</strong>
                 {{ search_form.receiving_persons_gender }}
                 <small class="text-danger">{{ search_form.receiving_persons_gender.errors }}</small>
             </div>
 
             <div class="py-2 vstack gap-1 border-top">
+                <strong>Received works</strong>
+                {{ search_form.received_works }}
+                <small class="text-danger">{{ search_form.received_works.errors }}</small>
+            </div>
+
+            <div class="py-2 vstack gap-1">
                 <strong>Type</strong>
                 {{ search_form.type }}
                 <small class="text-danger">{{ search_form.type.errors }}</small>
             </div>
 
-            <div class="py-2 vstack gap-2">
+            <div class="py-2 vstack gap-2 border-top">
                 <div>
                     <input type="checkbox" name="date_of_reception_checkbox"
                            id="date_of_reception_checkbox" class="form-check-input ms-0 position-relative"
@@ -104,13 +110,13 @@
                 </script>
             </div>
 
-            <div class="py-2 vstack gap-1 border-top">
+            <div class="py-2 vstack gap-1">
                 <strong>Country/place of original publication</strong>
                 {{ search_form.country_or_place_of_original_publication }}
                 <small class="text-danger">{{ search_form.country_or_place_of_original_publication.errors }}</small>
             </div>
 
-            <div class="py-2 vstack gap-1 border-top">
+            <div class="py-2 vstack gap-1">
                 <strong>Country/place of reception</strong>
                 {{ search_form.country_or_place_of_reception }}
                 <small class="text-danger">{{ search_form.country_or_place_of_reception.errors }}</small>
@@ -237,5 +243,6 @@
             <li class="list-group-item border-0">No receptions found.</li>
         {% endfor %}
     </ul>
+</div>
 
 {% endblock content %}
