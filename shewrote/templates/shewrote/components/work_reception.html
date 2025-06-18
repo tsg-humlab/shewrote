@@ -1,27 +1,27 @@
-
-
-
-                                                            {% for reception in receptions %}
-                                                                <br/>
-                                                                <small>
-                                                                    {{ text }}
-                                                                    {% with reception.workreception_set.all as workreceptions %}
-                                                                    {% with reception.personeception_set.all as personreceptions %}
-                                                                    <a href="{% url 'shewrote:reception' reception.id %}">reception</a>{% if workreceptions %}:
-                                                                            {% for workreception in workreceptions %}
-                                                                                {{ workreception.type }}
-                                                                                <a href="{% url 'shewrote:work' workreception.work_id %}">
-                                                                                    {{ workreception.work }}
-                                                                                </a>{% if not forloop.last %}, {% endif %}
-                                                                            {% endfor %}
-                                                                            {% for personreception in personreceptions %}
-                                                                                {{ personreception.type }}
-                                                                                <a href="{% url 'shewrote:person' personreception.person_id %}">
-                                                                                    {{ personreception.person }}
-                                                                                </a>{% if not forloop.last %}, {% endif %}
-                                                                            {% endfor %}
-                                                                        {% endif %}
-                                                                    {% endwith %}
-                                                                    {% endwith %}
-                                                                </small>
-                                                            {% endfor %}
+{% if receptions %}
+<ul class="ps-2" style="list-style-type: '- '">
+{% for reception in receptions %}
+    <li>
+    <small>
+        {{ text }}
+        {% with reception.workreception_set.all as workreceptions %}
+        {% with reception.personreception_set.all as personreceptions %}
+        <a href="{% url 'shewrote:reception' reception.id %}">reception</a>{% if workreceptions or personreceptions %}:
+                {% for workreception in workreceptions %}
+                    {{ workreception.type }}
+                    <a href="{% url 'shewrote:work' workreception.work_id %}">{{ workreception.work }}</a>{% if not forloop.last or personreceptions %}, {% endif %}
+                {% endfor %}
+                {% for personreception in personreceptions %}
+                    {{ personreception.type }}
+                    <a href="{% url 'shewrote:person' personreception.person_id %}">
+                        {{ personreception.person }}
+                    </a>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% endwith %}
+    </small>
+    </li>
+{% endfor %}
+</ul>
+{% endif %}
