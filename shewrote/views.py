@@ -670,7 +670,6 @@ def edition(request, edition_id):
     return render(request, 'shewrote/edition_details.html', context)
 
 
-@login_required
 def list_of_changes(request, content_type_id, object_id):
     crudevents = CRUDEvent.objects.filter(object_id=object_id, content_type_id=content_type_id)
     return render(request, 'shewrote/components/list_of_changes.html', {'crudevents': crudevents})

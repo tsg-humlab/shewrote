@@ -1,6 +1,5 @@
 {% load i18n %}
 {% load object_info %}
-    {% if user.is_authenticated %}
         {% with object.get_last_edit as crudevent %}
             {% if crudevent %}
                 <h6 class="text-muted">
@@ -31,4 +30,3 @@
                 </h6>
             {% endif %}
         {% endwith %}
-    {% endif %}
