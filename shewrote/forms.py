@@ -344,36 +344,15 @@ class WorkSearchForm(FillCountryOrPlaceMixin, forms.Form):
         self.fill_country_or_place_field(['country_or_place_of_publication'])
 
 
-class ReceptionSearchForm(FillCountryOrPlaceMixin, forms.Form):
+class AbstractReceptionSearchForm(FillCountryOrPlaceMixin, forms.Form):
     title = forms.CharField(max_length=1024, required=False,
                             widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
-
-    received_works = forms.ModelMultipleChoiceField(
-        widget=ModelSelect2MultipleWidget(model=Work,search_fields=['title__icontains']),
-        queryset=Work.objects.filter(reception__isnull=False).distinct(),
-        required=False
-    )
 
     received_persons = forms.ModelMultipleChoiceField(
         widget=ModelSelect2MultipleWidget(model=Person, search_fields=['short_name__icontains',
                                                                        'first_name__icontains',
                                                                        'birth_name__icontains']),
         queryset=Person.objects.all(),
-        required=False
-    )
-
-    persons_receiving = forms.ModelMultipleChoiceField(
-        widget=ModelSelect2MultipleWidget(model=Person, search_fields=['short_name__icontains',
-                                                                       'first_name__icontains',
-                                                                       'birth_name__icontains']),
-        queryset=Person.objects.all(),
-        required=False
-    )
-
-    receiving_persons_gender = forms.MultipleChoiceField(
-        widget=Select2MultipleWidget(choices=Person.GenderChoices.choices,
-                                     attrs={'data-placeholder': "Select one or more genders",'style': "width: 100%"}),
-        choices=Person.GenderChoices.choices,
         required=False
     )
 
@@ -399,6 +378,42 @@ class ReceptionSearchForm(FillCountryOrPlaceMixin, forms.Form):
         required=False
     )
 
+    notes = forms.CharField(max_length=1024, required=False,
+                            widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fill_country_or_place_field(['country_or_place_of_reception', 'country_or_place_of_original_publication'])
+
+
+class ReceptionSearchForm(AbstractReceptionSearchForm):
+    persons_receiving = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Person, search_fields=['short_name__icontains',
+                                                                       'first_name__icontains',
+                                                                       'birth_name__icontains']),
+        queryset=Person.objects.all(),
+        required=False
+    )
+
+    receiving_persons_gender = forms.MultipleChoiceField(
+        widget=Select2MultipleWidget(choices=Person.GenderChoices.choices,
+                                     attrs={'data-placeholder': "Select one or more genders",'style': "width: 100%"}),
+        choices=Person.GenderChoices.choices,
+        required=False
+    )
+
+    received_works = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Work,search_fields=['title__icontains']),
+        queryset=Work.objects.filter(reception__isnull=False).distinct(),
+        required=False
+    )
+
+    type = forms.ModelMultipleChoiceField(
+        queryset=ReceptionType.objects.all(),
+        widget=ModelSelect2MultipleWidget(model=ReceptionType, search_fields=['type_of_reception__icontains']),
+        required=False
+    )
+
     language = forms.ModelMultipleChoiceField(
         widget=ModelSelect2MultipleWidget(model=Language, search_fields=['name__icontains']),
         queryset=Language.objects.all(),
@@ -413,12 +428,16 @@ class ReceptionSearchForm(FillCountryOrPlaceMixin, forms.Form):
         required=False
     )
 
-    notes = forms.CharField(max_length=1024, required=False,
-                            widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fill_country_or_place_field(['country_or_place_of_reception', 'country_or_place_of_original_publication'])
+class CirculationSearchForm(AbstractReceptionSearchForm):
+    received_works = forms.ModelMultipleChoiceField(
+        widget=ModelSelect2MultipleWidget(model=Work,search_fields=['title__icontains']),
+        queryset=Work.objects.filter(circulation__isnull=False).distinct(),
+        required=False
+    )
+
+    shelf_mark = forms.CharField(max_length=1024, required=False,
+                                 widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}))
 
 
 class ChangesSearchForm(forms.ModelForm):

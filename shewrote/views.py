@@ -6,13 +6,14 @@ from django.db.models import F, Q, OuterRef, Subquery, QuerySet, Count, Max, Min
 from django.conf import settings
 from django.contrib import messages
 from .models import (Person, Work, Reception, WorkReception, PersonReception, Collective, Country, Place,
-                     PersonPersonRelation, Edition, PersonCirculation)
+                     PersonPersonRelation, Edition, PersonCirculation, AbstractReception)
 from .forms import PersonForm, PersonSearchForm, ShortPersonForm, WorkForm, ChangesSearchForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from .models import Person, Work, Reception, WorkReception, Circulation, WorkCirculation
-from .forms import PersonForm, ShortPersonForm, WorkForm, MergeUsersForm, WorkSearchForm, ReceptionSearchForm
+from .forms import (PersonForm, ShortPersonForm, WorkForm, MergeUsersForm, WorkSearchForm, AbstractReceptionSearchForm,
+                    ReceptionSearchForm, CirculationSearchForm)
 
 from dal import autocomplete
 from django.http import JsonResponse, Http404
@@ -346,7 +347,8 @@ def order_queryset(qs: QuerySet, get_params: dict, order_by_options: OrderedDict
                 'order_by_annotate_field': order_by_annotate_field}
 
 
-def filter_receptions_with_form(receptions: QuerySet[Work], search_form: WorkSearchForm) -> QuerySet[Work]:
+def filter_abstract_receptions_with_form(receptions: QuerySet[AbstractReception],
+                                         search_form: AbstractReceptionSearchForm) -> QuerySet[AbstractReception]:
     if title_filter := search_form.cleaned_data['title']:
         receptions = receptions.filter(title__icontains=title_filter)
 
@@ -356,6 +358,22 @@ def filter_receptions_with_form(receptions: QuerySet[Work], search_form: WorkSea
     if received_persons_filter := search_form.cleaned_data['received_persons']:
         receptions = receptions.filter(received_persons__in=received_persons_filter)
 
+    if country_or_place_of_reception_filter := search_form.cleaned_data['country_or_place_of_reception']:
+        country_or_place_of_reception_q = get_country_or_place_q(
+            country_or_place_of_reception_filter,
+            'place_of_reception'
+        )
+        receptions = receptions.filter(country_or_place_of_reception_q)
+
+    if notes_filter := search_form.cleaned_data['notes']:
+        receptions = receptions.filter(notes__icontains=notes_filter)
+
+    return receptions
+
+
+def filter_receptions_with_form(receptions: QuerySet[Reception], search_form: ReceptionSearchForm) -> QuerySet[Reception]:
+    receptions = filter_abstract_receptions_with_form(receptions, search_form)
+
     if persons_receiving_filter := search_form.cleaned_data['persons_receiving']:
         receptions = receptions.filter(is_same_as_work__personwork__role__name='is creator of',
                                        is_same_as_work__related_persons__in=persons_receiving_filter)
@@ -364,9 +382,6 @@ def filter_receptions_with_form(receptions: QuerySet[Work], search_form: WorkSea
         receptions = receptions.filter(is_same_as_work__personwork__role__name='is creator of',
                                        is_same_as_work__related_persons__sex__in=receiving_persons_gender_filter)
 
-    if type_filter := search_form.cleaned_data['type']:
-        receptions = receptions.filter(personreception__type__in=type_filter)
-
     if country_or_place_of_original_publication_filter := search_form.cleaned_data['country_or_place_of_original_publication']:
         country_or_place_of_original_publication_q = get_country_or_place_q(
             country_or_place_of_original_publication_filter,
@@ -374,12 +389,8 @@ def filter_receptions_with_form(receptions: QuerySet[Work], search_form: WorkSea
         )
         receptions = receptions.filter(country_or_place_of_original_publication_q)
 
-    if country_or_place_of_reception_filter := search_form.cleaned_data['country_or_place_of_reception']:
-        country_or_place_of_reception_q = get_country_or_place_q(
-            country_or_place_of_reception_filter,
-            'place_of_reception'
-        )
-        receptions = receptions.filter(country_or_place_of_reception_q)
+    if type_filter := search_form.cleaned_data['type']:
+        receptions = receptions.filter(personreception__type__in=type_filter)
 
     if language_filter := search_form.cleaned_data['language']:
         receptions = receptions.filter(language_of_reception__in=language_filter)
@@ -387,8 +398,6 @@ def filter_receptions_with_form(receptions: QuerySet[Work], search_form: WorkSea
     if genre_filter := search_form.cleaned_data['genre']:
         receptions = receptions.filter(reception_genre__in=genre_filter)
 
-    if notes_filter := search_form.cleaned_data['notes']:
-        receptions = receptions.filter(notes__icontains=notes_filter)
     return receptions
 
 
@@ -451,6 +460,23 @@ def work_reception_count_annotate(qs):
     return qs.annotate(reception_count=Count('workreception__reception', distinct=True))
 
 
+def filter_circulations_with_form(circulations: QuerySet[Circulation],
+                                  search_form: CirculationSearchForm) -> QuerySet[Circulation]:
+    circulations = filter_abstract_receptions_with_form(circulations, search_form)
+
+    if country_or_place_of_original_publication_filter := search_form.cleaned_data['country_or_place_of_original_publication']:
+        country_or_place_of_original_publication_q = get_country_or_place_q(
+            country_or_place_of_original_publication_filter,
+            'workcirculation__work__edition__place_of_publication'
+        )
+        circulations = circulations.filter(country_or_place_of_original_publication_q)
+
+    if shelf_mark_filter :=  search_form.cleaned_data['shelf_mark']:
+        circulations = circulations.filter(shelf_mark__icontains=shelf_mark_filter)
+
+    return circulations
+
+
 def circulations(request):
     circulations = Circulation.objects.prefetch_related(
         'place_of_reception',
@@ -460,9 +486,6 @@ def circulations(request):
         'workcirculation_set__type',
         'personcirculation_set'
     )
-    title_filter = request.GET.get('title', '')
-    if title_filter:
-        circulations = circulations.filter(title__icontains=title_filter)
 
     order_by_options = OrderedDict([
         ('title', 'Title'),
@@ -470,10 +493,22 @@ def circulations(request):
     ])
     circulations, ordering_context = order_queryset(circulations, request.GET.dict(), order_by_options, 'date_of_reception')
 
+    search_form = CirculationSearchForm(request.GET)
+    if search_form.is_valid():
+        circulations = filter_circulations_with_form(circulations, search_form)
+
+    circulations, date_of_reception_slider_info = get_int_slider_info(request, circulations, 'date_of_reception',
+                                                              ['date_of_reception_start',
+                                                               'date_of_reception_end'])
+
     paginator = Paginator(circulations, 25)
     page_number = request.GET.get('page')
     paginated_circulations = paginator.get_page(page_number)
-    context = {'circulations': paginated_circulations, 'count': paginator.count, 'title': title_filter} | ordering_context
+    context = {'circulations': paginated_circulations,
+               'count': paginator.count,
+               'search_form': search_form,
+               'date_of_reception_slider_info': date_of_reception_slider_info
+              } | ordering_context
     return render(request, 'shewrote/circulations.html', context)
 
 
