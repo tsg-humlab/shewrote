@@ -11,11 +11,20 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+        restart: true
+      redis:
+        condition: service_started
     restart: unless-stopped
   postgres:
     image: postgres:15
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SQL_USER} -d ${SQL_DATABASE}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
     volumes:
       - postgres_data:/var/lib/postgresql/data/
       - postgres_dumps:/postgres_dumps
