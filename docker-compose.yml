@@ -1,7 +1,12 @@
 services:
   web:
     image: ${DOCKER_IMAGE}
-    command: gunicorn ${WSGI_APP} --bind 0.0.0.0:${DJANGO_PORT} --log-level debug --workers=${NUMBER_OF_WORKERS:-4}
+    command: >
+        bash -c "
+          python manage.py migrate --noinput &&
+          python manage.py collectstatic --noinput &&
+          gunicorn ${WSGI_APP} --bind 0.0.0.0:${DJANGO_PORT} --log-level debug --workers=${NUMBER_OF_WORKERS:-4}
+        "
     volumes:
       - static_volume:/home/app/web/staticfiles
       - tmp_volume:/home/app/web/tmp

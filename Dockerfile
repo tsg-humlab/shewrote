@@ -49,13 +49,5 @@ RUN mkdir $APP_HOME/tmp
 RUN mkdir -p $APP_HOME/writable/media
 WORKDIR $APP_HOME
 
-# copy entrypoint.sh
-COPY ./entrypoint.sh .
-RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.sh
-RUN chmod +x  $APP_HOME/entrypoint.sh
-
 # copy project
 COPY . $APP_HOME
-
-# run entrypoint.sh
-ENTRYPOINT ["/home/app/web/entrypoint.sh"]
