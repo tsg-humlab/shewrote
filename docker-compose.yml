@@ -5,7 +5,7 @@ services:
     volumes:
       - static_volume:/home/app/web/staticfiles
       - tmp_volume:/home/app/web/tmp
-      - writable_volume:/home/app/web/writable/media
+      - writable_volume:/home/app/web/writable
     expose:
       - ${DJANGO_PORT}
     env_file:
@@ -42,7 +42,7 @@ services:
     image: nginx:1.25
     volumes:
       - static_volume:/home/app/web/staticfiles
-      - writable_volume:/home/app/web/writable/media
+      - writable_volume:/home/app/web/writable
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
       - 80:80
