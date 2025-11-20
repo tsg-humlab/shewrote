@@ -583,6 +583,33 @@ class WorkLanguage(models.Model):
     language = models.ForeignKey(Language, models.PROTECT, null=True)
 
 
+class Publisher(models.Model):
+    """Represents a publisher with name"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    cerl = models.CharField(max_length=255, blank=True)
+    start_of_activity = models.IntegerField(blank=True, null=True)
+    end_of_activity = models.IntegerField(blank=True, null=True)
+    place_of_activity = models.ForeignKey(Place, on_delete=models.PROTECT, null=True, blank=True)
+    persons = models.ManyToManyField(
+        Person,
+        through="PublisherPerson",
+        through_fields=('publisher', 'person'),
+        blank=True
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class PublisherPerson(models.Model):
+    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.publisher}: {self.person}'
+
+
 class Edition(EasyAuditMixin, models.Model):
     """Represents an Edition of a Work published in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -597,6 +624,7 @@ class Edition(EasyAuditMixin, models.Model):
         blank=True,
     )
     cerl_publisher = models.CharField(max_length=255, blank=True)
+    publisher = models.ForeignKey(Publisher, on_delete=models.PROTECT, null=True, blank=True)
     related_persons = models.ManyToManyField(
         Person,
         through="PersonEdition",

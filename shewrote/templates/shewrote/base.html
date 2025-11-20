@@ -121,6 +121,10 @@
                             Works</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {% if 'publisher' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:publishers' %}">
+                            Publishers</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if 'edition' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:editions' %}">
                             Editions</a>
                     </li>

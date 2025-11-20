@@ -1,0 +1,110 @@
+{% extends 'shewrote/generic_details.html' %}
+
+{% load embed %}
+
+{% block heading %}
+    {{ publisher.title }}
+    <small class="text-muted fs-4 ms-3">
+        {{ publisher.document_type }}
+    </small>
+    <small class="text-muted fs-4 ms-3">
+        {{ publisher.place_of_publisher|default:'' }}
+    </small>
+{% endblock %}
+
+{% block edit_button %}
+    {% include 'shewrote/components/details_edit_button.html' with object=publisher url_name='admin:shewrote_publisher_change' %}
+{% endblock %}
+
+{% block last_edit_info %}
+    {% include 'shewrote/components/last_edit_info.html' with object=publisher %}
+{% endblock %}
+
+{% block section_buttons %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='basic' section_title='Basic Info' active='active' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='activity' section_title='Activity' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='persons' section_title='Persons' %}
+{% endblock %}
+
+{% block sections %}
+    {% embed 'shewrote/components/details_section.html' with section_name='basic' section_title='Basic Info' %}
+        {% slot contents %}
+                                <div class="{% if publisher.image %}w-75{% else %}flex-fill{% endif %}">
+                                    <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" class="w-25">Name</th>
+                                            <td>{{ publisher.name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="w-25">CERL</th>
+                                            <td>
+                                                <a href="{{ publisher.cerl }}">
+                                                    <a href="{{ publisher.cerl }}">{{ publisher.cerl }}</a>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                </div>
+                                {% if publisher.image %}
+                                    <div class="w-25 ms-3">
+                                        <a href="{{ publisher.image.url }}">
+                                            <img src="{{ publisher.image.url }}" class="img-fluid"/>
+                                        </a>
+                                    </div>
+                                {% endif %}
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='activity' section_title='Activity' %}
+        {% slot contents %}
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row" class="w-25">Start</th>
+                                                    <td>
+                                                        {{ publisher.start_of_activity|default:"-" }}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" class="w-25">End</th>
+                                                    <td>
+                                                        {{ publisher.end_of_activity|default:"-" }}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" class="w-25">Place</th>
+                                                    <td>
+                                                        {{ publisher.place_of_activity|default:"-" }}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='persons' section_title='Persons' %}
+        {% slot contents %}
+                                    {% if publisher.persons %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for person in publisher.persons.all %}
+                                                    <tr>
+                                                        <th scope="row" class="w-25"></th>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:person' person.id %}">
+                                                                {{ person }}
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No persons found</i>
+                                        </p>
+                                    {% endif %}
+        {% endslot %}
+    {% endembed %}
+
+{% endblock %}

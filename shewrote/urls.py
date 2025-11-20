@@ -49,6 +49,10 @@ urlpatterns = [
     path('editions/', views.editions, name='editions'),
     path('work_edition/<uuid:work_id>/', views.work_edition, name='work_edition'),
     path('editions/<uuid:edition_id>/', views.edition, name='edition'),
+    
+    # Publishers
+    path('publishers/', views.publishers, name='publishers'),
+    path('publisher/<uuid:publisher_id>/', views.publisher, name='publisher'),
 
     # AutoResponse
     path(r'countryplaceautoresponse/', views.CountryAndPlaceAutocompleteView.as_view(), name='countryplaceautoresponse'),

@@ -16,7 +16,7 @@ from .models import (Country, Place, Person, Education, PersonEducation, Role, P
                      Reception, PersonReception, ReceptionLanguage, ReceptionGenre,
                      WorkReception, EditionReception, PersonPersonRelation, RelationType, WorkLanguage, Circulation,
                      PersonCirculation, WorkCirculation, EditionCirculation, CirculationSource, CirculationSourceType,
-                     PersonCirculationSource, PersonCirculationSourceRole)
+                     PersonCirculationSource, PersonCirculationSourceRole, Publisher, PublisherPerson)
 
 
 def pretty_json(self, instance, field_name):
@@ -778,3 +778,21 @@ class CirculationAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
         else:
             return ()
 
+
+class PublisherPersonInline(admin.TabularInline):
+    model = PublisherPerson
+    fields = ["publisher", "person"]
+    autocomplete_fields = ["person"]
+    extra = 0
+    verbose_name = "Person"
+
+
+@admin.register(Publisher)
+class PublisherAdmin(admin.ModelAdmin):
+    list_display = ['name', 'cerl', 'start_of_activity', 'end_of_activity', 'place_of_activity']
+    list_display_links = ['cerl']
+    inlines = [PublisherPersonInline]
+    fieldsets = [
+        (None, {'fields': ['name', 'cerl']}),
+        ('Activity', {'fields': ['start_of_activity', 'end_of_activity', 'place_of_activity']})
+    ]

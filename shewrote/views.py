@@ -6,7 +6,7 @@ from django.db.models import F, Q, OuterRef, Subquery, QuerySet, Count, Max, Min
 from django.conf import settings
 from django.contrib import messages
 from .models import (Person, Work, Reception, WorkReception, PersonReception, Collective, Country, Place,
-                     PersonPersonRelation, Edition, PersonCirculation)
+                     PersonPersonRelation, Edition, PersonCirculation, Publisher)
 from .forms import PersonForm, PersonSearchForm, ShortPersonForm, WorkForm, ChangesSearchForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
@@ -449,6 +449,31 @@ def reception(request, reception_id):
 
 def work_reception_count_annotate(qs):
     return qs.annotate(reception_count=Count('workreception__reception', distinct=True))
+
+
+def publishers(request):
+    publishers = Publisher.objects.all()
+    name_filter = request.GET.get('name', '')
+    if name_filter:
+        publishers = publishers.filter(name__icontains=name_filter)
+
+    order_by_options = OrderedDict([
+        ('name', 'Name'),
+        ('start_of_activity', 'Start of activity'),
+    ])
+    publishers, ordering_context = order_queryset(publishers, request.GET.dict(), order_by_options, 'start_of_activity')
+    
+    paginator = Paginator(publishers, 25)
+    page_number = request.GET.get('page')
+    paginated_publishers = paginator.get_page(page_number)
+    context = {'publishers': paginated_publishers, 'count': paginator.count, 'name': name_filter} | ordering_context
+    return render(request, 'shewrote/publishers.html', context)
+
+
+def publisher(request, publisher_id):
+    publisher = get_object_or_404(Publisher.objects.select_related('place_of_activity').prefetch_related('persons'),
+                                  id=publisher_id)
+    return render(request, 'shewrote/publisher_details.html', {'publisher': publisher})
 
 
 def circulations(request):
