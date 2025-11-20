@@ -50,8 +50,12 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <th scope="row" class="w-25">CERL publisher</th>
-                                                <td>{{ edition.cerl_publisher }}</td>
+                                                <th scope="row" class="w-25">Publisher</th>
+                                                <td>
+                                                    {% if edition.publisher %}
+                                                        <a href="{% url 'shewrote:publisher' edition.publisher_id %}">{{ edition.publisher }}</a>
+                                                    {% endif %}
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <th scope="row" class="w-25">Persons</th>

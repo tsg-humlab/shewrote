@@ -24,6 +24,7 @@
     {% include 'shewrote/components/details_section_button.html' with section_name='basic' section_title='Basic Info' active='active' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='activity' section_title='Activity' %}
     {% include 'shewrote/components/details_section_button.html' with section_name='persons' section_title='Persons' %}
+    {% include 'shewrote/components/details_section_button.html' with section_name='editions' section_title='Editions' %}
 {% endblock %}
 
 {% block sections %}
@@ -102,6 +103,30 @@
                                     {% else %}
                                         <p>
                                             <i class="text-muted">No persons found</i>
+                                        </p>
+                                    {% endif %}
+        {% endslot %}
+    {% endembed %}
+    {% embed 'shewrote/components/details_section.html' with section_name='editions' section_title='Editions' %}
+        {% slot contents %}
+                                    {% if publisher.edition_set %}
+                                        <table class="table">
+                                            <tbody>
+                                                {% for edition in publisher.edition_set.all %}
+                                                    <tr>
+                                                        <th scope="row" class="w-25"></th>
+                                                        <td>
+                                                            <a href="{% url 'shewrote:edition' edition.id %}">
+                                                                {{ edition }}
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p>
+                                            <i class="text-muted">No editions found</i>
                                         </p>
                                     {% endif %}
         {% endslot %}

@@ -623,7 +623,6 @@ class Edition(EasyAuditMixin, models.Model):
         through_fields=("edition", "language"),
         blank=True,
     )
-    cerl_publisher = models.CharField(max_length=255, blank=True)
     publisher = models.ForeignKey(Publisher, on_delete=models.PROTECT, null=True, blank=True)
     related_persons = models.ManyToManyField(
         Person,
@@ -638,10 +637,9 @@ class Edition(EasyAuditMixin, models.Model):
 
     def __str__(self):
         place_of_publication = f' in {self.place_of_publication}' if self.place_of_publication else ''
-        cerl_publisher = f' by {self.cerl_publisher}' if self.cerl_publisher else ''
         publication_year_start = f' in {self.publication_year_start}' if self.publication_year_start else ''
         publication_year_end = f' - {self.publication_year_end}' if self.publication_year_end else ''
-        return (f'{self.related_work} is published {place_of_publication}{cerl_publisher }'
+        return (f'{self.related_work} is published in {place_of_publication}'
                 f'{publication_year_start}{publication_year_end}')
 
 

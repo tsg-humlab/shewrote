@@ -35,10 +35,12 @@
                                             {% for edition in editions %}
                                                 <tr>
                                                     <td>
-                                                        {{ edition.place_of_publication }}
+                                                        {{ edition.place_of_publication|default:"-" }}
                                                     </td>
                                                     <td>
-                                                        {{ edition.cerl_publisher }}
+                                                        {% if edition.publisher %}
+                                                            <a href="{% url 'shewrote:publisher' edition.publisher_id %}">{{ edition.publisher }}</a>
+                                                        {% endif %}
                                                     </td>
                                                     <td>
                                                         <a href="{% url 'shewrote:edition' edition.id %}">
