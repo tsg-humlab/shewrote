@@ -103,9 +103,35 @@
                               <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
                             </svg>
                         </a></li>
-                        <li><a class="dropdown-item" href="{% url 'shewrote:pages' 'digital_databases' %}">Other databases on women's writing</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{% url 'shewrote:sources'  %}">Sources</a></li>
+                        <li><a class="dropdown-item" href="{% url 'shewrote:index' %}">Data editing notes</a></li>
+                        <li><a class="dropdown-item" href="{% url 'shewrote:pages' 'wg_publications' %}">Working group publications</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item-text">Our other Working Group databases</a></li>
+                        <li><a class="dropdown-item" href="https://recirc.universityofgalway.ie/">
+                            &#x2022;&nbsp;RECIRC: The Reception and Circulation of Early Modern Women's Writing, 1550-1700
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right align-baseline" viewBox="0 0 16 16">
+                              <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                              <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                            </svg>
+                        </a></li>
+                        <li><a class="dropdown-item" href="http://knjizenstvo.etf.bg.ac.rs/en">
+                            &#x2022;&nbsp;Knjiženstvo – Theory and History of Women's Writing in Serbian until 1915
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right align-baseline" viewBox="0 0 16 16">
+                              <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                              <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                            </svg>
+                        </a></li>
+                        <li><a class="dropdown-item" href="https://tekstitliikkeessa.com/">
+                            &#x2022;&nbsp;Texts on the Move: Reception of women's writing in Finland and Russia 1840–2020
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right align-baseline" viewBox="0 0 16 16">
+                              <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                              <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                            </svg>
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'shewrote:pages' 'digital_databases' %}">Other databases on women's writing</a></li>
                       </ul>
                     </li>
                     <li class="nav-item">
@@ -115,6 +141,10 @@
                     <li class="nav-item">
                         <a class="nav-link {% if 'collective' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:collectives' %}">
                             Collectives</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'publisher' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:index' %}">
+                            Publishers</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if 'work' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'shewrote:works' %}">
