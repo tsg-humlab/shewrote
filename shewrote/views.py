@@ -145,8 +145,8 @@ def persons(request):
     short_name_filter = request.GET.get("short_name", '')
     if short_name_filter:
         persons = persons.filter(
-            Q(short_name__icontains=short_name_filter)
-            | Q(alternativename__alternative_name__icontains=short_name_filter)
+            Q(short_name__unaccent__icontains=short_name_filter)
+            | Q(alternativename__alternative_name__unaccent__icontains=short_name_filter)
         ).distinct()
 
     search_form = PersonSearchForm(request.GET)
@@ -289,7 +289,7 @@ def collectives(request):
     collectives = Collective.objects.order_by('name')
     name_filter = request.GET.get("name", '')
     if name_filter:
-        collectives = collectives.filter(name__icontains=name_filter).distinct()
+        collectives = collectives.filter(name__unaccent__icontains=name_filter).distinct()
     paginator = Paginator(collectives, 25)
     page_number = request.GET.get("page")
     paginated_collectives = paginator.get_page(page_number)
@@ -348,7 +348,7 @@ def order_queryset(qs: QuerySet, get_params: dict, order_by_options: OrderedDict
 
 def filter_receptions_with_form(receptions: QuerySet[Work], search_form: WorkSearchForm) -> QuerySet[Work]:
     if title_filter := search_form.cleaned_data['title']:
-        receptions = receptions.filter(title__icontains=title_filter)
+        receptions = receptions.filter(title__unaccent__icontains=title_filter)
 
     if received_works_filter := search_form.cleaned_data['received_works']:
         receptions = receptions.filter(received_works__in=received_works_filter)
@@ -462,7 +462,7 @@ def circulations(request):
     )
     title_filter = request.GET.get('title', '')
     if title_filter:
-        circulations = circulations.filter(title__icontains=title_filter)
+        circulations = circulations.filter(title__unaccent__icontains=title_filter)
 
     order_by_options = OrderedDict([
         ('title', 'Title'),
@@ -498,7 +498,7 @@ def circulation(request, circulation_id):
 
 def filter_works_with_form(works: QuerySet[Work], search_form: WorkSearchForm) -> QuerySet[Work]:
     if title_filter := search_form.cleaned_data['title']:
-        works = works.filter(title__icontains=title_filter)
+        works = works.filter(title__unaccent__icontains=title_filter)
 
     if author_filter := search_form.cleaned_data['author']:
         works = works.filter(personwork__role__name='is creator of', related_persons__in=author_filter)
@@ -637,7 +637,7 @@ def editions(request):
 
     title_filter = request.GET.get('title', '')
     if title_filter:
-        works = works.filter(title__icontains=title_filter)
+        works = works.filter(title__unaccent__icontains=title_filter)
 
     order_by_options = OrderedDict([
         ('-edition_count', 'Edition count'),
