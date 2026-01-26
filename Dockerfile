@@ -3,7 +3,7 @@
 ###########
 
 # pull official base image
-FROM python:3.11.4-slim-buster as builder
+FROM python:3.11-slim as builder
 
 # set work directory
 WORKDIR /usr/src/django_app/
@@ -25,17 +25,17 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/django_app/wheels -r
 #########
 
 # pull official base image
-FROM python:3.11.4-slim-buster
+FROM python:3.11-slim
 
 # install dependencies
-RUN apt-get update -y && apt-get upgrade -y && apt-get install -y --no-install-recommends netcat
+RUN apt-get update -y && apt-get upgrade -y && apt-get install -y --no-install-recommends netcat-traditional
 COPY --from=builder /usr/src/django_app/wheels /wheels
 COPY --from=builder /usr/src/django_app/requirements.txt .
 #RUN pip install --upgrade pip
 RUN pip install --no-cache /wheels/*
 
 # create the app user
-RUN addgroup --system app && adduser --system --group app
+RUN adduser --system --group --home /home/app app
 
 # change to the app user
 USER app
