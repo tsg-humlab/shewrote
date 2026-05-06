@@ -105,6 +105,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'sw_project.context_processors.application_instance_type',
             ],
         },
     },
@@ -216,3 +217,5 @@ SILENCED_SYSTEM_CHECKS = ["security.W019"]
 DATA_UPLOAD_MAX_NUMBER_FIELDS = config('DATA_UPLOAD_MAX_NUMBER_FIELDS', cast=int, default=2000)
 
 PORTRAIT_TYPE = 'is portrait of'
+
+APPLICATION_INSTANCE_TYPE = config('APPLICATION_INSTANCE_TYPE', default="")
