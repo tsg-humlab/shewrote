@@ -216,3 +216,5 @@ SILENCED_SYSTEM_CHECKS = ["security.W019"]
 DATA_UPLOAD_MAX_NUMBER_FIELDS = config('DATA_UPLOAD_MAX_NUMBER_FIELDS', cast=int, default=2000)
 
 PORTRAIT_TYPE = 'is portrait of'
+
+ROBOTS_TXT_DISALLOW_ALL=config('ROBOTS_TXT_DISALLOW_ALL', cast=bool, default=True)

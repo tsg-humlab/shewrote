@@ -19,8 +19,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from .views import robots
+
 urlpatterns = [
     path(settings.ADMIN_URL_NAME+'/', admin.site.urls),
+    path("robots.txt", robots, name="robots"),
     path("accounts/", include('django.contrib.auth.urls')),
     path("select2/", include("django_select2.urls")),
     path('', include('shewrote.urls')),
