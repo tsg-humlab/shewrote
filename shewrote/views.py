@@ -1,4 +1,6 @@
 import html
+import re
+
 import requests
 from requests import Response
 
@@ -916,10 +918,14 @@ class FillFieldsView(AutoResponseView):
             field_values['short_name'] = get_wikidata_label(api_id)
             field_values['first_name'] = get_wikidata_label_for_property(data, 'P735')
             field_values['birth_name'] = get_wikidata_label_for_property(data, 'P1477')
-            field_values['date_of_birth'] = get_nested_object(data, ('statements', 'P569', 0, 'value', 'content',
-                                                                     'time', slice(1, 11)))
-            field_values['date_of_death'] = get_nested_object(data, ('statements', 'P570', 0, 'value', 'content',
-                                                                     'time', slice(1, 11)), None)
+
+            date_of_birth = get_nested_object(data, ('statements', 'P569', 0, 'value', 'content', 'time', slice(1, 11)), '')
+            field_values['date_of_birth'] = next(iter(re.findall(r"^(\d{4})", date_of_birth)), '')
+            field_values['alternative_birth_date'] = date_of_birth
+            date_of_death = get_nested_object(data, ('statements', 'P570', 0, 'value', 'content', 'time', slice(1, 11)), '')
+            field_values['date_of_death'] = next(iter(re.findall(r"^(\d{4})", date_of_death)), '')
+            field_values['alternative_death_date'] = date_of_death
+
             sex = get_wikidata_label_for_property(data, 'P21')
             field_values['sex'] = getattr(Person.GenderChoices, sex.upper()).value \
                                     if sex and hasattr(Person.GenderChoices, sex.upper()) else None
