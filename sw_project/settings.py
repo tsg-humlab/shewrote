@@ -179,7 +179,9 @@ LOGIN_REDIRECT_URL = "/"
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
+
+LANGUAGES = [('en', 'English')]
 
 TIME_ZONE = 'UTC'
 
@@ -216,3 +218,9 @@ SILENCED_SYSTEM_CHECKS = ["security.W019"]
 DATA_UPLOAD_MAX_NUMBER_FIELDS = config('DATA_UPLOAD_MAX_NUMBER_FIELDS', cast=int, default=2000)
 
 PORTRAIT_TYPE = 'is portrait of'
+
+WIKIDATA_API_KEY = config('WIKIDATA_API_KEY', default="")
+WIKIDATA_LABEL_URL = 'https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/{}/labels/{}'
+WIKIDATA_URL = 'https://www.wikidata.org/wiki/{}'
+WIKIDATA_SUGGEST_URL = 'https://www.wikidata.org/w/rest.php/wikibase/v1/suggest/items'
+WIKIDATA_STATEMENTS_URL = 'https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/{}?_fields=statements'

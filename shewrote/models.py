@@ -6,6 +6,7 @@ from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from django.conf import settings
 
 from computedfields.models import ComputedFieldsModel, computed
 
@@ -59,10 +60,20 @@ def post_delete_relation_creator(sender, relation_fields):
     return post_delete_relation
 
 
+class Wikidata(models.Model):
+    wikidata_id = models.CharField(max_length=256, blank=True)
+
+    class Meta:
+        abstract = True
+
+    def wikidata_url(self):
+        return settings.WIKIDATA_URL.format(self.wikidata_id)
+
+
 # # # END Helper classes and functions # # #
 
 
-class Country(models.Model):
+class Country(Wikidata, models.Model):
     """Model representing a list of country names."""
     modern_country = models.CharField(max_length=255)
     alternative_country_name = models.CharField(max_length=255, blank=True)
@@ -77,7 +88,7 @@ class Country(models.Model):
         return self.modern_country
 
 
-class Place(models.Model):
+class Place(Wikidata, models.Model):
     """Represents a Place in a country and its location in the world."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, blank=True, unique=True)
@@ -96,7 +107,7 @@ class Place(models.Model):
         return self.name
 
 
-class Person(EasyAuditMixin, ComputedFieldsModel):
+class Person(Wikidata, EasyAuditMixin, ComputedFieldsModel):
     """Represents a person."""
 
     class GenderChoices(models.TextChoices):

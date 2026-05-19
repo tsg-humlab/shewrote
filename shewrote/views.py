@@ -1,3 +1,9 @@
+import html
+import requests
+from requests import Response
+
+from django.utils import translation
+from django.apps import apps
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
@@ -5,6 +11,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F, Q, OuterRef, Subquery, QuerySet, Count, Max, Min
 from django.conf import settings
 from django.contrib import messages
+
+from .apps import ShewroteConfig
 from .models import (Person, Work, Reception, WorkReception, PersonReception, Collective, Country, Place,
                      PersonPersonRelation, Edition, PersonCirculation)
 from .forms import PersonForm, PersonSearchForm, ShortPersonForm, WorkForm, ChangesSearchForm
@@ -21,6 +29,9 @@ from django.utils.html import escape
 from apiconnectors.viafapi import ViafAPI
 from easyaudit.models import CRUDEvent
 from django_select2.views import AutoResponseView
+
+from .wikidata_api import get_wikidata_statements, get_wikidata_label
+from .utils import get_nested_object
 
 from collections import OrderedDict
 
@@ -770,3 +781,168 @@ def merge_users(request):
 
     return render(request, template, {'form': MergeUsersForm()})
 
+
+def get_wikidata_label_translations(api_id, field_name):
+    field_values = {}
+    for language_code, _ in settings.LANGUAGES:
+        response = requests.get(settings.WIKIDATA_LABEL_URL.format(api_id, language_code),
+                                headers={'accept': 'application/json',
+                                         'Authorization': f'Bearer {settings.WIKIDATA_API_KEY}'})
+        if response.status_code == requests.codes.ok:
+            field_values[field_name] = response.json()
+    return field_values
+
+
+def get_wikidata_label_for_property(data, property, language='en'):
+    id = get_nested_object(data, ('statements', property, 0, 'value', 'content'), None)
+    if not id:
+        return ''
+    resp = requests.get(settings.WIKIDATA_LABEL_URL.format(id, language),
+                        headers={'accept': 'application/json',
+                                 'Authorization': f'Bearer {settings.WIKIDATA_API_KEY}'})
+    return resp.json() if resp.status_code == requests.codes.ok else ''
+
+
+def get_or_create_object_from_wikidata_id(wikidata_id, property, model):
+    if data := get_wikidata_statements(wikidata_id):
+        return get_option_from_wikidata_property(data, property, model).get('id', None)
+    return None
+
+
+# Which field holds the name value of the model:
+name_field_names = {Country: 'modern_country', Place: 'name'}
+
+
+def create_object_from_wikidata_id(model, wikidata_id):
+    if model not in name_field_names.keys():
+        return None
+    field_values = get_wikidata_label_translations(wikidata_id, name_field_names[model])
+    field_values['wikidata_id'] = wikidata_id
+    if model == Place and (data := get_wikidata_statements(wikidata_id)):
+        field_values['latitude'] = round(get_nested_object(data, ('statements', 'P625', 0, 'value', 'content', 'latitude')), 6)
+        field_values['longitude'] = round(get_nested_object(data, ('statements', 'P625', 0, 'value', 'content', 'longitude')), 6)
+        field_values['modern_country_id'] = get_or_create_object_from_wikidata_id(wikidata_id, 'P17', Country)
+    return model.objects.create(**field_values)
+
+
+def get_option_from_wikidata_property(data, property, model):
+    wikidata_id = get_nested_object(data, ('statements', property, 0, 'value', 'content'), None)
+    label = get_wikidata_label_for_property(data, property)
+    print(f'label: {label}')
+    if not wikidata_id:
+        return {}
+    if objects := model.objects.filter(Q(wikidata_id=wikidata_id) | Q(**{name_field_names[model]: label})):
+        obj = objects[0]
+        return {'text': str(obj), 'id': obj.pk}
+    if obj := create_object_from_wikidata_id(model, wikidata_id):
+        return {'text': str(obj), 'id': obj.pk}
+    return {}
+
+
+def request_wikidata_suggest(term: str, page: int=1, limit: int=10) -> Response:
+    api_key = settings.WIKIDATA_API_KEY
+    language_code = translation.get_language()
+    offset = (page - 1) * limit
+
+    return requests.get(settings.WIKIDATA_SUGGEST_URL,
+                        params={'q': term, 'language': language_code, 'limit': limit, 'offset': offset},
+                        headers={'accept': 'application/json', 'Authorization': f'Bearer {api_key}'})
+
+
+class WikidataSuggestView(AutoResponseView):
+    def get(self, request, *args, **kwargs):
+        term = request.GET.get('term', '')
+        page = request.GET.get('page', '1')
+        page = int(page) if page.isdigit() else 1
+        limit = 10
+        response = request_wikidata_suggest(term, page, limit)
+
+        if response.status_code != requests.codes.ok:
+            return JsonResponse({'results': {}, 'more': False})
+
+        results = [
+            {'id': html.escape(item['id']), 'text': self.render_text(item)}
+            for item in response.json().get('results', [])
+        ]
+
+        return JsonResponse({
+            'results': results,
+            'more': len(results) >= limit
+        })
+
+    @staticmethod
+    def render_text(item):
+        id = html.escape(item['id'])
+        label = html.escape(item['display-label']['value'])
+        description = html.escape(item['description']['value'] if item['description'] else '')
+        return f"""
+            <div>
+                <b>{label}</b>
+                <span style='color: dimgray; margin-left: auto; margin-right: 0'>{id}</span>
+                <br/>
+                <small>{description}</small>
+            </div>
+        """
+
+
+class FillFieldsView(AutoResponseView):
+    def get(self, request, fill_field_name, *args, **kwargs):
+        method = f'get_{fill_field_name}_fillfield_response'
+        if hasattr(self, method) and callable(getattr(self, method)):
+            return JsonResponse(getattr(self, method)(request))
+        return JsonResponse({})
+
+    @staticmethod
+    def get_country_wikidata_fillfield_response(request):
+        api_id = request.GET.get('api_id', "")
+        field_values = get_wikidata_label_translations(api_id, "modern_country")
+        return field_values
+
+    @staticmethod
+    def get_place_wikidata_fillfield_response(request):
+        api_id = request.GET.get('api_id', "")
+        field_values = get_wikidata_label_translations(api_id, "name")
+
+        if data := get_wikidata_statements(api_id):
+            field_values['modern_country'] = get_option_from_wikidata_property(data, 'P17', Country)
+            field_values['latitude'] = round(get_nested_object(data, ('statements', 'P625', 0, 'value', 'content', 'latitude')), 6)
+            field_values['longitude'] = round(get_nested_object(data, ('statements', 'P625', 0, 'value', 'content', 'longitude')), 6)
+
+        return field_values
+
+    @staticmethod
+    def get_person_wikidata_fillfield_response(request):
+        api_id = request.GET.get('api_id', "")
+        field_values = {}
+        if data := get_wikidata_statements(api_id):
+            # import pprint
+            # pp = pprint.PrettyPrinter(indent=4)
+            # pp.pprint(data)
+            field_values['short_name'] = get_wikidata_label(api_id)
+            field_values['first_name'] = get_wikidata_label_for_property(data, 'P735')
+            field_values['birth_name'] = get_wikidata_label_for_property(data, 'P1477')
+            field_values['date_of_birth'] = get_nested_object(data, ('statements', 'P569', 0, 'value', 'content',
+                                                                     'time', slice(1, 11)))
+            field_values['date_of_death'] = get_nested_object(data, ('statements', 'P570', 0, 'value', 'content',
+                                                                     'time', slice(1, 11)), None)
+            sex = get_wikidata_label_for_property(data, 'P21')
+            field_values['sex'] = getattr(Person.GenderChoices, sex.upper()).value \
+                                    if sex and hasattr(Person.GenderChoices, sex.upper()) else None
+
+            # place_of_{birth,death} fields cannot be used because, while the application language is English,
+            # the name of places are not always in English, e.g.
+            # - Den Haag (Dutch) vs The Hague (see https://www.wikidata.org/wiki/Q36600)
+            # - Köln (German) vs Cologne (see https://www.wikidata.org/wiki/Q365)
+            # field_values['place_of_birth'] = get_option_from_wikidata_property(data, 'P19', Place)
+            # field_values['place_of_death'] = get_option_from_wikidata_property(data, 'P20', Place)
+
+        return {k:v for k,v in field_values.items() if v}  # Leave out items with empty values
+
+
+class ObjectExistsWikidataView(AutoResponseView):
+    """Returns whether an object exists given the model name and Wikidata ID"""
+    def get(self, request, model_name, wikidata_id):
+        model = apps.get_model(app_label=ShewroteConfig.name, model_name=model_name)
+        return JsonResponse({
+            'exists': model.objects.filter(wikidata_id=wikidata_id).exists()
+        })

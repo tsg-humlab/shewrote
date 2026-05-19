@@ -3,6 +3,7 @@
 from django.urls import path
 
 from . import views
+from .views import WikidataSuggestView, ObjectExistsWikidataView, FillFieldsView
 
 app_name = 'shewrote'
 urlpatterns = [
@@ -65,4 +66,10 @@ urlpatterns = [
     path('work_viaf_suggest', views.WorkVIAFSuggest.as_view(), name='work_viaf_suggest'),
 
     path('merge_users', views.merge_users, name='merge_users'),
+
+    # WikiData
+    path('wikidata/', WikidataSuggestView.as_view(), name='wikidata'),
+    path('fill_fields/<fill_field_name>/', FillFieldsView.as_view(), name='fill_fields'),
+    path('object_exists_wikidata/<model_name>/<wikidata_id>/', ObjectExistsWikidataView.as_view(),
+         name='object_exists_wikidata'),
 ]
