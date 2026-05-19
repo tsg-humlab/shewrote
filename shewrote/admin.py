@@ -129,7 +129,6 @@ class WikidataMixin:
         response = requests.get(settings.WIKIDATA_LABEL_URL.format(obj.wikidata_id, language_code),
                                 headers={'accept': 'application/json', 'Authorization': f'Bearer {api_key}',
                                          'User-Agent': 'https://shewrote.rich.ru.nl/'})
-        print(response.__dict__)
         text = f"""
             <div>
                 <b>{str(response.json())}</b>

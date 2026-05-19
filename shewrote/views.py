@@ -827,12 +827,10 @@ def create_object_from_wikidata_id(model, wikidata_id):
 
 def get_option_from_wikidata_property(data, property, model):
     wikidata_id = get_nested_object(data, ('statements', property, 0, 'value', 'content'), None)
-    label = get_wikidata_label_for_property(data, property)
-    print(f'label: {label}')
     if not wikidata_id:
         return {}
-    if objects := model.objects.filter(Q(wikidata_id=wikidata_id) | Q(**{name_field_names[model]: label})):
-        obj = objects[0]
+    label = get_wikidata_label_for_property(data, property)
+    if obj := model.objects.filter(Q(wikidata_id=wikidata_id) | Q(**{name_field_names[model]: label})).first():
         return {'text': str(obj), 'id': obj.pk}
     if obj := create_object_from_wikidata_id(model, wikidata_id):
         return {'text': str(obj), 'id': obj.pk}
@@ -915,9 +913,6 @@ class FillFieldsView(AutoResponseView):
         api_id = request.GET.get('api_id', "")
         field_values = {}
         if data := get_wikidata_statements(api_id):
-            # import pprint
-            # pp = pprint.PrettyPrinter(indent=4)
-            # pp.pprint(data)
             field_values['short_name'] = get_wikidata_label(api_id)
             field_values['first_name'] = get_wikidata_label_for_property(data, 'P735')
             field_values['birth_name'] = get_wikidata_label_for_property(data, 'P1477')
