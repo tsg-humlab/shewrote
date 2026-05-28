@@ -1,13 +1,21 @@
 import json
+
+import requests
+from dataclasses import dataclass, astuple
+
+from django.utils import html
+from django.db import models
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from django.utils.html import html_safe
 from django.conf import settings
 from django.urls import reverse
+from django.utils import translation
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import HtmlFormatter
 from django_admin_inline_paginator_plus.admin import TabularInlinePaginated
+from django_select2.forms import HeavySelect2Widget
 
 from .models import (Country, Place, Person, Education, PersonEducation, Role, Profession, PersonProfession, Religion,
                      PersonReligion, Marriage, AlternativeName, PeriodOfResidence, CollectiveType, Collective,
@@ -61,6 +69,82 @@ class NoDeleteRelatedMixin:
         return formset
 
 
+@dataclass
+class ApiInfo:
+    obj: object
+    model: models.Model
+    model_field_name: str
+    url_template: str
+    api_name: str
+    fill_field_name: str
+
+
+class ApiSelectWidget(HeavySelect2Widget):
+    css_class_name = 'django-select2 django-select2-apilink'
+    js = 'js/apilink.js'
+
+    def __init__(self, *args, **kwargs):
+        self.api_info = kwargs.pop('api_info', None)
+        super().__init__(*args, **kwargs)
+
+    def render(self, *args, **kwargs):
+        output =  super().render(*args, **kwargs)
+        obj, model, model_field_name, url_template, api_name, fill_field_name = astuple(self.api_info)
+        api_id, display_style = ("", "display: none") if not obj or not getattr(obj, model_field_name, None) \
+                                else (html.escape(getattr(obj, model_field_name)), "")
+
+        return output + mark_safe(f"""
+            <div id='api_block_{model_field_name}' style="margin: 4px 0 0 10px;{display_style}">
+                <a id="apilink_{model_field_name}" href="{url_template.format(api_id)}" target="_blank"
+                 href_base="{url_template[:-2]}">
+                    Show on {api_name}
+                </a>
+                <button class="button fill-button" id="fillbutton_{model_field_name}" data-fill-field-name="{fill_field_name}" 
+                type="button">Fill in</button>
+            </div>
+            <div id='api_object_exists_{model_field_name}' style="display: none;" data-django-model="{model.__name__}">
+                <p style="color: red; margin: .4em 1em 0em 1em">A {model.__name__} with this Wikidata ID already exists.</p>
+            </div>
+            <script src="{settings.STATIC_URL}{self.js}"></script>
+        """)
+
+
+class WikidataMixin:
+    class Media:
+        css = {
+            'all': ('css/admin/wikidata_id.css', 'admin/css/vendor/select2/select2.css')
+        }
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        api_info = ApiInfo(obj, self.model, 'wikidata_id', settings.WIKIDATA_URL, 'Wikidata',
+                           fill_field_name=self.fill_field_name)
+
+        if not obj:
+            form.base_fields['wikidata_id'].widget = ApiSelectWidget(data_view='shewrote:wikidata', api_info=api_info)
+            return form
+
+        language_code = translation.get_language()
+        api_key = settings.WIKIDATA_API_KEY
+        response = requests.get(settings.WIKIDATA_LABEL_URL.format(obj.wikidata_id, language_code),
+                                headers={'accept': 'application/json', 'Authorization': f'Bearer {api_key}',
+                                         'User-Agent': 'https://shewrote.rich.ru.nl/'})
+        text = f"""
+            <div>
+                <b>{str(response.json())}</b>
+                <span style='color: dimgray; margin-left: auto; margin-right: 0'>{obj.wikidata_id}</span>
+            </div>
+        """
+
+        form.base_fields['wikidata_id'].widget = ApiSelectWidget(data_view='shewrote:wikidata', api_info=api_info,
+                                                                 choices=[(obj.wikidata_id, text)])
+        return form
+
+    def wikidata_link(self, obj):
+        wikidata_id = html.escape(obj.wikidata_id)
+        return mark_safe(f'<a href="https://www.wikidata.org/wiki/{wikidata_id}">{wikidata_id}</a>')
+
+
 class ReadOnlyInline(admin.TabularInline):
     max_num = 0
     can_delete = False
@@ -81,9 +165,10 @@ class PlaceInline(TabularInlinePaginated, ReadOnlyInline):
 
 
 @admin.register(Country)
-class CountryAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
+class CountryAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
     search_fields = ["modern_country"]
     inlines = [PlaceInline]
+    fill_field_name = 'country_wikidata'
 
 
 class PersonPlaceOfBirthInline(TabularInlinePaginated, ReadOnlyInline):
@@ -128,10 +213,12 @@ class ReadOnlyEditionPlaceInline(TabularInlinePaginated, ReadOnlyInline):
 
 
 @admin.register(Place)
-class PlaceAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
+class PlaceAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
     search_fields = ["name"]
     inlines = [PersonPlaceOfBirthInline, PersonPlaceOfDeathInline, PeriodsOfResidenceInline,
                ReadOnlyCollectivePlaceInline, ReadOnlyEditionPlaceInline]
+    autocomplete_fields = ['modern_country']
+    fill_field_name = 'place_wikidata'
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
@@ -292,7 +379,7 @@ class ChildrenOfInline(TabularInlinePaginated, ReadOnlyInline):
 
 
 @admin.register(Person)
-class PersonAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
+class PersonAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
     list_display = ["short_name", "first_name", "birth_name", "sex", "date_of_birth", "place_of_birth",
                     "date_of_death", "place_of_death", 'view_on_site_link']
     search_fields = ['short_name']
@@ -309,6 +396,7 @@ class PersonAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
                AlternativeNameInline, PeriodsOfResidenceInline,
                PersonWorkInlineFromPersons, PersonCollectiveInline,
                PersonReceptionInlineFromPerson, PersonCirculationInlineFromPerson]
+    fill_field_name = 'person_wikidata'
 
     def get_inline_instances(self, request, obj=None):
         inline_instances = [inline(self.model, self.admin_site) for inline in self.inlines]
@@ -325,7 +413,8 @@ class PersonAdmin(PrettyOriginalDataMixin, ShewroteModelAdmin):
             (
                 None,
                 {
-                    "fields": [("short_name", "viaf_or_cerl"),
+                    "fields": ["wikidata_id",
+                               ("short_name", "viaf_or_cerl"),
                                ("first_name", "birth_name",),
                                "sex",
                                ("date_of_birth", "alternative_birth_date", "place_of_birth"),
