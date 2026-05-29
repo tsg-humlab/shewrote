@@ -919,12 +919,12 @@ class FillFieldsView(AutoResponseView):
             field_values['first_name'] = get_wikidata_label_for_property(data, 'P735')
             field_values['birth_name'] = get_wikidata_label_for_property(data, 'P1477')
 
-            date_of_birth = get_nested_object(data, ('statements', 'P569', 0, 'value', 'content', 'time', slice(1, 11)), '')
-            field_values['date_of_birth'] = next(iter(re.findall(r"^(\d{4})", date_of_birth)), '')
-            field_values['alternative_birth_date'] = date_of_birth
-            date_of_death = get_nested_object(data, ('statements', 'P570', 0, 'value', 'content', 'time', slice(1, 11)), '')
-            field_values['date_of_death'] = next(iter(re.findall(r"^(\d{4})", date_of_death)), '')
-            field_values['alternative_death_date'] = date_of_death
+            for event, prop in [('birth', 'P569'), ('death', 'P570')]:
+                dates = get_nested_object(data, ('statements', prop))
+                date_index = next((index for index, date in enumerate(dates) if date['rank'] == 'preferred'), 0)
+                date = get_nested_object(dates, (date_index, 'value', 'content', 'time', slice(1, 11)), '')
+                field_values[f'date_of_{event}'] = next(iter(re.findall(r"^(\d{4})", date)), '')
+                field_values[f'alternative_{event}_date'] = date
 
             sex = get_wikidata_label_for_property(data, 'P21')
             field_values['sex'] = getattr(Person.GenderChoices, sex.upper()).value \
