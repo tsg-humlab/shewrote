@@ -795,8 +795,8 @@ def get_wikidata_label_translations(api_id, field_name):
     return field_values
 
 
-def get_wikidata_label_for_property(data, property, language='en'):
-    id = get_nested_object(data, ('statements', property, 0, 'value', 'content'), None)
+def get_wikidata_label_for_property(data, property, index=0, language='en'):
+    id = get_nested_object(data, ('statements', property, index, 'value', 'content'), None)
     if not id:
         return ''
     resp = requests.get(settings.WIKIDATA_LABEL_URL.format(id, language),
@@ -827,11 +827,18 @@ def create_object_from_wikidata_id(model, wikidata_id):
     return model.objects.create(**field_values)
 
 
-def get_option_from_wikidata_property(data, property, model):
-    wikidata_id = get_nested_object(data, ('statements', property, 0, 'value', 'content'), None)
+def get_option_from_wikidata_property(data, prop, model):
+    property_object = get_nested_object(data, ('statements', prop))
+    if type(property_object) is not list:
+        return {}
+
+    # Get the first object that has 'rank': 'preferred', otherwise get the first in the list
+    index = next((index for index, obj in enumerate(property_object) if obj.get('rank') == 'preferred'), 0)
+    wikidata_id = get_nested_object(property_object, (index, 'value', 'content'), None)
     if not wikidata_id:
         return {}
-    label = get_wikidata_label_for_property(data, property)
+
+    label = get_wikidata_label_for_property(data, prop, index=index)
     if obj := model.objects.filter(Q(wikidata_id=wikidata_id) | Q(**{name_field_names[model]: label})).first():
         return {'text': str(obj), 'id': obj.pk}
     if obj := create_object_from_wikidata_id(model, wikidata_id):
