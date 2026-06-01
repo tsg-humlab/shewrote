@@ -157,10 +157,13 @@ def persons(request):
 
     short_name_filter = request.GET.get("short_name", '')
     if short_name_filter:
-        persons = persons.filter(
-            Q(short_name__unaccent__icontains=short_name_filter)
-            | Q(alternativename__alternative_name__unaccent__icontains=short_name_filter)
-        ).distinct()
+        short_name_q = Q()
+        for word in short_name_filter.split():
+            short_name_q &= Q(short_name__unaccent__icontains=word)
+        alternative_name_q = Q()
+        for word in short_name_filter.split():
+            alternative_name_q &= Q(alternativename__alternative_name__unaccent__icontains=word)
+        persons = persons.filter(short_name_q | alternative_name_q).distinct()
 
     search_form = PersonSearchForm(request.GET)
     if search_form.is_valid():
