@@ -3,6 +3,7 @@ import json
 import requests
 from dataclasses import dataclass, astuple
 
+from django.db.models import Q
 from django.utils import html
 from django.db import models
 from django.contrib import admin
@@ -447,6 +448,16 @@ class PersonAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
     def view_on_site_link(self, obj):
         icon = '<img src="/static/admin/img/icon-viewlink.svg" alt="View on site" title="View on site">'
         return mark_safe(f'<a href="{obj.get_absolute_url()}">{icon}</i></a>')
+
+    def get_search_results(self, request, queryset, search_term):
+        short_name_q = Q()
+        for word in search_term.split():
+            short_name_q &= Q(short_name__unaccent__icontains=word)
+        alternative_name_q = Q()
+        for word in search_term.split():
+            alternative_name_q &= Q(alternativename__alternative_name__unaccent__icontains=word)
+        queryset = queryset.filter(short_name_q | alternative_name_q).distinct()
+        return queryset, False
 
 
 admin.site.register(Education)
