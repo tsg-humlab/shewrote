@@ -48,7 +48,7 @@
             const id =  django.jQuery('#id_'+fieldName).find(':selected')[0].value;
             const link = django.jQuery('#apilink_'+fieldName);
             link.attr("href", link.attr("href_base")+id);
-            django.jQuery('#api_block_'+fieldName)[0].style.display = id ? 'inline' : 'none';
+            django.jQuery('#api_block_'+fieldName)[0].style.display = id ? 'block' : 'none';
 
             // Check whether an object exists given the Django model name and ID
             const api_duplicate_indicator = django.jQuery('#api_object_exists_'+fieldName);
@@ -59,7 +59,7 @@
                     api_duplicate_indicator[0].style.display = 'none';
                 },
                 success: function(result) {
-                    api_duplicate_indicator[0].style.display = result['exists'] == true ? 'inline' : 'none';
+                    api_duplicate_indicator[0].style.display = result['exists'] == true ? 'block' : 'none';
                 }
             });
         });
@@ -72,6 +72,31 @@
             const fillFieldName = elem.getAttribute('data-fill-field-name');
             const id =  django.jQuery('#id_'+fieldName).find(':selected')[0].value;
 
+            function setSelect2Value(field, data) {
+                if (field.find("option[value='" + data.id + "']").length) {
+                    field.val(data.id).trigger('change');
+                } else {
+                    // Create a DOM Option and pre-select by default
+                    var newOption = new Option(data.text, data.id, true, true);
+                    // Append it to the select
+                    field.append(newOption).trigger('change');
+                }
+            }
+            
+            function createResetElem(fieldName, oldValue, oldText) {
+                return `
+                    <div id="reset_${fieldName}" style="margin: 4px 0 0 10px; clear: both">
+                        <span style="color: red">Value changed!</span>
+                        <span>Old value: <b>${oldText}</b></span>
+                        <button type="button" class="button fill-button" 
+                                onclick="django.jQuery('#id_${fieldName}').val('${oldValue}').trigger('change');
+                                         django.jQuery('#reset_${fieldName}').remove();">
+                            Reset
+                        </button>
+                    </div>
+                `
+            }
+
             django.jQuery.ajax({
                 url: "/fill_fields/"+fillFieldName+"/?api_id="+id,
                 beforeSend: function() {
@@ -80,17 +105,27 @@
                 success: function(result) {
                     django.jQuery.each(result, (fieldName, data) => {
                         const field = django.jQuery('#id_'+fieldName);
+                        let oldValue = field.val();
+                        let oldText = null;
+                        let oldAndNewAreEqual = null;
+
                         if (field.hasClass("select2-hidden-accessible")) {
-                            if (field.find("option[value='" + data.id + "']").length) {
-                                field.val(data.id).trigger('change');
-                            } else {
-                                // Create a DOM Option and pre-select by default
-                                var newOption = new Option(data.text, data.id, true, true);
-                                // Append it to the select
-                                field.append(newOption).trigger('change');
-                            }
+                            oldText = django.jQuery("option:selected", field).text();
+                            oldAndNewAreEqual = (data.text == oldText && data.id == oldValue) ? true : false;
+                            setSelect2Value(field, data);
                         } else {
+                            oldText = oldValue;
+                            oldAndNewAreEqual = oldValue == data ? true : false;
                             field.val(data);
+                        }
+
+                        if(oldValue && !oldAndNewAreEqual) {
+                            const resetElem = createResetElem(fieldName, oldValue, oldText);
+                            if(django.jQuery("#reset_"+fieldName).length) {
+                                django.jQuery("#reset_"+fieldName).replaceWith(resetElem);
+                            } else {
+                                field.closest(".form-row").append(resetElem)
+                            }
                         }
                     });
                 },
