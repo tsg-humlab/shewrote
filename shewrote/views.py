@@ -134,26 +134,17 @@ def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearc
     return persons
 
 
-def reception_count_annotate(qs):
-    return qs.annotate(reception_count=Count('personreception', distinct=True))
-
-
-def reception_count_including_works_annotate(qs):
-    return (qs.annotate(reception_count=Count('personreception', distinct=True),
-                        work_count=Count('personwork__work__workreception__reception', distinct=True))
-            .annotate(reception_count_incl_works=F('reception_count') + F('work_count')))
-
-
 def persons(request):
     """Show all persons."""
     persons = Person.objects.all()
 
     order_by_options = OrderedDict([
         ('short_name', 'Short name'),
-        ('-reception_count', ('Reception count (persons)', reception_count_annotate)),
-        ('-reception_count_incl_works', ('Reception count (persons and works)', reception_count_including_works_annotate)),
+        ('-reception_count', ('Reception count (persons)', True)),
+        ('-reception_count_incl_works', ('Reception count (persons and works)', True)),
     ])
-    persons, order_by_context = order_queryset(persons, request.GET.dict(), order_by_options, '-reception_count_incl_works')
+    persons, order_by_context = order_queryset(persons, request.GET.dict(), order_by_options,
+                                               '-reception_count_incl_works', ['short_name'])
 
     short_name_filter = request.GET.get("short_name", '')
     if short_name_filter:
@@ -322,7 +313,8 @@ def collective(request, collective_id):
     return render(request, 'shewrote/collective_details.html', context)
 
 
-def order_queryset(qs: QuerySet, get_params: dict, order_by_options: OrderedDict, default_option: str) \
+def order_queryset(qs: QuerySet, get_params: dict, order_by_options: OrderedDict, default_option: str,
+                   secondary_order_bys: list=None) \
         -> tuple[QuerySet, dict]:
     """
     Orders the given Queryset and returns it with a dict containing context variables to be used in the template
@@ -338,23 +330,24 @@ def order_queryset(qs: QuerySet, get_params: dict, order_by_options: OrderedDict
     order_by_option = order_by_options[order_by]
 
     # Get Queryset annotate function if there is one
+    order_by_annotate_field = None
     if isinstance(order_by_option, tuple):
-        current_order_by_label, qs_annotate = order_by_option
-        qs = qs_annotate(qs)
-        order_by_annotate_field = order_by[1:] if order_by.startswith('-') else order_by
+        current_order_by_label, show_order_by_annotate_field = order_by_option
+        if show_order_by_annotate_field:
+            order_by_annotate_field = order_by[1:] if order_by.startswith('-') else order_by
     else:
         current_order_by_label: str = order_by_option
-        order_by_annotate_field = None
 
     for option, label in order_by_options.items():
         if isinstance(label, tuple):
             label = label[0]
             order_by_options[option] = label
 
+    secondary_order_bys = secondary_order_bys if secondary_order_bys is not None else []
     if order_by.startswith('-'):
-        qs: QuerySet = qs.order_by(F(order_by[1:]).desc(nulls_last=True))
+        qs: QuerySet = qs.order_by(F(order_by[1:]).desc(nulls_last=True), *secondary_order_bys)
     else:
-        qs: QuerySet = qs.order_by(F(order_by).asc(nulls_last=True))
+        qs: QuerySet = qs.order_by(F(order_by).asc(nulls_last=True), *secondary_order_bys)
 
     get_params_str: str = '&'.join( f'{key}={value}' for key, value in get_params.items())
     return qs, {'order_by': order_by, 'order_by_options': order_by_options,

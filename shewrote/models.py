@@ -145,14 +145,29 @@ class Person(Wikidata, EasyAuditMixin, ComputedFieldsModel):
     @computed(models.SmallIntegerField(null=True), depends=[('self', ['date_of_birth'])])
     def normalised_date_of_birth(self):
         return date_of_x_text_to_int(self.date_of_birth)
+
     @computed(models.SmallIntegerField(null=True), depends=[('self', ['date_of_death'])])
     def normalised_date_of_death(self):
         return date_of_x_text_to_int(self.date_of_death)
 
+    @computed(models.IntegerField(null=True), depends=[('personreception_set', ['person'])])
+    def reception_count(self):
+        return Reception.objects.filter(personreception__person=self).distinct().count()
+
+    @computed(models.IntegerField(null=True), depends=[('personreception_set', ['person']),
+                                                       ('personwork_set', ['person', 'work']),
+                                                       ('personwork_set.work.workreception_set', ['work'])])
+    def reception_count_incl_works(self):
+        return (Reception.objects.filter(personreception__person=self).distinct().count() +
+                Reception.objects.filter(workreception__work__personwork__person=self).distinct().count())
+
     class Meta:
         indexes = [
+            models.Index(fields=["short_name"]),
             models.Index(fields=["normalised_date_of_birth"]),
-            models.Index(fields=["normalised_date_of_death"])
+            models.Index(fields=["normalised_date_of_death"]),
+            models.Index(fields=["reception_count"]),
+            models.Index(fields=["reception_count_incl_works"])
         ]
         ordering = ['short_name']
 
