@@ -530,7 +530,7 @@ class IsSourceWorkManager(models.Manager):
         return super().get_queryset().filter(**{'original_data__@relations__isDocumentSourceOf__isnull': False})
 
 
-class Work(EasyAuditMixin, models.Model):
+class Work(EasyAuditMixin, ComputedFieldsModel):
     """Represent a Work by a Person that may have multiple Editions."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=1024)
@@ -556,6 +556,10 @@ class Work(EasyAuditMixin, models.Model):
     objects = models.Manager()
     work_objects = IsNotSourceWorkManager()
     source_objects = IsSourceWorkManager()
+
+    @computed(models.IntegerField(null=True), depends=[('workreception_set', ['work'])])
+    def reception_count(self):
+        return Reception.objects.filter(workreception__work=self).distinct().count()
 
     class Meta:
         indexes = [
