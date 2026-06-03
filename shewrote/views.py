@@ -456,10 +456,6 @@ def reception(request, reception_id):
     return render(request, 'shewrote/reception_details.html', context)
 
 
-def work_reception_count_annotate(qs):
-    return qs.annotate(reception_count=Count('workreception__reception', distinct=True))
-
-
 def circulations(request):
     circulations = Circulation.objects.prefetch_related(
         'place_of_reception',
@@ -540,7 +536,7 @@ def works_list(request, base_qs, extra_context={}):
     order_by_options = OrderedDict([
         ('title', 'Title'),
         ('date_of_publication_start', 'Publication date'),
-        ('-reception_count', ('Reception count', work_reception_count_annotate)),
+        ('-reception_count', ('Reception count', True)),
     ])
     works, ordering_context = order_queryset(works, request.GET.dict(), order_by_options, '-reception_count')
 
