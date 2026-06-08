@@ -828,7 +828,7 @@ def create_object_from_wikidata_id(model, wikidata_id):
 
 
 def get_option_from_wikidata_property(data, prop, model):
-    property_object = get_nested_object(data, ('statements', prop))
+    property_object = get_nested_object(data, ('statements', prop), None)
     if type(property_object) is not list:
         return {}
 
