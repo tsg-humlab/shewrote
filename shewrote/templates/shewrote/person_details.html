@@ -5,7 +5,7 @@
 {% block heading %}
     {{ person.short_name }}
     <small class="text-muted">
-        ({{ person.date_of_birth }} - {{ person.date_of_death }})
+        ({{ person.year_of_birth }} - {{ person.year_of_death }})
         {% if person.sex == "M" %}
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-gender-male" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2H9.5zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
@@ -107,12 +107,12 @@
                                             </tr>
                                         {% endif %}
                                         <tr>
-                                            <th scope="row">Date of birth</th>
-                                            <td>{{ person.date_of_birth|default:"-" }}</td>
+                                            <th scope="row">Year of birth</th>
+                                            <td>{{ person.year_of_birth|default:"-" }}</td>
                                         </tr>
                                         <tr>
-                                            <th scope="row" class="w-25">Date of death</th>
-                                            <td>{{ person.date_of_death|default:"-" }}</td>
+                                            <th scope="row" class="w-25">Year of death</th>
+                                            <td>{{ person.year_of_death|default:"-" }}</td>
                                         </tr>
                                         {% if person.alternative_birth_date %}
                                             <tr>

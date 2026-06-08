@@ -36,7 +36,7 @@ class PersonForm(forms.ModelForm):
     class Meta:
         model = Person
         fields = [
-            'short_name', 'viaf_or_cerl', 'first_name', 'birth_name', 'date_of_birth', 'date_of_death',
+            'short_name', 'viaf_or_cerl', 'first_name', 'birth_name', 'year_of_birth', 'year_of_death',
             'alternative_birth_date', 'alternative_death_date', 'flourishing_start', 'flourishing_end', 'sex',
             'alternative_name_gender', 'place_of_birth', 'place_of_death', 'professional_ecclesiastic_title',
             'aristocratic_title', 'mother', 'father', 'bibliography', 'related_to', 'notes', 'place_of_residence_notes'
@@ -46,8 +46,8 @@ class PersonForm(forms.ModelForm):
             'viaf_or_cerl': 'VIAF',
             'first_name': 'First name',
             'birth_name': 'Birth name',
-            'date_of_birth': 'Date of birth',
-            'date_of_death': 'Date of death',
+            'year_of_birth': 'Year of birth',
+            'year_of_death': 'Year of death',
             'alternative_birth_date': 'Birth date Notes',
             'alternative_death_date': 'Death date Notes',
             'flourishing_start': 'Flourishing start',
@@ -97,7 +97,7 @@ class PersonForm(forms.ModelForm):
 
         # Set the order to accomodate the fields added above
         self.order_fields(field_order=[
-            'short_name', 'viaf_or_cerl', 'first_name', 'birth_name', 'date_of_birth', 'date_of_death',
+            'short_name', 'viaf_or_cerl', 'first_name', 'birth_name', 'year_of_birth', 'year_of_death',
             'alternative_birth_date', 'alternative_death_date', 'flourishing_start', 'flourishing_end', 'sex',
             'alternative_name_gender', 'place_of_birth', 'place_of_death', 'professional_ecclesiastic_title',
             'aristocratic_title', 'mother', 'father', 'bibliography', 'related_to', 'notes',
@@ -258,15 +258,15 @@ class ShortPersonForm(forms.ModelForm):
     class Meta:
         model = Person
         fields = [
-            'short_name', 'first_name', 'birth_name', 'date_of_birth', 'date_of_death',
+            'short_name', 'first_name', 'birth_name', 'year_of_birth', 'year_of_death',
             'sex', 'notes',
         ]
         labels = {
             'short_name': 'Short name',
             'first_name': 'First name',
             'birth_name': 'Birth name',
-            'date_of_birth': 'Date of birth',
-            'date_of_death': 'Date of death',
+            'year_of_birth': 'Year of birth',
+            'year_of_death': 'Year of death',
             'sex': 'Sex',
             'notes': 'Notes',
         }

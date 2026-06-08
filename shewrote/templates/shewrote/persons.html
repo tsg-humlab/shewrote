@@ -69,8 +69,8 @@
 
             <div class="py-2 vstack gap-2 border-top">
                 <div>
-                    <input type="checkbox" name="normalised_date_of_birth_checkbox"
-                           id="normalised_date_of_birth_checkbox" class="form-check-input ms-0 position-relative"
+                    <input type="checkbox" name="normalised_year_of_birth_checkbox"
+                           id="normalised_year_of_birth_checkbox" class="form-check-input ms-0 position-relative"
                            {% if birth_year_slider_info.is_checked %}checked{% endif %}
                     />
                     <strong>Year of birth</strong>
@@ -80,8 +80,8 @@
 
             <div class="py-2 vstack gap-2">
                 <div>
-                    <input type="checkbox" name="normalised_date_of_death_checkbox"
-                           id="normalised_date_of_death_checkbox" class="form-check-input ms-0 position-relative"
+                    <input type="checkbox" name="normalised_year_of_death_checkbox"
+                           id="normalised_year_of_death_checkbox" class="form-check-input ms-0 position-relative"
                            {% if death_year_slider_info.is_checked %}checked{% endif %}
                     />
                     <strong>Year of death</strong>
@@ -172,10 +172,10 @@
                     <div class="col-12 col-sm-{% if user.is_authenticated and user.is_staff or order_by_annotate_field %}8{% else %}10{% endif %}">
                         <div class="float-end">
                             {{ person.place_of_birth|default:"" }}
-                            {{ person.date_of_birth|default:"" }}
+                            {{ person.year_of_birth|default:"" }}
                             &mdash;
                             {{ person.place_of_death|default:"" }}
-                            {{ person.date_of_death|default:"" }}
+                            {{ person.year_of_death|default:"" }}
                         </div>
                         <div class="mb-2">
                             <a href="{% url 'shewrote:person' person.id %}" title="Person details">

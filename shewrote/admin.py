@@ -175,7 +175,7 @@ class CountryAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
 class PersonPlaceOfBirthInline(TabularInlinePaginated, ReadOnlyInline):
     model = Person
     fk_name = 'place_of_birth'
-    fields = ['short_name', 'date_of_birth', 'place_of_death', 'date_of_death']
+    fields = ['short_name', 'year_of_birth', 'place_of_death', 'year_of_death']
     verbose_name = "Person born in this place"
     verbose_name_plural = "Persons born in this place"
     pagination_key = 'person_placeofbirth_inline'
@@ -184,7 +184,7 @@ class PersonPlaceOfBirthInline(TabularInlinePaginated, ReadOnlyInline):
 class PersonPlaceOfDeathInline(TabularInlinePaginated, ReadOnlyInline):
     model = Person
     fk_name = 'place_of_death'
-    fields = ['short_name', 'place_of_birth', 'date_of_birth', 'date_of_death']
+    fields = ['short_name', 'place_of_birth', 'year_of_birth', 'year_of_death']
     verbose_name = "Person died in this place"
     verbose_name_plural = "Persons died in this place"
     pagination_key = 'person_placeofdeath_inline'
@@ -369,7 +369,7 @@ class PersonCollectiveInline(admin.TabularInline):
 
 class ChildrenOfInline(TabularInlinePaginated, ReadOnlyInline):
     model = Person
-    fields = ['short_name', 'place_of_birth', 'date_of_birth', 'place_of_death', 'date_of_death']
+    fields = ['short_name', 'place_of_birth', 'year_of_birth', 'place_of_death', 'year_of_death']
     verbose_name = "Child"
     verbose_name_plural = "Children"
     pagination_key = 'childrenof_inline'
@@ -381,8 +381,8 @@ class ChildrenOfInline(TabularInlinePaginated, ReadOnlyInline):
 
 @admin.register(Person)
 class PersonAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
-    list_display = ["short_name", "first_name", "birth_name", "sex", "date_of_birth", "place_of_birth",
-                    "date_of_death", "place_of_death", 'view_on_site_link']
+    list_display = ["short_name", "first_name", "birth_name", "sex", "year_of_birth", "place_of_birth",
+                    "year_of_death", "place_of_death", 'view_on_site_link']
     search_fields = ['short_name']
     ordering = ['short_name']
     list_filter = ["sex", "place_of_birth__modern_country__modern_country"]
@@ -418,8 +418,8 @@ class PersonAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
                                ("short_name", "viaf_or_cerl"),
                                ("first_name", "birth_name",),
                                "sex",
-                               ("date_of_birth", "alternative_birth_date", "place_of_birth"),
-                               ("date_of_death", "alternative_death_date", "place_of_death"),
+                               ("year_of_birth", "alternative_birth_date", "place_of_birth"),
+                               ("year_of_death", "alternative_death_date", "place_of_death"),
                                "notes"],
                 },
             ),

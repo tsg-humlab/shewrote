@@ -121,8 +121,8 @@ class Person(Wikidata, EasyAuditMixin, ComputedFieldsModel):
     viaf_or_cerl = models.CharField(max_length=255, blank=True)
     first_name = models.CharField(max_length=255, blank=True)
     birth_name = models.CharField(max_length=255, blank=True)
-    date_of_birth = models.CharField(max_length=50, blank=True)
-    date_of_death = models.CharField(max_length=50, blank=True)
+    year_of_birth = models.CharField(max_length=50, blank=True)
+    year_of_death = models.CharField(max_length=50, blank=True)
     alternative_birth_date = models.CharField(max_length=50, blank=True)
     alternative_death_date = models.CharField(max_length=50, blank=True)
     flourishing_start = models.CharField(max_length=255, blank=True, null=True)
@@ -142,13 +142,13 @@ class Person(Wikidata, EasyAuditMixin, ComputedFieldsModel):
     original_data = models.JSONField(blank=True, null=True, editable=False)
     place_of_residence_notes = models.TextField(blank=True)
 
-    @computed(models.SmallIntegerField(null=True), depends=[('self', ['date_of_birth'])])
-    def normalised_date_of_birth(self):
-        return date_of_x_text_to_int(self.date_of_birth)
+    @computed(models.SmallIntegerField(null=True), depends=[('self', ['year_of_birth'])])
+    def normalised_year_of_birth(self):
+        return date_of_x_text_to_int(self.year_of_birth)
 
-    @computed(models.SmallIntegerField(null=True), depends=[('self', ['date_of_death'])])
-    def normalised_date_of_death(self):
-        return date_of_x_text_to_int(self.date_of_death)
+    @computed(models.SmallIntegerField(null=True), depends=[('self', ['year_of_death'])])
+    def normalised_year_of_death(self):
+        return date_of_x_text_to_int(self.year_of_death)
 
     @computed(models.IntegerField(null=True), depends=[('personreception_set', ['person'])])
     def reception_count(self):
@@ -164,8 +164,8 @@ class Person(Wikidata, EasyAuditMixin, ComputedFieldsModel):
     class Meta:
         indexes = [
             models.Index(fields=["short_name"]),
-            models.Index(fields=["normalised_date_of_birth"]),
-            models.Index(fields=["normalised_date_of_death"]),
+            models.Index(fields=["normalised_year_of_birth"]),
+            models.Index(fields=["normalised_year_of_death"]),
             models.Index(fields=["reception_count"]),
             models.Index(fields=["reception_count_incl_works"])
         ]
@@ -180,9 +180,9 @@ class Person(Wikidata, EasyAuditMixin, ComputedFieldsModel):
 
     def get_children(self):
         if self.sex == Person.GenderChoices.FEMALE:
-            return self.mother_of.order_by('date_of_birth')
+            return self.mother_of.order_by('year_of_birth')
         elif self.sex == Person.GenderChoices.MALE:
-            return self.father_of.order_by('date_of_birth')
+            return self.father_of.order_by('year_of_birth')
 
     def get_religions(self):
         return Religion.objects.filter(personreligion__person=self)

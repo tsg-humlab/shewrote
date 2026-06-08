@@ -160,10 +160,10 @@ def persons(request):
     if search_form.is_valid():
         persons = filter_persons_with_form(persons, search_form)
 
-    persons, birth_year_slider_info = get_int_slider_info(request, persons, 'normalised_date_of_birth',
+    persons, birth_year_slider_info = get_int_slider_info(request, persons, 'normalised_year_of_birth',
                                                            ['birth_year_start', 'birth_year_end'])
 
-    persons, death_year_slider_info = get_int_slider_info(request, persons, 'normalised_date_of_death',
+    persons, death_year_slider_info = get_int_slider_info(request, persons, 'normalised_year_of_death',
                                                            ['death_year_start', 'death_year_end'])
 
     receptions = (Reception.objects.filter(personreception__person_id=OuterRef('pk'), image__isnull=False,
