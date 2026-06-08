@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block edit_button %}
-    {% include 'shewrote/components/details_edit_button.html' with object=person url_name='shewrote:edit_person' %}
+    {% include 'shewrote/components/details_edit_button.html' with object=person url_name='admin:shewrote_person_change' %}
 {% endblock %}
 
 {% block last_edit_info %}
