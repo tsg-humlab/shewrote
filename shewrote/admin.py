@@ -312,7 +312,8 @@ class PersonReceptionInline(NoDeleteRelatedMixin, admin.TabularInline):
 
 
 class PersonReceptionInlineFromPerson(PersonReceptionInline):
-    verbose_name = "Reception"
+    verbose_name = "Reception of Person"
+    verbose_name_plural = "Receptions of Person"
 
 
 class PersonReceptionInlineFromReception(PersonReceptionInline):
