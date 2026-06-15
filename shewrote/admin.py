@@ -46,11 +46,13 @@ class PrettyOriginalDataMixin:
     pretty_original_data.short_description = 'Original data'
 
 
-class NoDeleteRelatedMixin:
+class RemoveActionsForRelatedMixin:
     """
-    Mixin to remove the delete button (red x) from a related (FK or M2M) form field.
+    Mixin to remove actions (e.g. the delete button (red x)) from a related (FK or M2M) form fields.
     Can be used for both XxxAdmin and XxxInline classes.
     """
+    related_permissions = ['can_delete_related']
+
     def _set_can_x_related(self, form, switches={}):
         relation_fields = [f.name for f in self.model._meta.get_fields()
                            if f.many_to_one or f.one_to_one or f.many_to_many]
@@ -61,12 +63,14 @@ class NoDeleteRelatedMixin:
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        self._set_can_x_related(form, {'can_delete_related': False})
+        switches = {permission: False for permission in self.related_permissions}
+        self._set_can_x_related(form, switches)
         return form
 
     def get_formset(self, request, obj=None, **kwargs):
         formset = super().get_formset(request, obj, **kwargs)
-        self._set_can_x_related(formset.form, {'can_delete_related': False})
+        switches = {permission: False for permission in self.related_permissions}
+        self._set_can_x_related(formset.form, switches)
         return formset
 
 
@@ -155,7 +159,7 @@ class ReadOnlyInline(admin.TabularInline):
         return self.fields
 
 
-class ShewroteModelAdmin(NoDeleteRelatedMixin, admin.ModelAdmin):
+class ShewroteModelAdmin(RemoveActionsForRelatedMixin, admin.ModelAdmin):
     pass
 
 
@@ -240,7 +244,7 @@ class AlternativeNameInline(admin.TabularInline):
     extra = 0
 
 
-class CollectivePlaceInline(NoDeleteRelatedMixin, admin.TabularInline):
+class CollectivePlaceInline(RemoveActionsForRelatedMixin, admin.TabularInline):
     model = CollectivePlace
     fields = ["collective", "place"]
     autocomplete_fields = ["collective", "place"]
@@ -265,7 +269,7 @@ class PersonPersonRelationInline(admin.TabularInline):
     verbose_name = "Relation"
 
 
-class PeriodsOfResidenceInline(NoDeleteRelatedMixin, admin.TabularInline):
+class PeriodsOfResidenceInline(RemoveActionsForRelatedMixin, admin.TabularInline):
     model = PeriodOfResidence
     fields = [
         "place",
@@ -279,7 +283,7 @@ class PeriodsOfResidenceInline(NoDeleteRelatedMixin, admin.TabularInline):
     verbose_name_plural = "Lived in"
 
 
-class PersonWorkInline(NoDeleteRelatedMixin, admin.TabularInline):
+class PersonWorkInline(RemoveActionsForRelatedMixin, admin.TabularInline):
     model = PersonWork
     fields = [
         "person",
@@ -301,7 +305,7 @@ class PersonWorkInlineFromWorks(PersonWorkInline):
     verbose_name = "Person"
 
 
-class PersonReceptionInline(NoDeleteRelatedMixin, admin.TabularInline):
+class PersonReceptionInline(RemoveActionsForRelatedMixin, admin.TabularInline):
     model = PersonReception
     fields = [
         "person",
@@ -321,7 +325,7 @@ class PersonReceptionInlineFromReception(PersonReceptionInline):
     verbose_name = "Person"
 
 
-class PersonCirculationInline(NoDeleteRelatedMixin, admin.TabularInline):
+class PersonCirculationInline(RemoveActionsForRelatedMixin, admin.TabularInline):
     model = PersonCirculation
     fields = [
         "person",
@@ -340,21 +344,21 @@ class PersonCirculationInlineFromCirculation(PersonCirculationInline):
     verbose_name = "Person"
 
 
-class PersonProfessionInline(NoDeleteRelatedMixin, admin.TabularInline):
+class PersonProfessionInline(RemoveActionsForRelatedMixin, admin.TabularInline):
     model = PersonProfession
     fields = ["person", "profession", "start_year", "end_year", "notes"]
     extra = 0
     verbose_name = "Profession"
 
 
-class PersonEducationInline(NoDeleteRelatedMixin, admin.TabularInline):
+class PersonEducationInline(RemoveActionsForRelatedMixin, admin.TabularInline):
     model = PersonEducation
     fields = ["person", "education"]
     extra = 0
     verbose_name = "Education"
 
 
-class PersonReligionInline(NoDeleteRelatedMixin, admin.TabularInline):
+class PersonReligionInline(RemoveActionsForRelatedMixin, admin.TabularInline):
     model = PersonReligion
     fields = ["person", "religion", "start_year", "end_year", "notes"]
     extra = 0
@@ -400,6 +404,7 @@ class PersonAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
                PersonWorkInlineFromPersons, PersonCollectiveInline,
                PersonReceptionInlineFromPerson, PersonCirculationInlineFromPerson]
     fill_field_name = 'person_wikidata'
+    related_permissions = ['can_change_related', 'can_delete_related']
 
     def get_inline_instances(self, request, obj=None):
         inline_instances = [inline(self.model, self.admin_site) for inline in self.inlines]
@@ -608,20 +613,20 @@ class LanguageAdmin(ShewroteModelAdmin):
     inlines = [ReadOnlyWorkLanguageInline, ReadOnlyEditionLanguageInline, ReadOnlyReceptionLanguageInline]
 
 
-class EditionInline(NoDeleteRelatedMixin, admin.StackedInline):
+class EditionInline(RemoveActionsForRelatedMixin, admin.StackedInline):
     model = Edition
     extra = 0
     autocomplete_fields = ['related_work', 'place_of_publication', 'genre']
 
 
-class WorkLanguageInline(NoDeleteRelatedMixin, admin.TabularInline):
+class WorkLanguageInline(RemoveActionsForRelatedMixin, admin.TabularInline):
     model = WorkLanguage
     extra = 0
     fields = ['work', 'language']
     autocomplete_fields = ['language']
 
 
-class WorkReceptionInline(NoDeleteRelatedMixin, admin.TabularInline):
+class WorkReceptionInline(RemoveActionsForRelatedMixin, admin.TabularInline):
     model = WorkReception
     extra = 0
     fields = ['reception', 'type', 'work']
@@ -636,7 +641,7 @@ class WorkReceptionInlineFromReception(WorkReceptionInline):
     verbose_name = 'Received work'
 
 
-class WorkCirculationInline(NoDeleteRelatedMixin, admin.TabularInline):
+class WorkCirculationInline(RemoveActionsForRelatedMixin, admin.TabularInline):
     model = WorkCirculation
     extra = 0
     fields = ['circulation', 'type', 'work']
@@ -730,14 +735,14 @@ class ReceptionTypeAdmin(ShewroteModelAdmin):
     inlines = [ReadOnlyPersonReceptionInline, ReadOnlyWorkReceptionInline, ReadOnlyEditionReceptionInline]
 
 
-class ReceptionLanguageInline(NoDeleteRelatedMixin, admin.TabularInline):
+class ReceptionLanguageInline(RemoveActionsForRelatedMixin, admin.TabularInline):
     model = ReceptionLanguage
     fields = ["reception", "language"]
     extra = 0
     verbose_name = "Language"
 
 
-class ReceptionGenreInline(NoDeleteRelatedMixin, admin.TabularInline):
+class ReceptionGenreInline(RemoveActionsForRelatedMixin, admin.TabularInline):
     model = ReceptionGenre
     fields = ["reception", "genre"]
     extra = 0
