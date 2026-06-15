@@ -220,6 +220,7 @@ class PlaceAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
                ReadOnlyCollectivePlaceInline, ReadOnlyEditionPlaceInline]
     autocomplete_fields = ['modern_country']
     fill_field_name = 'place_wikidata'
+    exclude = ['cerl_id']
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
