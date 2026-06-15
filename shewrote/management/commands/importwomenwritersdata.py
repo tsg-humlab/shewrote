@@ -287,8 +287,8 @@ class Command(BaseCommand):
             place_of_death = self.get_place(death_place[0]["id"]) if death_place else None
 
             self.new_persons[uuid] = Person(id=uuid, short_name=short_name, first_name=forenames, birth_name=surnames,
-                                            date_of_birth=person.get('birthDate', ''),
-                                            date_of_death=person.get('deathDate', ''),
+                                            year_of_birth=person.get('birthDate', ''),
+                                            year_of_death=person.get('deathDate', ''),
                                             place_of_birth=place_of_birth, place_of_death=place_of_death,
                                             alternative_birth_date='', alternative_death_date='', sex=sex,
                                             alternative_name_gender='', professional_ecclesiastic_title='',
