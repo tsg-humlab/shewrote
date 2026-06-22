@@ -113,7 +113,9 @@ def get_country_or_place_q(filter, qs_filter_prefix: str) -> Q:
         return Q()
     countries = [obj for obj in filter if isinstance(obj, Country)]
     places = [obj for obj in filter if isinstance(obj, Place)]
-    return Q(**{qs_filter_prefix + '__in':places}) | Q(**{qs_filter_prefix+'__name__in':countries})
+    return (Q(**{qs_filter_prefix + '__in':places}) |
+            Q(**{qs_filter_prefix+'__modern_country__in':countries}) |
+            Q(**{qs_filter_prefix+'__name__in':[country.modern_country for country in countries]}))
 
 
 def filter_persons_with_form(persons: QuerySet[Person], search_form: PersonSearchForm) -> QuerySet[Person]:
