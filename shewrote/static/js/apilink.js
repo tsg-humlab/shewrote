@@ -124,7 +124,7 @@
                             if(django.jQuery("#reset_"+fieldName).length) {
                                 django.jQuery("#reset_"+fieldName).replaceWith(resetElem);
                             } else {
-                                field.closest(".form-row").append(resetElem)
+                                django.jQuery(resetElem).insertAfter(field);
                             }
                         }
                     });
