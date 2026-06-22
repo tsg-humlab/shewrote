@@ -921,7 +921,9 @@ class FillFieldsView(AutoResponseView):
             field_values['birth_name'] = get_wikidata_label_for_property(data, 'P1477')
 
             for event, prop in [('birth', 'P569'), ('death', 'P570')]:
-                dates = get_nested_object(data, ('statements', prop))
+                dates = get_nested_object(data, ('statements', prop), None)
+                if not dates:
+                    continue
                 date_index = next((index for index, date in enumerate(dates) if date['rank'] == 'preferred'), 0)
                 date = get_nested_object(dates, (date_index, 'value', 'content', 'time', slice(1, 11)), '')
                 field_values[f'date_of_{event}'] = next(iter(re.findall(r"^(\d{4})", date)), '')
