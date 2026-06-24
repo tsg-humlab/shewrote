@@ -108,7 +108,12 @@ class ApiSelectWidget(HeavySelect2Widget):
                 type="button">Fill in</button>
             </div>
             <div id='api_object_exists_{model_field_name}' style="display: none;" data-django-model="{model.__name__}">
-                <p style="color: red; margin: .4em 1em 0em 1em">A {model.__name__} with this Wikidata ID already exists.</p>
+                <p style="color: red; margin: .4em 1em 0em 1em">
+                    A {model.__name__.lower()} with this Wikidata ID already exists.
+                    <a href="" target="_blank" style="margin-left:1em">
+                        <img src="/static/admin/img/icon-viewlink.svg" alt="View"> View that {model.__name__.lower()}
+                    </a>
+                </p>
             </div>
             <script src="{settings.STATIC_URL}{self.js}"></script>
         """)

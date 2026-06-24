@@ -59,6 +59,7 @@
                     api_duplicate_indicator[0].style.display = 'none';
                 },
                 success: function(result) {
+                    api_duplicate_indicator.find('a').attr("href", result['href']);
                     api_duplicate_indicator[0].style.display = result['exists'] == true ? 'block' : 'none';
                 }
             });

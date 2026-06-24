@@ -2,6 +2,7 @@ import html
 import re
 
 import requests
+from django.urls import reverse_lazy
 from requests import Response
 
 from django.utils import translation
@@ -943,6 +944,8 @@ class ObjectExistsWikidataView(AutoResponseView):
     """Returns whether an object exists given the model name and Wikidata ID"""
     def get(self, request, model_name, wikidata_id):
         model = apps.get_model(app_label=ShewroteConfig.name, model_name=model_name)
+        first = model.objects.filter(wikidata_id=wikidata_id).first()
         return JsonResponse({
-            'exists': model.objects.filter(wikidata_id=wikidata_id).exists()
+            'exists': first is not None,
+            'href': reverse_lazy(f'admin:{first._meta.app_label}_{first._meta.model_name}_change', args=(first.pk,)) if first else '',
         })
