@@ -176,7 +176,7 @@ class PlaceInline(TabularInlinePaginated, ReadOnlyInline):
 
 @admin.register(Country)
 class CountryAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
-    search_fields = ["modern_country"]
+    search_fields = ["modern_country", "wikidata_id__iexact"]
     inlines = [PlaceInline]
     fill_field_name = 'country_wikidata'
 
@@ -224,7 +224,7 @@ class ReadOnlyEditionPlaceInline(TabularInlinePaginated, ReadOnlyInline):
 
 @admin.register(Place)
 class PlaceAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
-    search_fields = ["name"]
+    search_fields = ["name", "wikidata_id__iexact"]
     inlines = [PersonPlaceOfBirthInline, PersonPlaceOfDeathInline, PeriodsOfResidenceInline,
                ReadOnlyCollectivePlaceInline, ReadOnlyEditionPlaceInline]
     autocomplete_fields = ['modern_country']
@@ -468,7 +468,7 @@ class PersonAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
         alternative_name_q = Q()
         for word in search_term.split():
             alternative_name_q &= Q(alternativename__alternative_name__unaccent__icontains=word)
-        queryset = queryset.filter(short_name_q | alternative_name_q).distinct()
+        queryset = queryset.filter(short_name_q | alternative_name_q | Q(wikidata_id__iexact=search_term)).distinct()
         return queryset, False
 
 
