@@ -933,12 +933,8 @@ class FillFieldsView(AutoResponseView):
             field_values['sex'] = getattr(Person.GenderChoices, sex.upper()).value \
                                     if sex and hasattr(Person.GenderChoices, sex.upper()) else None
 
-            # place_of_{birth,death} fields cannot be used because, while the application language is English,
-            # the name of places are not always in English, e.g.
-            # - Den Haag (Dutch) vs The Hague (see https://www.wikidata.org/wiki/Q36600)
-            # - Köln (German) vs Cologne (see https://www.wikidata.org/wiki/Q365)
-            # field_values['place_of_birth'] = get_option_from_wikidata_property(data, 'P19', Place)
-            # field_values['place_of_death'] = get_option_from_wikidata_property(data, 'P20', Place)
+            field_values['place_of_birth'] = get_option_from_wikidata_property(data, 'P19', Place)
+            field_values['place_of_death'] = get_option_from_wikidata_property(data, 'P20', Place)
 
         return {k:v for k,v in field_values.items() if v}  # Leave out items with empty values
 
