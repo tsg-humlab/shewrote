@@ -782,10 +782,8 @@ def merge_users(request):
 def get_wikidata_label_translations(api_id, field_name):
     field_values = {}
     for language_code, _ in settings.LANGUAGES:
-        response = requests.get(settings.WIKIDATA_LABEL_URL.format(api_id, language_code),
-                                headers={'accept': 'application/json',
-                                         'Authorization': f'Bearer {settings.WIKIDATA_API_KEY}'})
-        if response.status_code == requests.codes.ok:
+        response, request_failed = get_wikidata_label(api_id, language_code)
+        if not request_failed and response.status_code == requests.codes.ok:
             field_values[field_name] = response.json()
     return field_values
 
@@ -794,10 +792,8 @@ def get_wikidata_label_for_property(data, property, index=0, language='en'):
     id = get_nested_object(data, ('statements', property, index, 'value', 'content'), None)
     if not id:
         return ''
-    resp = requests.get(settings.WIKIDATA_LABEL_URL.format(id, language),
-                        headers={'accept': 'application/json',
-                                 'Authorization': f'Bearer {settings.WIKIDATA_API_KEY}'})
-    return resp.json() if resp.status_code == requests.codes.ok else ''
+    response, request_failed = get_wikidata_label(id, language)
+    return response.json() if (not request_failed and response.status_code == requests.codes.ok) else ''
 
 
 def get_or_create_object_from_wikidata_id(wikidata_id, property, model):
@@ -917,7 +913,10 @@ class FillFieldsView(AutoResponseView):
         api_id = request.GET.get('api_id', "")
         field_values = {}
         if data := get_wikidata_statements(api_id):
-            field_values['short_name'] = get_wikidata_label(api_id)
+            response, request_failed = get_wikidata_label(api_id)
+            field_values['short_name'] = response.json() \
+                                            if (not request_failed and response.status_code == requests.codes.ok) \
+                                            else ''
             field_values['first_name'] = get_wikidata_label_for_property(data, 'P735')
             field_values['birth_name'] = get_wikidata_label_for_property(data, 'P1477')
 

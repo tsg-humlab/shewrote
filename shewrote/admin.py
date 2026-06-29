@@ -26,6 +26,7 @@ from .models import (Country, Place, Person, Education, PersonEducation, Role, P
                      WorkReception, EditionReception, PersonPersonRelation, RelationType, WorkLanguage, Circulation,
                      PersonCirculation, WorkCirculation, EditionCirculation, CirculationSource, CirculationSourceType,
                      PersonCirculationSource, PersonCirculationSourceRole)
+from .wikidata_api import get_wikidata_label
 
 
 def pretty_json(self, instance, field_name):
@@ -134,15 +135,24 @@ class WikidataMixin:
             form.base_fields['wikidata_id'].widget = ApiSelectWidget(data_view='shewrote:wikidata', api_info=api_info)
             return form
 
-        language_code = translation.get_language()
-        api_key = settings.WIKIDATA_API_KEY
-        response = requests.get(settings.WIKIDATA_LABEL_URL.format(obj.wikidata_id, language_code),
-                                headers={'accept': 'application/json', 'Authorization': f'Bearer {api_key}',
-                                         'User-Agent': 'https://shewrote.rich.ru.nl/'})
+        response, request_failed = get_wikidata_label(obj.wikidata_id, translation.get_language())
+        request_with_language = True
+        if request_failed or response.status_code != requests.codes.ok:
+            response, request_failed = get_wikidata_label(obj.wikidata_id, '')
+            request_with_language = False
+
+        if request_failed or response.status_code != requests.codes.ok:
+            label = obj.wikidata_id
+            description = "Data could not be fetched from WikiData."
+        else:
+            label = str(response.json()) if request_with_language else response.json().get('mul', 'No WikiData label.')
+            description = obj.wikidata_id
+
         text = f"""
             <div>
-                <b>{str(response.json())}</b>
-                <span style='color: dimgray; margin-left: auto; margin-right: 0'>{obj.wikidata_id}</span>
+                <b>{label}</b>
+                <br/>
+                <small>{description}</small>
             </div>
         """
 
