@@ -70,6 +70,13 @@ class Wikidata(models.Model):
         return settings.WIKIDATA_URL.format(self.wikidata_id)
 
 
+class EditingNotesFileMixin(models.Model):
+    editing_notes_file = models.FileField(upload_to='editingnotes/%Y/%m/%d', null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
 # # # END Helper classes and functions # # #
 
 
@@ -107,7 +114,7 @@ class Place(Wikidata, models.Model):
         return self.name
 
 
-class Person(Wikidata, EasyAuditMixin, ComputedFieldsModel):
+class Person(EditingNotesFileMixin, Wikidata, EasyAuditMixin, ComputedFieldsModel):
     """Represents a person."""
 
     class GenderChoices(models.TextChoices):
@@ -449,7 +456,7 @@ class CollectiveType(models.Model):
         return self.type_of_collective
 
 
-class Collective(models.Model):
+class Collective(EditingNotesFileMixin, models.Model):
     """Represents a Collective with multiple Persons as members in multiple Places."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
@@ -530,7 +537,7 @@ class IsSourceWorkManager(models.Manager):
         return super().get_queryset().filter(**{'original_data__@relations__isDocumentSourceOf__isnull': False})
 
 
-class Work(EasyAuditMixin, ComputedFieldsModel):
+class Work(EditingNotesFileMixin, EasyAuditMixin, ComputedFieldsModel):
     """Represent a Work by a Person that may have multiple Editions."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=1024)
@@ -613,7 +620,7 @@ class WorkLanguage(models.Model):
     language = models.ForeignKey(Language, models.PROTECT, null=True)
 
 
-class Edition(EasyAuditMixin, models.Model):
+class Edition(EditingNotesFileMixin, EasyAuditMixin, models.Model):
     """Represents an Edition of a Work published in a Place."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     related_work = models.ForeignKey(Work, on_delete=models.PROTECT)
@@ -715,7 +722,7 @@ class AbstractReception(EasyAuditMixin, models.Model):
         return self.title
 
 
-class Reception(AbstractReception):
+class Reception(EditingNotesFileMixin, AbstractReception):
     is_same_as_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="is_same_as_reception",
                                         verbose_name="is same as work")
     part_of_work = models.ForeignKey(Work, models.SET_NULL, null=True, blank=True, related_name="contained_receptions")
@@ -794,7 +801,7 @@ class ReceptionGenre(models.Model):
     genre = models.ForeignKey(Genre, models.PROTECT, null=True)
 
 
-class Circulation(AbstractReception):
+class Circulation(EditingNotesFileMixin, AbstractReception):
     shelf_mark = models.TextField(blank=True)
     received_persons = models.ManyToManyField(
         Person,

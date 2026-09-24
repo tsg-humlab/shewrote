@@ -1,32 +1,38 @@
 {% load i18n %}
 {% load object_info %}
         {% with object.get_last_edit as crudevent %}
-            {% if crudevent %}
+            {% if crudevent or object.editing_notes_file %}
                 <h6 class="text-muted">
-                    Last edited by <i>{{ crudevent.user.username|default:"unknown" }}</i> on {{ crudevent.datetime }}
-                    {% with object|content_type as object_content_type %}
-                    <button
-                        hx-get="{% url 'shewrote:list_of_changes' object_content_type.id object.pk %}"
-                        hx-target="#modal_list_of_changes"
-                        hx-trigger="click"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modal_list_of_changes"
-                        class="btn btn-link py-0 px-1 mb-1"
-                        title="View the list of changes"
-                    >
-                        {% translate 'View full list of record editors' %}
-                    </button>
+                    {% if crudevent %}
+                        Last edited by <i>{{ crudevent.user.username|default:"unknown" }}</i> on {{ crudevent.datetime }}
+                        {% with object|content_type as object_content_type %}
+                        <button
+                            hx-get="{% url 'shewrote:list_of_changes' object_content_type.id object.pk %}"
+                            hx-target="#modal_list_of_changes"
+                            hx-trigger="click"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modal_list_of_changes"
+                            class="btn btn-link py-0 px-1 mb-1"
+                            title="View the list of changes"
+                        >
+                            {% translate 'View full list of record editors' %}
+                        </button>
 
-                    <div id="modal_list_of_changes"
-                        class="modal modal-blur fade"
-                        style="display: none"
-                        aria-hidden="false"
-                        tabindex="-1">
-                        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                            <div class="modal-content"></div>
+                        <div id="modal_list_of_changes"
+                            class="modal modal-blur fade"
+                            style="display: none"
+                            aria-hidden="false"
+                            tabindex="-1">
+                            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                <div class="modal-content"></div>
+                            </div>
                         </div>
-                    </div>
-                    {% endwith %}
+                        {% endwith %}
+                    {% endif %}
+
+                    {% if object.editing_notes_file %}
+                        <a href="{{ object.editing_notes_file.url }}">Editing notes</a>
+                    {% endif %}
                 </h6>
             {% endif %}
         {% endwith %}
