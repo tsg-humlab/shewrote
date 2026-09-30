@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.conf import settings
 
 from computedfields.models import ComputedFieldsModel, computed
+from django_object_lock.models import LockableModel
 
 from easyaudit.models import CRUDEvent
 
@@ -77,6 +78,19 @@ class EditingNotesFileMixin(models.Model):
         abstract = True
 
 
+class SimpleLockableModel(LockableModel):
+    is_locked_flag = models.BooleanField(_("Locked"), default=False)
+
+    class Meta:
+        abstract = True
+
+    def is_locked(self) -> bool:
+        return self.is_locked_flag
+
+    def set_locked(self, value: bool) -> None:
+        self.is_locked_flag = value
+
+
 # # # END Helper classes and functions # # #
 
 
@@ -114,7 +128,7 @@ class Place(Wikidata, models.Model):
         return self.name
 
 
-class Person(EditingNotesFileMixin, Wikidata, EasyAuditMixin, ComputedFieldsModel):
+class Person(SimpleLockableModel, EditingNotesFileMixin, Wikidata, EasyAuditMixin, ComputedFieldsModel):
     """Represents a person."""
 
     class GenderChoices(models.TextChoices):

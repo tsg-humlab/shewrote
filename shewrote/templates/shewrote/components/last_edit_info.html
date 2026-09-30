@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load object_info %}
         {% with object.get_last_edit as crudevent %}
-            {% if crudevent or object.editing_notes_file %}
+            {% if crudevent or object.editing_notes_file or object.is_locked %}
                 <h6 class="text-muted">
                     {% if crudevent %}
                         Last edited by <i>{{ crudevent.user.username|default:"unknown" }}</i> on {{ crudevent.datetime }}
@@ -33,6 +33,15 @@
                     {% if object.editing_notes_file %}
                         <a href="{{ object.editing_notes_file.url }}">Editing notes</a>
                     {% endif %}
+
+                    {% if object.is_locked %}
+                        <span class="float-end text-success" title="{% translate 'This is a curated record.' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                          <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/>
+                        </svg>
+                            </span>
+                    {% endif %}
                 </h6>
             {% endif %}
         {% endwith %}
+

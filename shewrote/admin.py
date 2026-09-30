@@ -12,6 +12,7 @@ from django.utils.html import html_safe
 from django.conf import settings
 from django.urls import reverse
 from django.utils import translation
+from django_object_lock.admin import LockableAdminMixin
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import HtmlFormatter
@@ -133,6 +134,9 @@ class WikidataMixin:
 
         if not obj:
             form.base_fields['wikidata_id'].widget = ApiSelectWidget(data_view='shewrote:wikidata', api_info=api_info)
+            return form
+
+        if not 'wikidata_id' in form.base_fields.keys():
             return form
 
         response, request_failed = get_wikidata_label(obj.wikidata_id, translation.get_language())
@@ -401,12 +405,14 @@ class ChildrenOfInline(TabularInlinePaginated, ReadOnlyInline):
 
 
 @admin.register(Person)
-class PersonAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
-    list_display = ["short_name", "first_name", "birth_name", "sex", "year_of_birth", "place_of_birth",
+class PersonAdmin(LockableAdminMixin, WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
+    list_display = ["is_locked_flag", "short_name", "first_name", "birth_name", "sex", "year_of_birth", "place_of_birth",
                     "year_of_death", "place_of_death", 'view_on_site_link']
+    list_display_links = ["short_name"]
     search_fields = ['short_name']
     ordering = ['short_name']
-    list_filter = ["sex", "place_of_birth__modern_country__modern_country"]
+    list_filter = ["sex", "place_of_birth__modern_country__modern_country", "is_locked_flag"]
+    actions = ('lock', 'unlock')
     autocomplete_fields = [
         "place_of_birth",
         "place_of_death",
@@ -436,7 +442,8 @@ class PersonAdmin(WikidataMixin, PrettyOriginalDataMixin, ShewroteModelAdmin):
             (
                 None,
                 {
-                    "fields": ["wikidata_id",
+                    "fields": ["is_locked_flag",
+                               "wikidata_id",
                                ("short_name", "viaf_or_cerl"),
                                ("first_name", "birth_name",),
                                "sex",

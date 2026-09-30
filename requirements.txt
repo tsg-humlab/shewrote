@@ -5,6 +5,7 @@ django-admin-interface==0.28.6
 django_bootstrap5==24.2
 django-computedfields==0.2.6
 django-easy-audit==1.3.5
+django-object-lock
 django-select2==8.1.2
 gunicorn==21.2.0
 Pygments==2.18.0
