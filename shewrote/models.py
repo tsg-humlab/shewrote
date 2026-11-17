@@ -573,6 +573,9 @@ class Work(EasyAuditMixin, ComputedFieldsModel):
         """Returns the title of the Work"""
         return self.title
 
+    def get_absolute_url(self):
+        return reverse('shewrote:work', kwargs={'work_id': self.pk})
+
     def get_creators(self):
         return Person.objects.filter(personwork__work=self, personwork__role__name="is creator of")
 

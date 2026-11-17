@@ -20,6 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from .views import robots
+from shewrote.api import api
 
 urlpatterns = [
     path(settings.ADMIN_URL_NAME+'/', admin.site.urls),
@@ -27,6 +28,9 @@ urlpatterns = [
     path("accounts/", include('django.contrib.auth.urls')),
     path("select2/", include("django_select2.urls")),
     path('', include('shewrote.urls')),
+
+    # API
+    path("api/v1/", api.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

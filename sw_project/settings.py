@@ -226,3 +226,7 @@ WIKIDATA_LABEL_URL = 'https://www.wikidata.org/w/rest.php/wikibase/v1/entities/i
 WIKIDATA_URL = 'https://www.wikidata.org/wiki/{}'
 WIKIDATA_SUGGEST_URL = 'https://www.wikidata.org/w/rest.php/wikibase/v1/suggest/items'
 WIKIDATA_STATEMENTS_URL = 'https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/{}?_fields=statements'
+
+API_TITLE="SHEWROTE search API"
+API_DESCRIPTION="A search API for the PRINT-ROADS centralized search."
+PRINT_ROADS_API_KEY = config('PRINT_ROADS_API_KEY')
