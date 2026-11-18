@@ -1,9 +1,18 @@
 from typing import Annotated
 
-from ninja import ModelSchema, FilterSchema, FilterLookup
+from ninja import ModelSchema, FilterSchema, FilterLookup, Schema
 from pydantic import Field
 
 from shewrote.models import Place, Person, Role, PersonWork, Work
+
+
+class UrlSchema(Schema):
+    url: str
+
+    @staticmethod
+    def resolve_url(obj, context) -> str:
+        request = context["request"]
+        return f'{request.scheme}://{request.get_host()}{obj.get_absolute_url()}'
 
 
 class PlaceSchema(ModelSchema):
@@ -12,10 +21,9 @@ class PlaceSchema(ModelSchema):
         fields = ["id", "name"]
 
 
-class PersonSchema(ModelSchema):
+class PersonSchema(UrlSchema, ModelSchema):
     place_of_birth: PlaceSchema
     place_of_death: PlaceSchema
-    url: str = Field(..., alias="get_absolute_url")
 
     class Meta:
         model = Person
@@ -29,8 +37,7 @@ class PersonFilterSchema(FilterSchema):
     ] = None
 
 
-class CompactPersonSchema(ModelSchema):
-    url: str = Field(..., alias="get_absolute_url")
+class CompactPersonSchema(UrlSchema, ModelSchema):
 
     class Meta:
         model = Person
@@ -52,10 +59,9 @@ class PersonWorkSchema(ModelSchema):
         fields = ["person", "role"]
 
 
-class WorkSchema(ModelSchema):
+class WorkSchema(UrlSchema, ModelSchema):
     related_persons: list[PersonWorkSchema] = Field(..., alias="personwork_set")
     date_of_publication: str = Field(..., alias="date_of_publication_text")
-    url: str = Field(..., alias="get_absolute_url")
 
     class Meta:
         model = Work
